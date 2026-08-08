@@ -1,0 +1,62 @@
+edition = "2023";
+
+package app;
+
+import "app/asset.proto";
+import "payday/tenant_svc.proto";
+
+option go_package = "github.com/lesomnus/custody";
+
+// What this app adds to the generated contract of an Asset.
+//
+// It is an overlay rather than a file of its own because `AssetRef` does not
+// exist until the contract is generated -- a hand-written RPC that names a row
+// the way every other RPC names one has to be merged into the place those names
+// live. That is what `proto.ext/` is for.
+//
+// It is also the whole of what payday says an app writes: the CRUD is
+// generated, the general writes are closed, and an operation that means
+// something is a real RPC with a real rule, written here.
+service AssetService {
+  // Transfer moves an asset from the tenant that holds it to another.
+  //
+  // # Why it cannot be a Patch
+  //
+  // `Asset.tenant` is mutable, so `Patch` could set it. That is exactly why
+  // `Patch` and `Apply` are closed to callers: they write any field the schema
+  // has, so a rule attached to one field is a rule a general write walks past.
+  // This is where the rule lives, and closing the general writes is what makes
+  // it the only door.
+  //
+  // # Three things happen and only the first is a write
+  //
+  //   - the asset changes tenant, so it leaves the wall it was behind;
+  //   - the keeper is cleared, because being answerable for something does not
+  //     travel with it -- that person is in the tenant it left;
+  //   - and the trail stays behind. `Audit` stamps the tenant of the **actor**,
+  //     so the receiving tenant reads what has happened since it arrived and
+  //     nothing before. That is payday's decision rather than this app's, and
+  //     `payday/audit.proto` writes it out: receiving something does not come
+  //     with the right to read what its previous owner did inside their own
+  //     walls.
+  rpc Transfer(AssetTransferRequest) returns (Asset);
+}
+
+message AssetTransferRequest {
+  // The asset, named the way anything else names one. It is read through the
+  // wall, so a caller who cannot see it is told NotFound rather than refused --
+  // that it exists is itself something not to say.
+  AssetRef ref = 1;
+
+  // Where it goes.
+  //
+  // Whether the caller may name this tenant is the whole of the rule, and it is
+  // not a predicate: the row has not moved yet, so there is nothing to narrow.
+  // It is the same shape as payday's own "a holder is added to a tenant you can
+  // see", which is a layer rather than a wall.
+  payday.TenantRef to = 2;
+
+  // Why, for the trail. Required, because a transfer with no reason is one
+  // nobody can explain a year later.
+  string reason = 3;
+}

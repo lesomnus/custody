@@ -1,0 +1,56 @@
+edition = "2023";
+
+package app;
+
+option features.field_presence = IMPLICIT;
+option go_package = "github.com/lesomnus/custody";
+
+// CatalogueService is what anybody may read, and it is a **different message**
+// rather than the asset without a wall.
+//
+// That distinction is the point of it being here. Making `Asset` publicly
+// readable at the schema level would publish every field it has -- and nobody
+// wants the location and the keeper published. So what is public is a different
+// shape of the same row, and a different shape is a different message, which is
+// a different RPC.
+//
+// What that buys, said plainly:
+//
+//   - the walled path keeps no hole. `Asset.Get` narrows as it always did, and
+//     there is no flag anywhere that turns it off;
+//   - the projection is written down, so a field added to `Asset` tomorrow is
+//     not published by having been forgotten;
+//   - and "which rows are public" is this app's predicate, in this app's code,
+//     beside the rule that says who may set `listed`.
+//
+// It is served without a frame -- there is nobody asking -- so it runs against
+// a server the wall was never installed on, and every narrowing it does is its
+// own. That is the one place in this app where that is true, and it is one
+// short file for exactly that reason.
+service CatalogueService {
+  rpc Search(CatalogueSearchRequest) returns (CatalogueSearchResponse);
+}
+
+message CatalogueSearchRequest {
+  // A page, in the same words a generated List takes one: nothing means the
+  // first, and what comes back says how to ask for the next.
+  string next = 1;
+  uint32 size = 2;
+}
+
+message CatalogueSearchResponse {
+  repeated CatalogueItem items = 1;
+  string next = 2;
+}
+
+// CatalogueItem is the public shape of an asset: what it is called and what it
+// is, and nothing about where it is or who has it.
+message CatalogueItem {
+  // The identifier, which says what kind of thing it is by carrying its domain
+  // -- and says nothing about which tenant holds it.
+  bytes id = 1;
+
+  string alias = 4;
+  string name = 5;
+  string desc = 6;
+}

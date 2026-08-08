@@ -1,0 +1,142 @@
+edition = "2023";
+
+package app;
+
+import "payday/holder.proto";
+import "payday/tenant.proto";
+import "google/protobuf/timestamp.proto";
+import "orm.proto";
+import "payday.proto";
+
+option features.field_presence = IMPLICIT;
+option go_package = "github.com/lesomnus/custody";
+
+// Asset is a thing the company owns and somebody is answerable for.
+//
+// Tangible or not: a laptop, a licence, a domain name, a machine on a factory
+// floor. What they have in common is the only thing this schema asserts -- a
+// tenant holds it, somebody is responsible for it, and it is somewhere.
+message Asset {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+
+  // The tenant that holds this asset, and it is **not immutable** -- which is
+  // the one line of this schema worth arguing about.
+  //
+  // Every other entity payday ships marks this edge `immutable: true`, because
+  // moving a row between tenants moves it between walls and almost nothing
+  // should. An asset is the exception this project exists to explore: a laptop
+  // goes from one subsidiary to another, and the row that names it is the same
+  // row.
+  //
+  // Making it mutable has a consequence worth stating rather than discovering.
+  // `Patch` and `Apply` can write any field the schema has, so with this edge
+  // mutable they can move an asset between tenants -- which is exactly what
+  // `Transfer` exists to put rules around. They are closed to callers by
+  // default (`grpcx.Closed`), and this app leaves them closed. Opening them
+  // would make every rule in `Transfer` optional.
+  payday.Tenant tenant = 2 [(orm.edge) = {}];
+
+  // The asset number, which is what a person writes on a sticker and reads back
+  // over a phone. It is the alias, so it is folded and checked on the way in
+  // and `@acme/lt-0042` reaches this row.
+  string alias = 4;
+
+  string name = 5;
+  string desc = 6;
+  map<string, string> labels = 7;
+
+  // The holder answerable for this asset. An edge rather than a name, because
+  // "who is responsible" has to stop being true when that person is gone.
+  //
+  // It is optional: an asset in a store room is nobody's until it is issued.
+  payday.Holder keeper = 8 [(orm.edge) = {nullable: true}];
+
+  // Where it is, as a person would say it: "Seoul HQ 7F", "warehouse B, rack
+  // 12", "https://console.example.com". Text rather than a structure, because
+  // a location that is a structure is a second schema nobody asked for -- and
+  // an asset manager that cannot say "on loan to a customer" is one people
+  // route around.
+  string location = 9;
+
+  // Whether this asset appears in the public catalogue.
+  //
+  // It does **not** make the row publicly readable. What the catalogue serves
+  // is a different message with fewer fields; see `catalogue.proto` for why
+  // that is a projection rather than a wall with a hole in it.
+  bool listed = 10;
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [
+          {
+            name: "date_created"
+            number: 15
+          },
+          {
+            name: "id"
+            number: 1
+          }
+        ]
+      },
+      {
+        name: "slug"
+        refs: [
+          {
+            name: "alias"
+            number: 4
+          },
+          {
+            name: "tenant"
+            number: 2
+          }
+        ]
+        unique: true
+      },
+      // What the catalogue reads. Without it the public search scans the table
+      // that grows fastest and sorts what it finds.
+      {
+        name: "listed"
+        refs: [
+          {
+            name: "listed"
+            number: 10
+          },
+          {
+            name: "date_created"
+            number: 15
+          }
+        ]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 7
+
+    // Nothing about tenancy, which is the declaration: behind the wall, by the
+    // edge called `tenant`. Every read of an asset is narrowed to the tenants
+    // the caller may see, including the reads `Transfer` makes.
+
+    list: {
+      order: [{field: "date_created"}, {field: "id"}]
+      by: ["ref", "listed"]
+      size: 20
+      max: 100
+    }
+
+    watch: {}
+  };
+}

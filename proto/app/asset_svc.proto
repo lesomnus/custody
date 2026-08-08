@@ -1,0 +1,243 @@
+edition = "2023";
+package app;
+
+import "app/asset.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "patch/patch.proto";
+import "payday/holder_svc.proto";
+import "payday/tenant_svc.proto";
+
+
+option go_package = "github.com/lesomnus/custody";
+
+service AssetService {
+  // Add creates a new Asset
+  rpc Add(AssetAddRequest) returns (Asset);
+  // Get retrieves a Asset
+  rpc Get(AssetGetRequest) returns (Asset);
+  // Patch updates an existing Asset
+  rpc Patch(AssetPatchRequest) returns (Asset);
+  // Apply applies a patch document to an existing Asset
+  rpc Apply(AssetApplyRequest) returns (Asset);
+  // Erase deletes a Asset
+  rpc Erase(AssetRef) returns (google.protobuf.Empty);
+  // List reads Assets a page at a time.
+  rpc List(AssetListRequest) returns (AssetListResponse);
+  // Watch the Assets this caller may see, as they are now and as they change.
+  //
+  // What arrives is **state and never a delta**, so a client converges rather
+  // than replays: it keeps what it was last told about a row and replaces it.
+  // An event it did not receive is one it does not need, since the next one
+  // about that row carries the whole of it.
+  //
+  // The first message is everything that matches right now, so a client does
+  // not have to List first and race the subscription. A row may arrive twice --
+  // once in that first message and once as a change that happened while it was
+  // being read -- and that is harmless for the same reason.
+  rpc Watch(AssetWatchRequest) returns (stream AssetWatchResponse);
+  // Transfer moves an asset from the tenant that holds it to another.
+  //
+  // # Why it cannot be a Patch
+  //
+  // `Asset.tenant` is mutable, so `Patch` could set it. That is exactly why
+  // `Patch` and `Apply` are closed to callers: they write any field the schema
+  // has, so a rule attached to one field is a rule a general write walks past.
+  // This is where the rule lives, and closing the general writes is what makes
+  // it the only door.
+  //
+  // # Three things happen and only the first is a write
+  //
+  //   - the asset changes tenant, so it leaves the wall it was behind;
+  //   - the keeper is cleared, because being answerable for something does not
+  //     travel with it -- that person is in the tenant it left;
+  //   - and the trail stays behind. `Audit` stamps the tenant of the **actor**,
+  //     so the receiving tenant reads what has happened since it arrived and
+  //     nothing before. That is payday's decision rather than this app's, and
+  //     `payday/audit.proto` writes it out: receiving something does not come
+  //     with the right to read what its previous owner did inside their own
+  //     walls.
+  rpc Transfer(AssetTransferRequest) returns (Asset);
+}
+
+message AssetAddRequest {
+  bytes id = 1;
+  payday.TenantRef tenant = 2;
+  string alias = 4 [features.field_presence = IMPLICIT];
+  string name = 5 [features.field_presence = IMPLICIT];
+  string desc = 6 [features.field_presence = IMPLICIT];
+  map<string, string> labels = 7;
+  payday.HolderRef keeper = 8;
+  string location = 9 [features.field_presence = IMPLICIT];
+  bool listed = 10 [features.field_presence = IMPLICIT];
+  google.protobuf.Timestamp date_created = 15;
+}
+
+message AssetGetRequest {
+  AssetRef ref = 1;
+  AssetSelect select = 2;
+}
+
+message AssetRef {
+  oneof key {
+    bytes id = 1;
+    AssetRefBySlug slug = 4;
+  }
+}
+
+message AssetRefBySlug {
+  string alias = 4;
+  payday.TenantRef tenant = 2;
+}
+
+message AssetSelect {
+  bool all = 1;
+  payday.TenantSelect tenant = 2;
+  bool alias = 4;
+  bool name = 5;
+  bool desc = 6;
+  bool labels = 7;
+  payday.HolderSelect keeper = 8;
+  bool location = 9;
+  bool listed = 10;
+  bool date_updated = 13;
+  bool date_created = 15;
+}
+
+message AssetPatchRequest {
+  AssetRef ref = 1;
+  payday.TenantRef tenant = 4;
+  string alias = 8;
+  string name = 10;
+  string desc = 12;
+  map<string, string> labels = 14;
+  payday.HolderRef keeper = 16;
+  // Clear keeper instead of writing it.
+  // It takes a field of its own because an unset value already means
+  // "leave it alone", so no value could have meant NULL. It wins
+  // outright: setting both this and keeper clears.
+  bool keeper_null = 17;
+  string location = 18;
+  bool listed = 20;
+  // The version this update requires the stored date_updated to be.
+  // It is a precondition, not a write: the update applies only if the row
+  // still holds this value, and the server stamps the new version itself.
+  // Setting it together with date_updated_force is an error --
+  // the version is the token every client's compare-and-swap is measured
+  // against, so it is not the caller's to choose.
+  google.protobuf.Timestamp date_updated = 26;
+  // Update whatever the stored date_updated is, with no precondition.
+  // The server still stamps a new version, so other clients' tokens are
+  // invalidated as usual; this declines the check for THIS update only.
+  // One of date_updated or this must be set. An omitted version is
+  // refused rather than assumed, because an unset field cannot be told
+  // apart from a caller who never considered locking at all.
+  bool date_updated_force = 27;
+}
+
+message AssetApplyRequest {
+  AssetRef ref = 1;
+  patch.Patch patch = 2;
+}
+
+message AssetListRequest {
+  // Bounded because the work is: each filter is a predicate in the same query,
+  // so this is what says how much of the database one request may read.
+  repeated AssetFilter filters = 1;
+
+  // How many to answer with. Nothing said is what the schema declared, and more
+  // than the cap is the cap -- a caller asking for more than there is meant no
+  // harm, so it is not an error and it is not the whole table either.
+  int32 size = 2 [features.field_presence = IMPLICIT];
+
+  // Where to carry on from: the "next" of the answer before. It names the last
+  // row of that page rather than counting rows from the start, so a row added
+  // ahead of the page does not shift it and a caller reading through never sees
+  // one twice or misses one.
+  string after = 3 [features.field_presence = IMPLICIT];
+}
+
+message AssetListResponse {
+  repeated Asset items = 1;
+
+  // What to ask for next, and empty when this was the last of them.
+  //
+  // Empty means there is no more *for now*: a list is read as it is, and one
+  // that has grown since answers a fresh call. It is not empty merely because
+  // the page came back short -- a page is short when the last row of it was the
+  // last row there was, which is a thing the server can only know by having
+  // looked.
+  string next = 2 [features.field_presence = IMPLICIT];
+}
+
+message AssetFilter {
+  AssetRef ref = 1;
+  bool listed = 2;
+}
+
+message AssetWatchRequest {
+  // Which rows to watch, in the same words List takes them: what is watched is
+  // what that list would answer with, now and afterwards.
+  //
+  // Required, and bounded the way a List is -- for a heavier reason. A list
+  // runs its filters once; a watch runs them again for every write that touches
+  // the entity, for as long as the stream is open. A watch with no filters is
+  // the whole table, forever, which is the one shape that has no cap at all.
+  repeated AssetFilter filters = 1;
+
+  // Skip what is there now and send only what changes from here.
+  //
+  // Off by default, and the default is the safe one: a client that does not
+  // know the current state and did not ask for it holds something wrong until
+  // the next write happens to correct it.
+  bool skip_snapshot = 2 [features.field_presence = IMPLICIT];
+}
+
+message AssetWatchResponse {
+  // What changed, or -- in the first message -- everything that matches.
+  repeated AssetWatchItem items = 1;
+}
+
+message AssetWatchItem {
+  // Which row. Always said, since one that is gone still has to be named.
+  bytes id = 1;
+
+  // The row as it is now, and **absent when it is no longer one this caller may
+  // see**: erased, or moved out of the filters this stream named.
+  //
+  // Absence is the whole of how a removal is said. There is no flag for it, and
+  // there is deliberately no way to tell those two apart -- a stream that
+  // distinguished "erased" from "no longer yours" would be telling a caller
+  // about rows that stopped being theirs, which is the thing the wall is for.
+  //
+  // It is only ever said about a row this stream has already carried. One that
+  // never matched is not news.
+  Asset value = 2;
+
+  // The RPC that changed it, by the name gRPC knows it by. It is what the
+  // caller of *that* RPC asked for and not the write it became, so an RPC
+  // written by hand is here under its own name.
+  //
+  // Empty in the first message, which is not something anybody asked for -- it
+  // is what is already there.
+  string action = 3 [features.field_presence = IMPLICIT];
+}
+
+message AssetTransferRequest {
+  // The asset, named the way anything else names one. It is read through the
+  // wall, so a caller who cannot see it is told NotFound rather than refused --
+  // that it exists is itself something not to say.
+  AssetRef ref = 1;
+
+  // Where it goes.
+  //
+  // Whether the caller may name this tenant is the whole of the rule, and it is
+  // not a predicate: the row has not moved yet, so there is nothing to narrow.
+  // It is the same shape as payday's own "a holder is added to a tenant you can
+  // see", which is a layer rather than a wall.
+  payday.TenantRef to = 2;
+
+  // Why, for the trail. Required, because a transfer with no reason is one
+  // nobody can explain a year later.
+  string reason = 3;
+}
