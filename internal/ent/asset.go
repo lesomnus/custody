@@ -37,11 +37,13 @@ type Asset struct {
 	DateUpdated time.Time `json:"date_updated,omitempty"`
 	// DateCreated holds the value of the "date_created" field.
 	DateCreated time.Time `json:"date_created,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID uuid.UUID `json:"tenant_id,omitempty"`
+	// KeeperID holds the value of the "keeper_id" field.
+	KeeperID uuid.UUID `json:"keeper_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the AssetQuery when eager-loading is set.
 	Edges        AssetEdges `json:"edges"`
-	asset_tenant *uuid.UUID
-	asset_keeper *uuid.UUID
 	selectValues sql.SelectValues
 }
 
@@ -91,12 +93,8 @@ func (*Asset) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case asset.FieldDateUpdated, asset.FieldDateCreated:
 			values[i] = new(sql.NullTime)
-		case asset.FieldID:
+		case asset.FieldID, asset.FieldTenantID, asset.FieldKeeperID:
 			values[i] = new(uuid.UUID)
-		case asset.ForeignKeys[0]: // asset_tenant
-			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
-		case asset.ForeignKeys[1]: // asset_keeper
-			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -168,19 +166,17 @@ func (_m *Asset) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.DateCreated = value.Time
 			}
-		case asset.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field asset_tenant", values[i])
-			} else if value.Valid {
-				_m.asset_tenant = new(uuid.UUID)
-				*_m.asset_tenant = *value.S.(*uuid.UUID)
+		case asset.FieldTenantID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value != nil {
+				_m.TenantID = *value
 			}
-		case asset.ForeignKeys[1]:
-			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field asset_keeper", values[i])
-			} else if value.Valid {
-				_m.asset_keeper = new(uuid.UUID)
-				*_m.asset_keeper = *value.S.(*uuid.UUID)
+		case asset.FieldKeeperID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field keeper_id", values[i])
+			} else if value != nil {
+				_m.KeeperID = *value
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -251,6 +247,12 @@ func (_m *Asset) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("date_created=")
 	builder.WriteString(_m.DateCreated.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("tenant_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TenantID))
+	builder.WriteString(", ")
+	builder.WriteString("keeper_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.KeeperID))
 	builder.WriteByte(')')
 	return builder.String()
 }

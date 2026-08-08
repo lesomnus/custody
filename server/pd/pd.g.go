@@ -10,10 +10,7 @@ package pd
 
 import (
 	context "context"
-	driver "database/sql/driver"
 	dialect "entgo.io/ent/dialect"
-	sql "entgo.io/ent/dialect/sql"
-	fmt "fmt"
 	uuid "github.com/google/uuid"
 	api "github.com/lesomnus/custody/api"
 	ent "github.com/lesomnus/custody/internal/ent"
@@ -122,43 +119,6 @@ type wall struct{}
 
 var _ bare.Scope = wall{}
 
-// args is what a slice of keys looks like to a raw predicate, which takes
-// them one by one.
-func args(vs []uuid.UUID) []driver.Value {
-	ws := make([]driver.Value, len(vs))
-	for i, v := range vs {
-		ws[i] = v
-	}
-
-	return ws
-}
-
-// The wall reads the tenant straight off a foreign key column, which is the
-// tenant's identifier only when the key is on the table it reads from. That
-// is true of every edge a schema can reach a tenant through today -- one row
-// holds one tenant, so the key is on the row -- and it is checked rather
-// than assumed, because the alternative to checking is a wall that narrows
-// to the wrong rows and says nothing.
-//
-// It stops the process, which is the same trade `slug.RandomAliasN` makes:
-// the schema is written in the code rather than carried in a request, so
-// there is nobody to hand an error to.
-func init() {
-	for _, v := range []struct{ entity, own, holds string }{
-		{"app.Asset", asset.Table, asset.TenantTable},
-		{"payday.Holder", holder.Table, holder.TenantTable},
-	} {
-		if v.own == v.holds {
-			continue
-		}
-
-		panic(fmt.Sprintf(
-			`pd: %s: the wall reads the tenant off %q and the key is on %q; `+
-				`narrowing would answer with the wrong rows`,
-			v.entity, v.own, v.holds))
-	}
-}
-
 // AssetScope: a row belongs to the tenant its "tenant" reaches.
 func (wall) AssetScope(ctx context.Context) (predicate.Asset, error) {
 	vs, all, err := frame.Narrow(ctx)
@@ -166,9 +126,7 @@ func (wall) AssetScope(ctx context.Context) (predicate.Asset, error) {
 		return nil, err
 	}
 
-	return predicate.Asset(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(asset.TenantColumn), args(vs)...))
-	}), nil
+	return asset.TenantIDIn(vs...), nil
 }
 
 // AuditScope: a row belongs to the tenant its "tenant_id" names, which it holds without an edge.
@@ -188,9 +146,7 @@ func (wall) HolderScope(ctx context.Context) (predicate.Holder, error) {
 		return nil, err
 	}
 
-	return predicate.Holder(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(holder.TenantColumn), args(vs)...))
-	}), nil
+	return holder.TenantIDIn(vs...), nil
 }
 
 // OutboxScope: declared `global`, so it is not behind the wall at all.

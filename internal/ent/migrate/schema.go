@@ -20,8 +20,8 @@ var (
 		{Name: "listed", Type: field.TypeBool},
 		{Name: "date_updated", Type: field.TypeTime},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
-		{Name: "asset_tenant", Type: field.TypeUUID},
-		{Name: "asset_keeper", Type: field.TypeUUID, Nullable: true},
+		{Name: "tenant_id", Type: field.TypeUUID},
+		{Name: "keeper_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// AssetTable holds the schema information for the "asset" table.
 	AssetTable = &schema.Table{
@@ -49,7 +49,7 @@ var (
 				Columns: []*schema.Column{AssetColumns[8], AssetColumns[0]},
 			},
 			{
-				Name:    "asset_alias_asset_tenant",
+				Name:    "asset_alias_tenant_id",
 				Unique:  true,
 				Columns: []*schema.Column{AssetColumns[1], AssetColumns[9]},
 			},
@@ -100,7 +100,7 @@ var (
 		{Name: "date_erased", Type: field.TypeTime, Nullable: true},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
 		{Name: "idp_subject", Type: field.TypeString, Nullable: true},
-		{Name: "holder_tenant", Type: field.TypeUUID},
+		{Name: "tenant_id", Type: field.TypeUUID},
 	}
 	// HolderTable holds the schema information for the "holder" table.
 	HolderTable = &schema.Table{
@@ -117,7 +117,7 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "holder_alias_holder_tenant",
+				Name:    "holder_alias_tenant_id",
 				Unique:  true,
 				Columns: []*schema.Column{HolderColumns[1], HolderColumns[9]},
 				Annotation: &entsql.IndexAnnotation{

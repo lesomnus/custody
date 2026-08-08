@@ -9,7 +9,7 @@ import (
 	"log"
 	"reflect"
 
-	"github.com/google/uuid"
+	uuid "github.com/google/uuid"
 	"github.com/lesomnus/custody/internal/ent/migrate"
 
 	"entgo.io/ent"

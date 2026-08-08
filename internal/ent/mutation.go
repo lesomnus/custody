@@ -478,27 +478,100 @@ func (m *AssetMutation) ResetDateCreated() {
 	delete(m.clearedFields, asset.FieldDateCreated)
 }
 
-// SetTenantID sets the "tenant" edge to the Tenant entity by id.
-func (m *AssetMutation) SetTenantID(id uuid.UUID) {
-	m.tenant = &id
+// SetTenantID sets the "tenant_id" field.
+func (m *AssetMutation) SetTenantID(u uuid.UUID) {
+	m.tenant = &u
+}
+
+// TenantID returns the value of the "tenant_id" field in the mutation.
+func (m *AssetMutation) TenantID() (r uuid.UUID, exists bool) {
+	v := m.tenant
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTenantID returns the old "tenant_id" field's value of the Asset entity.
+// If the Asset object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AssetMutation) OldTenantID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTenantID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTenantID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTenantID: %w", err)
+	}
+	return oldValue.TenantID, nil
+}
+
+// ResetTenantID resets all changes to the "tenant_id" field.
+func (m *AssetMutation) ResetTenantID() {
+	m.tenant = nil
+}
+
+// SetKeeperID sets the "keeper_id" field.
+func (m *AssetMutation) SetKeeperID(u uuid.UUID) {
+	m.keeper = &u
+}
+
+// KeeperID returns the value of the "keeper_id" field in the mutation.
+func (m *AssetMutation) KeeperID() (r uuid.UUID, exists bool) {
+	v := m.keeper
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldKeeperID returns the old "keeper_id" field's value of the Asset entity.
+// If the Asset object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AssetMutation) OldKeeperID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldKeeperID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldKeeperID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldKeeperID: %w", err)
+	}
+	return oldValue.KeeperID, nil
+}
+
+// ClearKeeperID clears the value of the "keeper_id" field.
+func (m *AssetMutation) ClearKeeperID() {
+	m.keeper = nil
+	m.clearedFields[asset.FieldKeeperID] = struct{}{}
+}
+
+// KeeperIDCleared returns if the "keeper_id" field was cleared in this mutation.
+func (m *AssetMutation) KeeperIDCleared() bool {
+	_, ok := m.clearedFields[asset.FieldKeeperID]
+	return ok
+}
+
+// ResetKeeperID resets all changes to the "keeper_id" field.
+func (m *AssetMutation) ResetKeeperID() {
+	m.keeper = nil
+	delete(m.clearedFields, asset.FieldKeeperID)
 }
 
 // ClearTenant clears the "tenant" edge to the Tenant entity.
 func (m *AssetMutation) ClearTenant() {
 	m.clearedtenant = true
+	m.clearedFields[asset.FieldTenantID] = struct{}{}
 }
 
 // TenantCleared reports if the "tenant" edge to the Tenant entity was cleared.
 func (m *AssetMutation) TenantCleared() bool {
 	return m.clearedtenant
-}
-
-// TenantID returns the "tenant" edge ID in the mutation.
-func (m *AssetMutation) TenantID() (id uuid.UUID, exists bool) {
-	if m.tenant != nil {
-		return *m.tenant, true
-	}
-	return
 }
 
 // TenantIDs returns the "tenant" edge IDs in the mutation.
@@ -517,27 +590,15 @@ func (m *AssetMutation) ResetTenant() {
 	m.clearedtenant = false
 }
 
-// SetKeeperID sets the "keeper" edge to the Holder entity by id.
-func (m *AssetMutation) SetKeeperID(id uuid.UUID) {
-	m.keeper = &id
-}
-
 // ClearKeeper clears the "keeper" edge to the Holder entity.
 func (m *AssetMutation) ClearKeeper() {
 	m.clearedkeeper = true
+	m.clearedFields[asset.FieldKeeperID] = struct{}{}
 }
 
 // KeeperCleared reports if the "keeper" edge to the Holder entity was cleared.
 func (m *AssetMutation) KeeperCleared() bool {
-	return m.clearedkeeper
-}
-
-// KeeperID returns the "keeper" edge ID in the mutation.
-func (m *AssetMutation) KeeperID() (id uuid.UUID, exists bool) {
-	if m.keeper != nil {
-		return *m.keeper, true
-	}
-	return
+	return m.KeeperIDCleared() || m.clearedkeeper
 }
 
 // KeeperIDs returns the "keeper" edge IDs in the mutation.
@@ -590,7 +651,7 @@ func (m *AssetMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AssetMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 10)
 	if m.alias != nil {
 		fields = append(fields, asset.FieldAlias)
 	}
@@ -614,6 +675,12 @@ func (m *AssetMutation) Fields() []string {
 	}
 	if m.date_created != nil {
 		fields = append(fields, asset.FieldDateCreated)
+	}
+	if m.tenant != nil {
+		fields = append(fields, asset.FieldTenantID)
+	}
+	if m.keeper != nil {
+		fields = append(fields, asset.FieldKeeperID)
 	}
 	return fields
 }
@@ -639,6 +706,10 @@ func (m *AssetMutation) Field(name string) (ent.Value, bool) {
 		return m.DateUpdated()
 	case asset.FieldDateCreated:
 		return m.DateCreated()
+	case asset.FieldTenantID:
+		return m.TenantID()
+	case asset.FieldKeeperID:
+		return m.KeeperID()
 	}
 	return nil, false
 }
@@ -664,6 +735,10 @@ func (m *AssetMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldDateUpdated(ctx)
 	case asset.FieldDateCreated:
 		return m.OldDateCreated(ctx)
+	case asset.FieldTenantID:
+		return m.OldTenantID(ctx)
+	case asset.FieldKeeperID:
+		return m.OldKeeperID(ctx)
 	}
 	return nil, fmt.Errorf("unknown Asset field %s", name)
 }
@@ -729,6 +804,20 @@ func (m *AssetMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDateCreated(v)
 		return nil
+	case asset.FieldTenantID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTenantID(v)
+		return nil
+	case asset.FieldKeeperID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetKeeperID(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Asset field %s", name)
 }
@@ -765,6 +854,9 @@ func (m *AssetMutation) ClearedFields() []string {
 	if m.FieldCleared(asset.FieldDateCreated) {
 		fields = append(fields, asset.FieldDateCreated)
 	}
+	if m.FieldCleared(asset.FieldKeeperID) {
+		fields = append(fields, asset.FieldKeeperID)
+	}
 	return fields
 }
 
@@ -784,6 +876,9 @@ func (m *AssetMutation) ClearField(name string) error {
 		return nil
 	case asset.FieldDateCreated:
 		m.ClearDateCreated()
+		return nil
+	case asset.FieldKeeperID:
+		m.ClearKeeperID()
 		return nil
 	}
 	return fmt.Errorf("unknown Asset nullable field %s", name)
@@ -816,6 +911,12 @@ func (m *AssetMutation) ResetField(name string) error {
 		return nil
 	case asset.FieldDateCreated:
 		m.ResetDateCreated()
+		return nil
+	case asset.FieldTenantID:
+		m.ResetTenantID()
+		return nil
+	case asset.FieldKeeperID:
+		m.ResetKeeperID()
 		return nil
 	}
 	return fmt.Errorf("unknown Asset field %s", name)
@@ -2057,27 +2158,51 @@ func (m *HolderMutation) ResetIdpSubject() {
 	delete(m.clearedFields, holder.FieldIdpSubject)
 }
 
-// SetTenantID sets the "tenant" edge to the Tenant entity by id.
-func (m *HolderMutation) SetTenantID(id uuid.UUID) {
-	m.tenant = &id
+// SetTenantID sets the "tenant_id" field.
+func (m *HolderMutation) SetTenantID(u uuid.UUID) {
+	m.tenant = &u
+}
+
+// TenantID returns the value of the "tenant_id" field in the mutation.
+func (m *HolderMutation) TenantID() (r uuid.UUID, exists bool) {
+	v := m.tenant
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTenantID returns the old "tenant_id" field's value of the Holder entity.
+// If the Holder object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *HolderMutation) OldTenantID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTenantID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTenantID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTenantID: %w", err)
+	}
+	return oldValue.TenantID, nil
+}
+
+// ResetTenantID resets all changes to the "tenant_id" field.
+func (m *HolderMutation) ResetTenantID() {
+	m.tenant = nil
 }
 
 // ClearTenant clears the "tenant" edge to the Tenant entity.
 func (m *HolderMutation) ClearTenant() {
 	m.clearedtenant = true
+	m.clearedFields[holder.FieldTenantID] = struct{}{}
 }
 
 // TenantCleared reports if the "tenant" edge to the Tenant entity was cleared.
 func (m *HolderMutation) TenantCleared() bool {
 	return m.clearedtenant
-}
-
-// TenantID returns the "tenant" edge ID in the mutation.
-func (m *HolderMutation) TenantID() (id uuid.UUID, exists bool) {
-	if m.tenant != nil {
-		return *m.tenant, true
-	}
-	return
 }
 
 // TenantIDs returns the "tenant" edge IDs in the mutation.
@@ -2130,7 +2255,7 @@ func (m *HolderMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *HolderMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 9)
 	if m.alias != nil {
 		fields = append(fields, holder.FieldAlias)
 	}
@@ -2154,6 +2279,9 @@ func (m *HolderMutation) Fields() []string {
 	}
 	if m.idp_subject != nil {
 		fields = append(fields, holder.FieldIdpSubject)
+	}
+	if m.tenant != nil {
+		fields = append(fields, holder.FieldTenantID)
 	}
 	return fields
 }
@@ -2179,6 +2307,8 @@ func (m *HolderMutation) Field(name string) (ent.Value, bool) {
 		return m.DateCreated()
 	case holder.FieldIdpSubject:
 		return m.IdpSubject()
+	case holder.FieldTenantID:
+		return m.TenantID()
 	}
 	return nil, false
 }
@@ -2204,6 +2334,8 @@ func (m *HolderMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldDateCreated(ctx)
 	case holder.FieldIdpSubject:
 		return m.OldIdpSubject(ctx)
+	case holder.FieldTenantID:
+		return m.OldTenantID(ctx)
 	}
 	return nil, fmt.Errorf("unknown Holder field %s", name)
 }
@@ -2268,6 +2400,13 @@ func (m *HolderMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetIdpSubject(v)
+		return nil
+	case holder.FieldTenantID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTenantID(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Holder field %s", name)
@@ -2368,6 +2507,9 @@ func (m *HolderMutation) ResetField(name string) error {
 		return nil
 	case holder.FieldIdpSubject:
 		m.ResetIdpSubject()
+		return nil
+	case holder.FieldTenantID:
+		m.ResetTenantID()
 		return nil
 	}
 	return fmt.Errorf("unknown Holder field %s", name)

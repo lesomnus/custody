@@ -79,35 +79,35 @@ func (_c *AssetCreate) SetNillableDateCreated(v *time.Time) *AssetCreate {
 	return _c
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *AssetCreate) SetTenantID(v uuid.UUID) *AssetCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
+// SetKeeperID sets the "keeper_id" field.
+func (_c *AssetCreate) SetKeeperID(v uuid.UUID) *AssetCreate {
+	_c.mutation.SetKeeperID(v)
+	return _c
+}
+
+// SetNillableKeeperID sets the "keeper_id" field if the given value is not nil.
+func (_c *AssetCreate) SetNillableKeeperID(v *uuid.UUID) *AssetCreate {
+	if v != nil {
+		_c.SetKeeperID(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *AssetCreate) SetID(v uuid.UUID) *AssetCreate {
 	_c.mutation.SetID(v)
 	return _c
 }
 
-// SetTenantID sets the "tenant" edge to the Tenant entity by ID.
-func (_c *AssetCreate) SetTenantID(id uuid.UUID) *AssetCreate {
-	_c.mutation.SetTenantID(id)
-	return _c
-}
-
 // SetTenant sets the "tenant" edge to the Tenant entity.
 func (_c *AssetCreate) SetTenant(v *Tenant) *AssetCreate {
 	return _c.SetTenantID(v.ID)
-}
-
-// SetKeeperID sets the "keeper" edge to the Holder entity by ID.
-func (_c *AssetCreate) SetKeeperID(id uuid.UUID) *AssetCreate {
-	_c.mutation.SetKeeperID(id)
-	return _c
-}
-
-// SetNillableKeeperID sets the "keeper" edge to the Holder entity by ID if the given value is not nil.
-func (_c *AssetCreate) SetNillableKeeperID(id *uuid.UUID) *AssetCreate {
-	if id != nil {
-		_c = _c.SetKeeperID(*id)
-	}
-	return _c
 }
 
 // SetKeeper sets the "keeper" edge to the Holder entity.
@@ -166,6 +166,9 @@ func (_c *AssetCreate) check() error {
 	}
 	if _, ok := _c.mutation.DateUpdated(); !ok {
 		return &ValidationError{Name: "date_updated", err: errors.New(`ent: missing required field "Asset.date_updated"`)}
+	}
+	if _, ok := _c.mutation.TenantID(); !ok {
+		return &ValidationError{Name: "tenant_id", err: errors.New(`ent: missing required field "Asset.tenant_id"`)}
 	}
 	if len(_c.mutation.TenantIDs()) == 0 {
 		return &ValidationError{Name: "tenant", err: errors.New(`ent: missing required edge "Asset.tenant"`)}
@@ -251,7 +254,7 @@ func (_c *AssetCreate) createSpec() (*Asset, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.asset_tenant = &nodes[0]
+		_node.TenantID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.KeeperIDs(); len(nodes) > 0 {
@@ -268,7 +271,7 @@ func (_c *AssetCreate) createSpec() (*Asset, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.asset_keeper = &nodes[0]
+		_node.KeeperID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

@@ -37,6 +37,8 @@ func (Holder) Fields() []ent.Field {
 		field.String("idp_subject").
 			Nillable().
 			Optional(),
+		field.UUID("tenant_id", uuid.UUID{}).
+			Immutable(),
 	}
 }
 
@@ -44,6 +46,7 @@ func (Holder) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("tenant", Tenant.Type).
 			Unique().
+			Field("tenant_id").
 			Required().
 			Immutable(),
 	}

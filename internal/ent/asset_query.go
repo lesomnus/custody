@@ -27,7 +27,6 @@ type AssetQuery struct {
 	predicates []predicate.Asset
 	withTenant *TenantQuery
 	withKeeper *HolderQuery
-	withFKs    bool
 	modifiers  []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -409,19 +408,12 @@ func (_q *AssetQuery) prepareQuery(ctx context.Context) error {
 func (_q *AssetQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Asset, error) {
 	var (
 		nodes       = []*Asset{}
-		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
 		loadedTypes = [2]bool{
 			_q.withTenant != nil,
 			_q.withKeeper != nil,
 		}
 	)
-	if _q.withTenant != nil || _q.withKeeper != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, asset.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Asset).scanValues(nil, columns)
 	}
@@ -462,10 +454,7 @@ func (_q *AssetQuery) loadTenant(ctx context.Context, query *TenantQuery, nodes 
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*Asset)
 	for i := range nodes {
-		if nodes[i].asset_tenant == nil {
-			continue
-		}
-		fk := *nodes[i].asset_tenant
+		fk := nodes[i].TenantID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -482,7 +471,7 @@ func (_q *AssetQuery) loadTenant(ctx context.Context, query *TenantQuery, nodes 
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "asset_tenant" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "tenant_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -494,10 +483,7 @@ func (_q *AssetQuery) loadKeeper(ctx context.Context, query *HolderQuery, nodes 
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*Asset)
 	for i := range nodes {
-		if nodes[i].asset_keeper == nil {
-			continue
-		}
-		fk := *nodes[i].asset_keeper
+		fk := nodes[i].KeeperID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -514,7 +500,7 @@ func (_q *AssetQuery) loadKeeper(ctx context.Context, query *HolderQuery, nodes 
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "asset_keeper" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "keeper_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -550,6 +536,12 @@ func (_q *AssetQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != asset.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if _q.withTenant != nil {
+			_spec.Node.AddColumnOnce(asset.FieldTenantID)
+		}
+		if _q.withKeeper != nil {
+			_spec.Node.AddColumnOnce(asset.FieldKeeperID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

@@ -28,6 +28,10 @@ const (
 	FieldDateUpdated = "date_updated"
 	// FieldDateCreated holds the string denoting the date_created field in the database.
 	FieldDateCreated = "date_created"
+	// FieldTenantID holds the string denoting the tenant_id field in the database.
+	FieldTenantID = "tenant_id"
+	// FieldKeeperID holds the string denoting the keeper_id field in the database.
+	FieldKeeperID = "keeper_id"
 	// EdgeTenant holds the string denoting the tenant edge name in mutations.
 	EdgeTenant = "tenant"
 	// EdgeKeeper holds the string denoting the keeper edge name in mutations.
@@ -40,14 +44,14 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "tenant" package.
 	TenantInverseTable = "tenant"
 	// TenantColumn is the table column denoting the tenant relation/edge.
-	TenantColumn = "asset_tenant"
+	TenantColumn = "tenant_id"
 	// KeeperTable is the table that holds the keeper relation/edge.
 	KeeperTable = "asset"
 	// KeeperInverseTable is the table name for the Holder entity.
 	// It exists in this package in order to avoid circular dependency with the "holder" package.
 	KeeperInverseTable = "holder"
 	// KeeperColumn is the table column denoting the keeper relation/edge.
-	KeeperColumn = "asset_keeper"
+	KeeperColumn = "keeper_id"
 )
 
 // Columns holds all SQL columns for asset fields.
@@ -61,24 +65,14 @@ var Columns = []string{
 	FieldListed,
 	FieldDateUpdated,
 	FieldDateCreated,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "asset"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"asset_tenant",
-	"asset_keeper",
+	FieldTenantID,
+	FieldKeeperID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -126,6 +120,16 @@ func ByDateUpdated(opts ...sql.OrderTermOption) OrderOption {
 // ByDateCreated orders the results by the date_created field.
 func ByDateCreated(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDateCreated, opts...).ToFunc()
+}
+
+// ByTenantID orders the results by the tenant_id field.
+func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
+}
+
+// ByKeeperID orders the results by the keeper_id field.
+func ByKeeperID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldKeeperID, opts...).ToFunc()
 }
 
 // ByTenantField orders the results by tenant field.

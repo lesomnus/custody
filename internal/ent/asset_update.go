@@ -128,29 +128,43 @@ func (_u *AssetUpdate) SetNillableDateUpdated(v *time.Time) *AssetUpdate {
 	return _u
 }
 
-// SetTenantID sets the "tenant" edge to the Tenant entity by ID.
-func (_u *AssetUpdate) SetTenantID(id uuid.UUID) *AssetUpdate {
-	_u.mutation.SetTenantID(id)
+// SetTenantID sets the "tenant_id" field.
+func (_u *AssetUpdate) SetTenantID(v uuid.UUID) *AssetUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *AssetUpdate) SetNillableTenantID(v *uuid.UUID) *AssetUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// SetKeeperID sets the "keeper_id" field.
+func (_u *AssetUpdate) SetKeeperID(v uuid.UUID) *AssetUpdate {
+	_u.mutation.SetKeeperID(v)
+	return _u
+}
+
+// SetNillableKeeperID sets the "keeper_id" field if the given value is not nil.
+func (_u *AssetUpdate) SetNillableKeeperID(v *uuid.UUID) *AssetUpdate {
+	if v != nil {
+		_u.SetKeeperID(*v)
+	}
+	return _u
+}
+
+// ClearKeeperID clears the value of the "keeper_id" field.
+func (_u *AssetUpdate) ClearKeeperID() *AssetUpdate {
+	_u.mutation.ClearKeeperID()
 	return _u
 }
 
 // SetTenant sets the "tenant" edge to the Tenant entity.
 func (_u *AssetUpdate) SetTenant(v *Tenant) *AssetUpdate {
 	return _u.SetTenantID(v.ID)
-}
-
-// SetKeeperID sets the "keeper" edge to the Holder entity by ID.
-func (_u *AssetUpdate) SetKeeperID(id uuid.UUID) *AssetUpdate {
-	_u.mutation.SetKeeperID(id)
-	return _u
-}
-
-// SetNillableKeeperID sets the "keeper" edge to the Holder entity by ID if the given value is not nil.
-func (_u *AssetUpdate) SetNillableKeeperID(id *uuid.UUID) *AssetUpdate {
-	if id != nil {
-		_u = _u.SetKeeperID(*id)
-	}
-	return _u
 }
 
 // SetKeeper sets the "keeper" edge to the Holder entity.
@@ -431,29 +445,43 @@ func (_u *AssetUpdateOne) SetNillableDateUpdated(v *time.Time) *AssetUpdateOne {
 	return _u
 }
 
-// SetTenantID sets the "tenant" edge to the Tenant entity by ID.
-func (_u *AssetUpdateOne) SetTenantID(id uuid.UUID) *AssetUpdateOne {
-	_u.mutation.SetTenantID(id)
+// SetTenantID sets the "tenant_id" field.
+func (_u *AssetUpdateOne) SetTenantID(v uuid.UUID) *AssetUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *AssetUpdateOne) SetNillableTenantID(v *uuid.UUID) *AssetUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// SetKeeperID sets the "keeper_id" field.
+func (_u *AssetUpdateOne) SetKeeperID(v uuid.UUID) *AssetUpdateOne {
+	_u.mutation.SetKeeperID(v)
+	return _u
+}
+
+// SetNillableKeeperID sets the "keeper_id" field if the given value is not nil.
+func (_u *AssetUpdateOne) SetNillableKeeperID(v *uuid.UUID) *AssetUpdateOne {
+	if v != nil {
+		_u.SetKeeperID(*v)
+	}
+	return _u
+}
+
+// ClearKeeperID clears the value of the "keeper_id" field.
+func (_u *AssetUpdateOne) ClearKeeperID() *AssetUpdateOne {
+	_u.mutation.ClearKeeperID()
 	return _u
 }
 
 // SetTenant sets the "tenant" edge to the Tenant entity.
 func (_u *AssetUpdateOne) SetTenant(v *Tenant) *AssetUpdateOne {
 	return _u.SetTenantID(v.ID)
-}
-
-// SetKeeperID sets the "keeper" edge to the Holder entity by ID.
-func (_u *AssetUpdateOne) SetKeeperID(id uuid.UUID) *AssetUpdateOne {
-	_u.mutation.SetKeeperID(id)
-	return _u
-}
-
-// SetNillableKeeperID sets the "keeper" edge to the Holder entity by ID if the given value is not nil.
-func (_u *AssetUpdateOne) SetNillableKeeperID(id *uuid.UUID) *AssetUpdateOne {
-	if id != nil {
-		_u = _u.SetKeeperID(*id)
-	}
-	return _u
 }
 
 // SetKeeper sets the "keeper" edge to the Holder entity.

@@ -91,6 +91,16 @@ func DateCreated(v time.Time) predicate.Asset {
 	return predicate.Asset(sql.FieldEQ(FieldDateCreated, v))
 }
 
+// TenantID applies equality check predicate on the "tenant_id" field. It's identical to TenantIDEQ.
+func TenantID(v uuid.UUID) predicate.Asset {
+	return predicate.Asset(sql.FieldEQ(FieldTenantID, v))
+}
+
+// KeeperID applies equality check predicate on the "keeper_id" field. It's identical to KeeperIDEQ.
+func KeeperID(v uuid.UUID) predicate.Asset {
+	return predicate.Asset(sql.FieldEQ(FieldKeeperID, v))
+}
+
 // AliasEQ applies the EQ predicate on the "alias" field.
 func AliasEQ(v string) predicate.Asset {
 	return predicate.Asset(sql.FieldEQ(FieldAlias, v))
@@ -459,6 +469,56 @@ func DateCreatedIsNil() predicate.Asset {
 // DateCreatedNotNil applies the NotNil predicate on the "date_created" field.
 func DateCreatedNotNil() predicate.Asset {
 	return predicate.Asset(sql.FieldNotNull(FieldDateCreated))
+}
+
+// TenantIDEQ applies the EQ predicate on the "tenant_id" field.
+func TenantIDEQ(v uuid.UUID) predicate.Asset {
+	return predicate.Asset(sql.FieldEQ(FieldTenantID, v))
+}
+
+// TenantIDNEQ applies the NEQ predicate on the "tenant_id" field.
+func TenantIDNEQ(v uuid.UUID) predicate.Asset {
+	return predicate.Asset(sql.FieldNEQ(FieldTenantID, v))
+}
+
+// TenantIDIn applies the In predicate on the "tenant_id" field.
+func TenantIDIn(vs ...uuid.UUID) predicate.Asset {
+	return predicate.Asset(sql.FieldIn(FieldTenantID, vs...))
+}
+
+// TenantIDNotIn applies the NotIn predicate on the "tenant_id" field.
+func TenantIDNotIn(vs ...uuid.UUID) predicate.Asset {
+	return predicate.Asset(sql.FieldNotIn(FieldTenantID, vs...))
+}
+
+// KeeperIDEQ applies the EQ predicate on the "keeper_id" field.
+func KeeperIDEQ(v uuid.UUID) predicate.Asset {
+	return predicate.Asset(sql.FieldEQ(FieldKeeperID, v))
+}
+
+// KeeperIDNEQ applies the NEQ predicate on the "keeper_id" field.
+func KeeperIDNEQ(v uuid.UUID) predicate.Asset {
+	return predicate.Asset(sql.FieldNEQ(FieldKeeperID, v))
+}
+
+// KeeperIDIn applies the In predicate on the "keeper_id" field.
+func KeeperIDIn(vs ...uuid.UUID) predicate.Asset {
+	return predicate.Asset(sql.FieldIn(FieldKeeperID, vs...))
+}
+
+// KeeperIDNotIn applies the NotIn predicate on the "keeper_id" field.
+func KeeperIDNotIn(vs ...uuid.UUID) predicate.Asset {
+	return predicate.Asset(sql.FieldNotIn(FieldKeeperID, vs...))
+}
+
+// KeeperIDIsNil applies the IsNil predicate on the "keeper_id" field.
+func KeeperIDIsNil() predicate.Asset {
+	return predicate.Asset(sql.FieldIsNull(FieldKeeperID))
+}
+
+// KeeperIDNotNil applies the NotNil predicate on the "keeper_id" field.
+func KeeperIDNotNil() predicate.Asset {
+	return predicate.Asset(sql.FieldNotNull(FieldKeeperID))
 }
 
 // HasTenant applies the HasEdge predicate on the "tenant" edge.

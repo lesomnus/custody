@@ -33,6 +33,9 @@ func (Asset) Fields() []ent.Field {
 		field.Time("date_created").
 			Immutable().
 			Optional(),
+		field.UUID("tenant_id", uuid.UUID{}),
+		field.UUID("keeper_id", uuid.UUID{}).
+			Optional(),
 	}
 }
 
@@ -40,9 +43,11 @@ func (Asset) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("tenant", Tenant.Type).
 			Unique().
+			Field("tenant_id").
 			Required(),
 		edge.To("keeper", Holder.Type).
-			Unique(),
+			Unique().
+			Field("keeper_id"),
 	}
 }
 

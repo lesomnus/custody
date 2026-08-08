@@ -4,6 +4,7 @@
 package ent
 
 import (
+	uuid "github.com/google/uuid"
 	api "github.com/lesomnus/custody/api"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -13,6 +14,10 @@ func (e *Asset) Proto() *api.Asset {
 	x.SetId(e.ID[:])
 	if v := e.Edges.Tenant; v != nil {
 		x.SetTenant(v.Proto())
+	} else if v := e.TenantID; v != *new(uuid.UUID) {
+		r := &api.Tenant{}
+		r.SetId(v[:])
+		x.SetTenant(r)
 	}
 	x.SetAlias(e.Alias)
 	x.SetName(e.Name)
@@ -20,6 +25,10 @@ func (e *Asset) Proto() *api.Asset {
 	x.SetLabels(e.Labels)
 	if v := e.Edges.Keeper; v != nil {
 		x.SetKeeper(v.Proto())
+	} else if v := e.KeeperID; v != *new(uuid.UUID) {
+		r := &api.Holder{}
+		r.SetId(v[:])
+		x.SetKeeper(r)
 	}
 	x.SetLocation(e.Location)
 	x.SetListed(e.Listed)
