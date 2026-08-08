@@ -18,9 +18,5 @@
 	"include": [
 		"src",
 		"gen"
-	],
-	"exclude": [
-		"gen/entities.ts",
-		"gen/domains.ts"
 	]
 }

@@ -107,7 +107,7 @@ having in a reference app, and most of the 1,200 is prose and tests.
 | `cmd/custody-admin/main.go` | the second binary. The first came from the template |
 | `cmd/init.go` | the first tenant, through `Ungated`; on the admin binary only |
 | `cmd/*_test.go` | three tests, and more than half the hand-written Go here |
-| `ts/src/`, `ts/index.html`, `ts/admin/` | two pages: the customer UI and headquarters' |
+| `ts/src/`, `ts/index.html`, `ts/admin/` | two pages: the customer UI and headquarters', and the local store's one line |
 
 Everything else under `cmd/` came from the template and was edited rather than
 written: `serve.go` is the stack spelled out, which payday deliberately does not
@@ -261,9 +261,9 @@ What has **not** happened is somebody loading the page in a browser, because
 there is none here. So what is verified is that the pieces fit, and not that the
 thing renders.
 
-**The local store.** payday ships one — a replica of what a caller may see, with
-`Watch` applied to it — and `pd gen --ts` writes the declaration for it in
-`ts/gen/entities.ts`. It is unused here, and `tsconfig.json` excludes that file,
-because it imports `@lesomnus/payday`, which is not published to npm yet. These
-pages call the server on every read instead, which is the right shape for two
-pages and the wrong one for an app anybody uses all day.
+**The local store.** payday ships one — a replica of what a caller may
+see, with `Watch` applied to it — and `pd gen --ts` writes its declaration in
+`ts/gen/entities.ts`. `ts/src/store.ts` opens it and nothing calls that yet:
+these pages read the server on every render, which is the right shape for two
+screens and the wrong one for an app somebody has open all day. A store is what
+turns `Watch` into a page that is already correct when it renders.
