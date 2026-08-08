@@ -107,7 +107,7 @@ having in a reference app, and most of the 1,200 is prose and tests.
 | `cmd/custody-admin/main.go` | the second binary. The first came from the template |
 | `cmd/init.go` | the first tenant, through `Ungated`; on the admin binary only |
 | `cmd/*_test.go` | three tests, and more than half the hand-written Go here |
-| `ts/src/`, `ts/index.html`, `ts/admin/` | two pages: the customer UI and headquarters', and the local store's one line |
+| `ts/src/`, `ts/index.html`, `ts/admin/` | two React pages: the customer UI and headquarters', both reading through payday's local store |
 
 Everything else under `cmd/` came from the template and was edited rather than
 written: `serve.go` is the stack spelled out, which payday deliberately does not
@@ -231,22 +231,41 @@ makes them two is which server they point at — and that is a build, not a
 bundle. `npm run build --prefix ts` writes `dist/index.html` and
 `dist/admin/index.html`, and a deployment serves the one it means to.
 
-There is no framework. What these pages are for is to show that the generated
-client is the whole API — that a screen is a call, and the call is the one
-`curl` makes — and a framework would be the largest thing in the repository
-saying nothing about that. `ts/src/client.ts` is thirty lines and does not grow
-per service: protobuf-es emits the service descriptors and Connect's
-`createClient` takes one.
+They read through **payday's local store**, which is the part worth reading the
+source for — and specifically for what is *not* in it. Nothing declares which
+query a write invalidates, nothing pushes a new row into a list, and nothing
+tells the tenant shown beside one row that it is the tenant shown beside
+another. All of that falls out of the reads going through the framework:
+`useQuery` makes the call, so the store knows which rows were drawn, and when
+one changes every place drawing it re-renders at once.
 
-Two things the pages show that the shell cannot:
+React is the app's choice and not payday's. `payday/store` and `payday/query`
+know nothing about it; `payday/react` is thirty lines of `useSyncExternalStore`
+over them, and the same file for Vue or Svelte is the same length. `ts/src/`
+holds no generated code and does not grow per service: protobuf-es emits the
+service descriptors and `Queries` takes one.
+
+Four things the pages show that the shell cannot:
 
 - **the same request, two answers.** `AssetService.List` with no filter at all,
   on both pages. Nothing in either narrows it to a tenant and nothing could —
   the wall is a predicate in the query, put there by the server out of the
   credential.
-- **what a `List` does not answer with.** The admin table shows which tenant
-  each asset is in, and that is a second read per row with a `select` that names
-  it: a list answers rows and not their edges.
+- **what a `List` does not answer with.** It carries an asset's tenant as an
+  identifier and nothing else, because the server did not join what nobody asked
+  for. So the admin table's `<Tenant>` reads the name — from the component that
+  shows it, and two rows in one tenant is **one** call, because a query is its
+  method and its request and those two are the same question.
+- **a store is opened for a credential.** The catalogue is called with none, so
+  it reads through a store of its own. Signing in as somebody else opens a
+  different store rather than emptying this one: what a caller may see is the
+  actor and the scope together.
+- **a transfer moving a row on screen.** `Transfer` answers with the asset, so
+  the row moves to its new tenant without the form telling the table anything.
+
+The store is mirrored to IndexedDB under the same credential, so a reload draws
+the page it had rather than a spinner for it. `ts/src/store.ts` is the whole of
+that, and deleting two lines of it turns the mirror off.
 
 ## What is not here
 
@@ -255,19 +274,9 @@ believes what the caller writes: it is for development and must not be served
 where anybody can reach it. Making it real is `auth.Issuer` and `auth.Sessions`,
 which payday leaves as a seam.
 
-**A browser.** The UI type-checks, builds, and its client module has been run
-against both live servers — the lists, the catalogue and a transfer all answer.
-What has **not** happened is somebody loading the page in a browser, because
-there is none here. So what is verified is that the pieces fit, and not that the
-thing renders.
-
-**The local store, and the reads that follow it.** payday ships both — a
-replica of what a caller may see, and a query layer that knows which rows a
-screen drew, so a row that changes redraws every place it appears.
-`ts/src/store.ts` wires them and nothing calls it yet: these pages read the
-server on every render, which is the right shape for two screens and the wrong
-one for an app somebody has open all day.
-
-Using it means a view framework, and that is the app's choice rather than
-payday's — `@lesomnus/payday/react` is thirty lines of binding, and the same
-file for Vue or Svelte is the same length.
+**A browser.** The UI type-checks and builds, and every call the two pages make
+has been run against both live servers — the lists, the tenant reads, the
+catalogue with no credential, and a transfer. What has **not** happened is
+somebody loading the page in a browser, because there is none here. So what is
+verified is that the pieces fit, and not that the thing renders. The rendering
+itself is covered in payday, against a DOM.

@@ -25,7 +25,6 @@ export const Asset = {
 	schema: AssetSchema,
 	domain: 7,
 	version: "dateUpdated",
-	index: "&id,[dateCreated+id],[alias+tenantId],[listed+dateCreated]",
 	refs: [{ field: "tenant", to: "payday.Tenant" }, { field: "keeper", to: "payday.Holder" }],
 } as const satisfies EntityDesc
 
@@ -34,7 +33,6 @@ export const Audit = {
 	typeName: "payday.Audit",
 	schema: AuditSchema,
 	domain: 3,
-	index: "&id,objectId,[tenantId+dateCreated]",
 } as const satisfies EntityDesc
 
 /** payday.Holder, as the store holds it. */
@@ -43,7 +41,6 @@ export const Holder = {
 	schema: HolderSchema,
 	domain: 2,
 	version: "dateUpdated",
-	index: "&id,[alias+tenantId]",
 	refs: [{ field: "tenant", to: "payday.Tenant" }],
 } as const satisfies EntityDesc
 
@@ -52,7 +49,6 @@ export const Outbox = {
 	typeName: "payday.Outbox",
 	schema: OutboxSchema,
 	domain: 4,
-	index: "&id",
 } as const satisfies EntityDesc
 
 /** payday.Tenant, as the store holds it. */
@@ -61,7 +57,6 @@ export const Tenant = {
 	schema: TenantSchema,
 	domain: 1,
 	version: "dateUpdated",
-	index: "&id",
 } as const satisfies EntityDesc
 
 /** Every entity of this app, which is what a store is opened over. */

@@ -1,42 +1,18 @@
 /**
- * The client, which is this small because nothing here is generated per
- * service.
+ * The transport, which is the only thing that changes between a real server and
+ * a sandbox.
  *
- * protobuf-es emits the service descriptors beside the messages and Connect's
- * `createClient` takes a descriptor, so adding an entity to the schema is one
- * line here and nothing to keep in step.
+ * A page does not read through a client -- it reads through `store.ts`, so that
+ * a row it drew redraws when the row changes. This is what carries those calls,
+ * and it is also what a script or a one-off would use `createClient` with
+ * directly: protobuf-es emits the service descriptors beside the messages, so
+ * there is nothing generated per service to keep in step.
  *
  * @module
  */
 
-import {
-	createClient,
-	type Client,
-	type Interceptor,
-	type Transport,
-} from '@connectrpc/connect'
+import { type Interceptor, type Transport } from '@connectrpc/connect'
 import { createConnectTransport } from '@connectrpc/connect-web'
-
-import { AssetService } from '../gen/app/asset_svc_pb.js'
-import { CatalogueService } from '../gen/app/catalogue_pb.js'
-import { HolderService } from '../gen/payday/holder_svc_pb.js'
-import { TenantService } from '../gen/payday/tenant_svc_pb.js'
-
-export interface App {
-	readonly asset: Client<typeof AssetService>
-	readonly catalogue: Client<typeof CatalogueService>
-	readonly tenant: Client<typeof TenantService>
-	readonly holder: Client<typeof HolderService>
-}
-
-export function app(transport: Transport): App {
-	return {
-		asset: createClient(AssetService, transport),
-		catalogue: createClient(CatalogueService, transport),
-		tenant: createClient(TenantService, transport),
-		holder: createClient(HolderService, transport),
-	}
-}
 
 /**
  * connect is a transport to a payday app's second listener.

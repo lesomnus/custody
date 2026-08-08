@@ -4,57 +4,9 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>custody — headquarters</title>
-		<link rel="stylesheet" href="../src/style.css" />
 	</head>
 	<body class="admin">
-		<header>
-			<h1>custody <span class="tag">headquarters</span></h1>
-			<p>
-				The admin server, at <code>:8081</code>, which is deployed where only the
-				company can reach it. The calls on this page are the same calls the
-				customer page makes; the difference is that this binary was handed a
-				policy and that one was not.
-			</p>
-			<label>
-				signed in as
-				<input id="who" placeholder="@hq/admin" size="20" />
-			</label>
-			<p class="note">
-				Sign in as a customer's holder to see <code>Hq.May</code> refuse you
-				outright — this server is for headquarters, and it says so before a row is
-				read.
-			</p>
-		</header>
-
-		<section>
-			<h2>every tenant's assets</h2>
-			<p>
-				<code>AssetService.List</code>, no filter, no mention of a tenant. An
-				operator whose credential names one customer sees that customer from this
-				same page: the policy answers "every tenant" and the credential is met
-				with it.
-			</p>
-			<div id="assets"></div>
-		</section>
-
-		<section>
-			<h2>transfer</h2>
-			<p>
-				An RPC of its own, because <code>Asset.tenant</code> is mutable and a
-				<code>Patch</code> could set it — which is why the general writes are
-				closed. The reason is required: the trail stays with the tenant the asset
-				leaves.
-			</p>
-			<div class="form">
-				<input id="ref" placeholder="asset number" size="16" />
-				<input id="from" placeholder="from tenant" size="12" />
-				<input id="to" placeholder="to tenant" size="12" />
-				<input id="reason" placeholder="why, in a sentence" size="36" />
-				<button id="transfer">transfer</button>
-			</div>
-			<div id="out"></div>
-		</section>
-
-		<script type="module" src="../src/admin.ts"></script>
+		<div id="root"></div>
+		<script type="module" src="/src/admin.tsx"></script>
 	</body>
 </html>

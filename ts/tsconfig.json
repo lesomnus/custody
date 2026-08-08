@@ -5,7 +5,8 @@
 		"moduleResolution": "bundler",
 		"lib": [
 			"ES2022",
-			"DOM"
+			"DOM",
+			"DOM.Iterable"
 		],
 		"strict": true,
 		"noUncheckedIndexedAccess": true,
@@ -13,7 +14,10 @@
 		"noEmit": true,
 		"skipLibCheck": true,
 		"verbatimModuleSyntax": true,
-		"types": []
+		"types": [
+			"vite/client"
+		],
+		"jsx": "react-jsx"
 	},
 	"include": [
 		"src",

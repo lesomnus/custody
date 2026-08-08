@@ -7,10 +7,10 @@
  * is. `Queries` is the half above it: a read that goes through it is one the
  * framework knows about, so a row that changes redraws every place it appears.
  *
- * **The two pages do not use it.** They read the server on every render, which
- * is the right shape for two screens and the wrong one for an app somebody has
- * open all day. It is wired and type-checked here so that the next thing built
- * on this app has one line to write instead of a decision to make.
+ * Both pages read through this, and the interesting thing about that is what is
+ * **not** in them: nothing declares which query a write invalidates, nothing
+ * pushes a row into a list, and nothing tells the tenant beside one row that it
+ * is the tenant beside another.
  *
  * @module
  */
@@ -18,15 +18,13 @@
 import type { Transport } from '@connectrpc/connect'
 
 import { Queries } from '@lesomnus/payday/query'
+import type { App } from '@lesomnus/payday/react'
 import { Store, identityOf } from '@lesomnus/payday/store'
+import { openDisk } from '@lesomnus/payday/store/idb'
 
 import { entities } from '../gen/entities.js'
 
-/** App is what a page would read through. */
-export interface App {
-	readonly store: Store
-	readonly queries: Queries
-}
+export type { App }
 
 /**
  * open answers with this app's store and queries, for one caller.
@@ -38,9 +36,17 @@ export interface App {
  * share a store, and the narrowed session draws the wide session's rows --
  * nothing leaked, since the server sent all of it to that person, and the
  * screen is still wrong.
+ *
+ * The two pages point at two servers, so `name` is what keeps those apart as
+ * well: the same credential against `custody` and against `custody-admin` sees
+ * different rows, and one mirror holding both would be a page drawing the other
+ * server's answers.
  */
-export async function open(transport: Transport, credential: string): Promise<App> {
-	const store = Store.open(entities, { name: 'custody', identity: await identityOf(credential) })
+export async function open(name: string, transport: Transport, credential: string): Promise<App> {
+	const at = { name, identity: await identityOf(credential) }
+
+	const store = Store.open(entities, { ...at, disk: await openDisk(entities, at) })
+	await store.hydrate()
 
 	return { store, queries: new Queries(store, transport, entities) }
 }

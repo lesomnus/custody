@@ -1,3 +1,4 @@
+import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
 /**
@@ -16,6 +17,7 @@ import { defineConfig } from 'vite'
  * each page has one address in it.
  */
 export default defineConfig({
+	plugins: [react()],
 	build: {
 		rollupOptions: {
 			input: {
