@@ -64,6 +64,66 @@ receiving tenant reads what has happened since the asset arrived and nothing
 before. That is payday's decision, and this is the first thing to demonstrate
 it.
 
+## How this repository was made
+
+Four commands, and then the schema.
+
+```sh
+go tool pd new --setup github.com/lesomnus/custody custody
+cd custody
+go tool pd gen .
+go mod tidy
+```
+
+`pd new` writes what a person writes and nothing a generator does: `go.mod`,
+`buf.yaml`, `custody.yaml`, `cmd/{serve,config,auth}.go`, one binary, one example
+entity, an overlay for payday's `Holder`, and a TypeScript package. `--setup`
+then does the two things that need the network — `go get -tool` for the eight
+tools it generates with, and `buf dep update`. It is a flag rather than the
+default so that `pd new` works offline and prints the list instead.
+
+`pd gen` is everything else: the service contracts, the messages and stubs, the
+ent schema and its runtime, the CRUD servers, and the layers payday makes out of
+the `(payday.entity)` options. It is run again after every change to the schema,
+and `pd gen --check` in CI fails if a commit did not carry what it wrote.
+
+One line of the template was changed before the first generation: `go_package`,
+so that the messages land in `api/` rather than at the module root. See
+[What is where](#what-is-where).
+
+### And then what was written by hand
+
+**About 1,200 lines, against 33,000 generated** — which is the number worth
+having in a reference app, and most of the 1,200 is prose and tests.
+
+| | |
+| --- | --- |
+| `proto/app/asset.proto` | the entity, in the place the template leaves `thing.proto`. The whole stack comes out of this one file |
+| `proto/app/catalogue.proto` | a service written by hand, with no entity behind it |
+| `proto/ext/app/asset_svc.ext.proto` | the overlay that adds `Transfer` to a generated contract |
+| `policy.go` | `Hq` — 69 lines, and the whole of "headquarters sees every tenant" |
+| `server/core/core.go` | the `Transfer` implementation |
+| `server/catalogue/catalogue.go` | the public projection |
+| `cmd/custody-admin/main.go` | the second binary. The first came from the template |
+| `cmd/*_test.go` | three tests, and more than half the hand-written Go here |
+
+Everything else under `cmd/` came from the template and was edited rather than
+written: `serve.go` is the stack spelled out, which payday deliberately does not
+hide behind a `payday.Serve(cfg)`, so an app that stacks a layer of its own edits
+it. Here that is two lines —
+
+```go
+stacked, err := app.Build(walled.WithWatch(w), core.Build(), pd.AuditBuild(), pd.GateBuild())
+app.RegisterCatalogueServiceServer(g, catalogue.New(s.Ent))
+```
+
+— one putting `Transfer` in the walled stack, and one registering the catalogue
+outside it, which is what makes the projection unwalled and is meant to be
+visible in the file rather than implied by a flag.
+
+`proto/ext/payday/holder.ext.proto` is the template's too, unchanged. It is the
+example of adding a field to an entity payday ships.
+
 ## What is where
 
 | | |
@@ -108,7 +168,13 @@ looks like a network problem.
 
 ## What is not here
 
-Real authentication. Both binaries use payday's `Plain` handler, which believes
-what the caller writes: it is for development and must not be served where
-anybody can reach it. Making it real is `auth.Issuer` and `auth.Sessions`, which
-payday leaves as a seam.
+**Real authentication.** Both binaries use payday's `Plain` handler, which
+believes what the caller writes: it is for development and must not be served
+where anybody can reach it. Making it real is `auth.Issuer` and `auth.Sessions`,
+which payday leaves as a seam.
+
+**The TypeScript half.** `ts/` is the template's, unchanged, and `pd gen --ts`
+has never been run here — so `ts/src` imports a `ts/gen` that is not there. It
+takes `npm install --prefix ts` and `go tool pd gen --ts .`, and it is left
+undone because what this repository is for is the three axes above, all of which
+are on the server.
