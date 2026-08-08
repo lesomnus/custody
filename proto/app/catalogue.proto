@@ -3,7 +3,7 @@ edition = "2023";
 package app;
 
 option features.field_presence = IMPLICIT;
-option go_package = "github.com/lesomnus/custody";
+option go_package = "github.com/lesomnus/custody/api";
 
 // CatalogueService is what anybody may read, and it is a **different message**
 // rather than the asset without a wall.

@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: payday/holder.proto
 
-package custody
+package api
 
 import (
 	_ "github.com/lesomnus/payday/pdpb"
@@ -314,7 +314,7 @@ const file_payday_holder_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:/\xca\xfc\x15%\x12\x02\x10\x01\x1a\x1f\x12\x04slug\x1a\t\n" +
 	"\x05alias\x10\x04\x1a\n" +
 	"\n" +
-	"\x06tenant\x10\x020\x01\x8a\xbb\x16\x02\b\x02B\"Z\x1bgithub.com/lesomnus/custody\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\x06tenant\x10\x020\x01\x8a\xbb\x16\x02\b\x02B&Z\x1fgithub.com/lesomnus/custody/api\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
 var file_payday_holder_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_payday_holder_proto_goTypes = []any{

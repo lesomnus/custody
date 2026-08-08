@@ -8,7 +8,7 @@ import (
 	sqlgraph "entgo.io/ent/dialect/sql/sqlgraph"
 	errors "errors"
 	uuid "github.com/google/uuid"
-	custody "github.com/lesomnus/custody"
+	api "github.com/lesomnus/custody/api"
 	ent "github.com/lesomnus/custody/internal/ent"
 	asset "github.com/lesomnus/custody/internal/ent/asset"
 	predicate "github.com/lesomnus/custody/internal/ent/predicate"
@@ -27,7 +27,7 @@ import (
 type AssetServiceServer struct {
 	Store
 
-	custody.UnimplementedAssetServiceServer
+	api.UnimplementedAssetServiceServer
 }
 
 // NewAssetServiceServer answers with a server that runs its queries with `db`.
@@ -35,7 +35,7 @@ type AssetServiceServer struct {
 // It takes the options of [Server] so that what is built here can be told
 // where to report its writes and what it may see. Built without them, it
 // reports nowhere and sees everything.
-func NewAssetServiceServer(db *ent.Client, opts ...Option) custody.AssetServiceServer {
+func NewAssetServiceServer(db *ent.Client, opts ...Option) api.AssetServiceServer {
 	s := Server{Store: Store{Db: db}}
 	for _, opt := range opts {
 		opt(&s)
@@ -79,7 +79,7 @@ func (s AssetServiceServer) narrow(ctx context.Context, p predicate.Asset) (pred
 	return AssetNarrow(ctx, s.Scope, p)
 }
 
-func (s AssetServiceServer) Add(ctx context.Context, req *custody.AssetAddRequest) (*custody.Asset, error) {
+func (s AssetServiceServer) Add(ctx context.Context, req *api.AssetAddRequest) (*api.Asset, error) {
 	tx, err := enttx.Join[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
 		return nil, err
@@ -89,7 +89,7 @@ func (s AssetServiceServer) Add(ctx context.Context, req *custody.AssetAddReques
 	st := s
 	st.Db = tx.Db
 
-	ds := make([]func(v *custody.Asset), 0, 2)
+	ds := make([]func(v *api.Asset), 0, 2)
 	q := st.Db.Asset.Create()
 	var k uuid.UUID
 	if req.HasId() {
@@ -108,8 +108,8 @@ func (s AssetServiceServer) Add(ctx context.Context, req *custody.AssetAddReques
 		return nil, err
 	} else {
 		q.SetTenantID(k)
-		ds = append(ds, func(v *custody.Asset) {
-			v.SetTenant(custody.Tenant_builder{Id: k[:]}.Build())
+		ds = append(ds, func(v *api.Asset) {
+			v.SetTenant(api.Tenant_builder{Id: k[:]}.Build())
 		})
 	}
 	q.SetAlias(req.GetAlias())
@@ -123,8 +123,8 @@ func (s AssetServiceServer) Add(ctx context.Context, req *custody.AssetAddReques
 			return nil, err
 		} else {
 			q.SetKeeperID(k)
-			ds = append(ds, func(v *custody.Asset) {
-				v.SetKeeper(custody.Holder_builder{Id: k[:]}.Build())
+			ds = append(ds, func(v *api.Asset) {
+				v.SetKeeper(api.Holder_builder{Id: k[:]}.Build())
 			})
 		}
 	}
@@ -151,7 +151,7 @@ func (s AssetServiceServer) Add(ctx context.Context, req *custody.AssetAddReques
 	}
 
 	if err := record(ctx, s.Rec, st.Db, Change{
-		By:  custody.AssetService_Add_FullMethodName,
+		By:  api.AssetService_Add_FullMethodName,
 		Key: u.ID,
 	}); err != nil {
 		return nil, err
@@ -167,7 +167,7 @@ func (s AssetServiceServer) Add(ctx context.Context, req *custody.AssetAddReques
 	return v, nil
 }
 
-func (s AssetServiceServer) Get(ctx context.Context, req *custody.AssetGetRequest) (*custody.Asset, error) {
+func (s AssetServiceServer) Get(ctx context.Context, req *api.AssetGetRequest) (*api.Asset, error) {
 	p, err := AssetPick(req.GetRef())
 	if err != nil {
 		return nil, err
@@ -194,7 +194,7 @@ func selectAssetKey(q *ent.AssetQuery) {
 	q.Select(asset.FieldID)
 }
 
-func AssetSelectedFields(m *custody.AssetSelect) []string {
+func AssetSelectedFields(m *api.AssetSelect) []string {
 	if m.GetAll() {
 		return asset.Columns
 	}
@@ -231,7 +231,7 @@ func AssetSelectedFields(m *custody.AssetSelect) []string {
 	return vs
 }
 
-func AssetSelect(q *ent.AssetQuery, m *custody.AssetSelect) {
+func AssetSelect(q *ent.AssetQuery, m *api.AssetSelect) {
 	if !m.GetAll() {
 		fields := AssetSelectedFields(m)
 		q.Select(fields...)
@@ -248,7 +248,7 @@ func AssetSelect(q *ent.AssetQuery, m *custody.AssetSelect) {
 	}
 }
 
-func AssetSelectInit(q *ent.AssetQuery, m *custody.AssetSelect) {
+func AssetSelectInit(q *ent.AssetQuery, m *api.AssetSelect) {
 	if m != nil {
 		AssetSelect(q, m)
 	} else {
@@ -257,17 +257,17 @@ func AssetSelectInit(q *ent.AssetQuery, m *custody.AssetSelect) {
 	}
 }
 
-func (s AssetServiceServer) Patch(ctx context.Context, req *custody.AssetPatchRequest) (*custody.Asset, error) {
+func (s AssetServiceServer) Patch(ctx context.Context, req *api.AssetPatchRequest) (*api.Asset, error) {
 	doc, err := ormpatch.FromPatchRequest(assetOrmEntity, req.ProtoReflect(), func(ed graph.Edge, ref protoreflect.Message) (protoreflect.Value, error) {
 		switch ed.Number() {
 		case 2:
-			k, err := TenantGetKey(ctx, s.Db, ref.Interface().(*custody.TenantRef))
+			k, err := TenantGetKey(ctx, s.Db, ref.Interface().(*api.TenantRef))
 			if err != nil {
 				return protoreflect.Value{}, err
 			}
 			return protoreflect.ValueOfBytes(k[:]), nil
 		case 8:
-			k, err := HolderGetKey(ctx, s.Db, ref.Interface().(*custody.HolderRef))
+			k, err := HolderGetKey(ctx, s.Db, ref.Interface().(*api.HolderRef))
 			if err != nil {
 				return protoreflect.Value{}, err
 			}
@@ -288,10 +288,10 @@ func (s AssetServiceServer) Patch(ctx context.Context, req *custody.AssetPatchRe
 		return nil, status.Errorf(codes.InvalidArgument, "%s", err)
 	}
 
-	return s.apply(ctx, req.GetRef(), doc, custody.AssetService_Patch_FullMethodName)
+	return s.apply(ctx, req.GetRef(), doc, api.AssetService_Patch_FullMethodName)
 }
 
-func AssetGetKey(ctx context.Context, db *ent.Client, ref *custody.AssetRef) (uuid.UUID, error) {
+func AssetGetKey(ctx context.Context, db *ent.Client, ref *api.AssetRef) (uuid.UUID, error) {
 	var z uuid.UUID
 	if ref.HasId() {
 		if v, err := uuid.FromBytes(ref.GetId()); err != nil {
@@ -317,19 +317,19 @@ func AssetGetKey(ctx context.Context, db *ent.Client, ref *custody.AssetRef) (uu
 	return v, nil
 }
 
-var assetOrmEntity = ormpatch.MustEntityOf(custody.File_app_asset_proto, "Asset")
+var assetOrmEntity = ormpatch.MustEntityOf(api.File_app_asset_proto, "Asset")
 
 var assetPatchColumns = entpatch.Columns{
 	1: asset.FieldID, 2: asset.TenantColumn, 4: asset.FieldAlias, 5: asset.FieldName, 6: asset.FieldDesc, 7: asset.FieldLabels, 8: asset.KeeperColumn, 9: asset.FieldLocation, 10: asset.FieldListed, 13: asset.FieldDateUpdated, 15: asset.FieldDateCreated}
 
-func (s AssetServiceServer) Apply(ctx context.Context, req *custody.AssetApplyRequest) (*custody.Asset, error) {
+func (s AssetServiceServer) Apply(ctx context.Context, req *api.AssetApplyRequest) (*api.Asset, error) {
 	if !req.HasPatch() {
 		return nil, status.Errorf(codes.InvalidArgument, "%s", ormpatch.ErrNoPatch)
 	}
-	return s.apply(ctx, req.GetRef(), req.GetPatch(), custody.AssetService_Apply_FullMethodName)
+	return s.apply(ctx, req.GetRef(), req.GetPatch(), api.AssetService_Apply_FullMethodName)
 }
 
-func (s AssetServiceServer) apply(ctx context.Context, ref *custody.AssetRef, doc *patchpb.Patch, by string) (*custody.Asset, error) {
+func (s AssetServiceServer) apply(ctx context.Context, ref *api.AssetRef, doc *patchpb.Patch, by string) (*api.Asset, error) {
 	plan := &ormpatch.Plan{Entity: assetOrmEntity}
 	if doc != nil {
 		v, err := ormpatch.Compile(assetOrmEntity, doc)
@@ -363,7 +363,7 @@ func (s AssetServiceServer) apply(ctx context.Context, ref *custody.AssetRef, do
 	if err != nil {
 		return nil, err
 	}
-	at := &custody.AssetRef{}
+	at := &api.AssetRef{}
 	at.SetId(k[:])
 	p, err := s.narrow(ctx, asset.IDEQ(k))
 	if err != nil {
@@ -430,7 +430,7 @@ func (s AssetServiceServer) apply(ctx context.Context, ref *custody.AssetRef, do
 	return out, nil
 }
 
-func (s AssetServiceServer) Erase(ctx context.Context, req *custody.AssetRef) (*emptypb.Empty, error) {
+func (s AssetServiceServer) Erase(ctx context.Context, req *api.AssetRef) (*emptypb.Empty, error) {
 	p, err := AssetPick(req)
 	if err != nil {
 		return nil, err
@@ -469,7 +469,7 @@ func (s AssetServiceServer) Erase(ctx context.Context, req *custody.AssetRef) (*
 	}
 	if n > 0 {
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:  custody.AssetService_Erase_FullMethodName,
+			By:  api.AssetService_Erase_FullMethodName,
 			Key: k,
 		}); err != nil {
 			return nil, err
@@ -481,15 +481,15 @@ func (s AssetServiceServer) Erase(ctx context.Context, req *custody.AssetRef) (*
 	return &emptypb.Empty{}, nil
 }
 
-func AssetPick(req *custody.AssetRef) (predicate.Asset, error) {
+func AssetPick(req *api.AssetRef) (predicate.Asset, error) {
 	switch req.WhichKey() {
-	case custody.AssetRef_Id_case:
+	case api.AssetRef_Id_case:
 		if v, err := uuid.FromBytes(req.GetId()); err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			return asset.IDEQ(v), nil
 		}
-	case custody.AssetRef_Slug_case:
+	case api.AssetRef_Slug_case:
 		k := req.GetSlug()
 		ps := make([]predicate.Asset, 0, 2)
 		ps = append(ps, asset.AliasEQ(k.GetAlias()))
@@ -499,7 +499,7 @@ func AssetPick(req *custody.AssetRef) (predicate.Asset, error) {
 			ps = append(ps, asset.HasTenantWith(p))
 		}
 		return asset.And(ps...), nil
-	case custody.AssetRef_Key_not_set_case:
+	case api.AssetRef_Key_not_set_case:
 		return nil, status.Errorf(codes.InvalidArgument, "key not set: Asset")
 	default:
 		return nil, status.Errorf(codes.Unimplemented, "unknown type of key: %s", req.WhichKey())

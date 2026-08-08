@@ -19,7 +19,7 @@ import (
 	"github.com/lesomnus/payday/pdpb"
 	"github.com/lesomnus/payday/watch"
 
-	app "github.com/lesomnus/custody"
+	app "github.com/lesomnus/custody/api"
 	"github.com/lesomnus/custody/internal/ent"
 	"github.com/lesomnus/custody/server/bare"
 	"github.com/lesomnus/custody/server/catalogue"

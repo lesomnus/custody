@@ -8,7 +8,7 @@ import (
 	errors "errors"
 	fmt "fmt"
 	uuid "github.com/google/uuid"
-	custody "github.com/lesomnus/custody"
+	api "github.com/lesomnus/custody/api"
 	ent "github.com/lesomnus/custody/internal/ent"
 	asset "github.com/lesomnus/custody/internal/ent/asset"
 	audit "github.com/lesomnus/custody/internal/ent/audit"
@@ -518,7 +518,7 @@ func NewServer(db *ent.Client, opts ...Option) (Server, error) {
 // the connection it was begun on, so it carries the same dialect -- but
 // this takes a driver from anywhere, and what NewServer refused at the
 // start should not become reachable by going around it.
-func (s Server) WithDriver(drv dialect.Driver) (custody.Server, error) {
+func (s Server) WithDriver(drv dialect.Driver) (api.Server, error) {
 	db := s.Db.WithDriver(drv)
 	if d := db.Dialect(); !entpatch.Supports(d) {
 		return nil, fmt.Errorf("%w: %s", entpatch.ErrDialect, d)
@@ -527,8 +527,8 @@ func (s Server) WithDriver(drv dialect.Driver) (custody.Server, error) {
 	return s, nil
 }
 
-func (s Server) Tenant() custody.TenantServiceServer { return TenantServiceServer{Store: s.Store} }
-func (s Server) Holder() custody.HolderServiceServer { return HolderServiceServer{Store: s.Store} }
-func (s Server) Asset() custody.AssetServiceServer   { return AssetServiceServer{Store: s.Store} }
-func (s Server) Audit() custody.AuditServiceServer   { return AuditServiceServer{Store: s.Store} }
-func (s Server) Outbox() custody.OutboxServiceServer { return OutboxServiceServer{Store: s.Store} }
+func (s Server) Tenant() api.TenantServiceServer { return TenantServiceServer{Store: s.Store} }
+func (s Server) Holder() api.HolderServiceServer { return HolderServiceServer{Store: s.Store} }
+func (s Server) Asset() api.AssetServiceServer   { return AssetServiceServer{Store: s.Store} }
+func (s Server) Audit() api.AuditServiceServer   { return AuditServiceServer{Store: s.Store} }
+func (s Server) Outbox() api.OutboxServiceServer { return OutboxServiceServer{Store: s.Store} }

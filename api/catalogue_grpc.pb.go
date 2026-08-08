@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: app/catalogue.proto
 
-package custody
+package api
 
 import (
 	context "context"

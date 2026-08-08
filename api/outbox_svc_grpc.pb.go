@@ -7,7 +7,7 @@
 // - protoc             (unknown)
 // source: payday/outbox_svc.g.proto
 
-package custody
+package api
 
 import (
 	grpc "google.golang.org/grpc"

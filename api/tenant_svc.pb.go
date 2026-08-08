@@ -7,7 +7,7 @@
 // 	protoc        (unknown)
 // source: payday/tenant_svc.g.proto
 
-package custody
+package api
 
 import (
 	patchpb "github.com/lesomnus/protobuf-patch/patchpb"
@@ -1092,7 +1092,7 @@ const file_payday_tenant_svc_g_proto_rawDesc = "" +
 	"\x03Get\x12\x18.payday.TenantGetRequest\x1a\x0e.payday.Tenant\x123\n" +
 	"\x05Patch\x12\x1a.payday.TenantPatchRequest\x1a\x0e.payday.Tenant\x123\n" +
 	"\x05Apply\x12\x1a.payday.TenantApplyRequest\x1a\x0e.payday.Tenant\x122\n" +
-	"\x05Erase\x12\x11.payday.TenantRef\x1a\x16.google.protobuf.EmptyB\x1dZ\x1bgithub.com/lesomnus/custodyb\beditionsp\xe8\a"
+	"\x05Erase\x12\x11.payday.TenantRef\x1a\x16.google.protobuf.EmptyB!Z\x1fgithub.com/lesomnus/custody/apib\beditionsp\xe8\a"
 
 var file_payday_tenant_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_payday_tenant_svc_g_proto_goTypes = []any{

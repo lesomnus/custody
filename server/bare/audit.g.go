@@ -8,7 +8,7 @@ import (
 	sqlgraph "entgo.io/ent/dialect/sql/sqlgraph"
 	errors "errors"
 	uuid "github.com/google/uuid"
-	custody "github.com/lesomnus/custody"
+	api "github.com/lesomnus/custody/api"
 	ent "github.com/lesomnus/custody/internal/ent"
 	audit "github.com/lesomnus/custody/internal/ent/audit"
 	predicate "github.com/lesomnus/custody/internal/ent/predicate"
@@ -25,7 +25,7 @@ import (
 type AuditServiceServer struct {
 	Store
 
-	custody.UnimplementedAuditServiceServer
+	api.UnimplementedAuditServiceServer
 }
 
 // NewAuditServiceServer answers with a server that runs its queries with `db`.
@@ -33,7 +33,7 @@ type AuditServiceServer struct {
 // It takes the options of [Server] so that what is built here can be told
 // where to report its writes and what it may see. Built without them, it
 // reports nowhere and sees everything.
-func NewAuditServiceServer(db *ent.Client, opts ...Option) custody.AuditServiceServer {
+func NewAuditServiceServer(db *ent.Client, opts ...Option) api.AuditServiceServer {
 	s := Server{Store: Store{Db: db}}
 	for _, opt := range opts {
 		opt(&s)
@@ -77,7 +77,7 @@ func (s AuditServiceServer) narrow(ctx context.Context, p predicate.Audit) (pred
 	return AuditNarrow(ctx, s.Scope, p)
 }
 
-func (s AuditServiceServer) Add(ctx context.Context, req *custody.AuditAddRequest) (*custody.Audit, error) {
+func (s AuditServiceServer) Add(ctx context.Context, req *api.AuditAddRequest) (*api.Audit, error) {
 	tx, err := enttx.Join[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
 		return nil, err
@@ -139,7 +139,7 @@ func (s AuditServiceServer) Add(ctx context.Context, req *custody.AuditAddReques
 	}
 
 	if err := record(ctx, s.Rec, st.Db, Change{
-		By:  custody.AuditService_Add_FullMethodName,
+		By:  api.AuditService_Add_FullMethodName,
 		Key: u.ID,
 	}); err != nil {
 		return nil, err
@@ -151,7 +151,7 @@ func (s AuditServiceServer) Add(ctx context.Context, req *custody.AuditAddReques
 	return u.Proto(), nil
 }
 
-func (s AuditServiceServer) Get(ctx context.Context, req *custody.AuditGetRequest) (*custody.Audit, error) {
+func (s AuditServiceServer) Get(ctx context.Context, req *api.AuditGetRequest) (*api.Audit, error) {
 	p, err := AuditPick(req.GetRef())
 	if err != nil {
 		return nil, err
@@ -178,7 +178,7 @@ func selectAuditKey(q *ent.AuditQuery) {
 	q.Select(audit.FieldID)
 }
 
-func AuditSelectedFields(m *custody.AuditSelect) []string {
+func AuditSelectedFields(m *api.AuditSelect) []string {
 	if m.GetAll() {
 		return audit.Columns
 	}
@@ -212,21 +212,21 @@ func AuditSelectedFields(m *custody.AuditSelect) []string {
 	return vs
 }
 
-func AuditSelect(q *ent.AuditQuery, m *custody.AuditSelect) {
+func AuditSelect(q *ent.AuditQuery, m *api.AuditSelect) {
 	if !m.GetAll() {
 		fields := AuditSelectedFields(m)
 		q.Select(fields...)
 	}
 }
 
-func AuditSelectInit(q *ent.AuditQuery, m *custody.AuditSelect) {
+func AuditSelectInit(q *ent.AuditQuery, m *api.AuditSelect) {
 	if m != nil {
 		AuditSelect(q, m)
 	} else {
 	}
 }
 
-func (s AuditServiceServer) Patch(ctx context.Context, req *custody.AuditPatchRequest) (*custody.Audit, error) {
+func (s AuditServiceServer) Patch(ctx context.Context, req *api.AuditPatchRequest) (*api.Audit, error) {
 	doc, err := ormpatch.FromPatchRequest(auditOrmEntity, req.ProtoReflect(), nil)
 	if err != nil {
 		if _, ok := status.FromError(err); ok {
@@ -241,10 +241,10 @@ func (s AuditServiceServer) Patch(ctx context.Context, req *custody.AuditPatchRe
 		return nil, status.Errorf(codes.InvalidArgument, "%s", err)
 	}
 
-	return s.apply(ctx, req.GetRef(), doc, custody.AuditService_Patch_FullMethodName)
+	return s.apply(ctx, req.GetRef(), doc, api.AuditService_Patch_FullMethodName)
 }
 
-func AuditGetKey(ctx context.Context, db *ent.Client, ref *custody.AuditRef) (uuid.UUID, error) {
+func AuditGetKey(ctx context.Context, db *ent.Client, ref *api.AuditRef) (uuid.UUID, error) {
 	var z uuid.UUID
 	if ref.HasId() {
 		if v, err := uuid.FromBytes(ref.GetId()); err != nil {
@@ -270,19 +270,19 @@ func AuditGetKey(ctx context.Context, db *ent.Client, ref *custody.AuditRef) (uu
 	return v, nil
 }
 
-var auditOrmEntity = ormpatch.MustEntityOf(custody.File_payday_audit_proto, "Audit")
+var auditOrmEntity = ormpatch.MustEntityOf(api.File_payday_audit_proto, "Audit")
 
 var auditPatchColumns = entpatch.Columns{
 	1: audit.FieldID, 2: audit.FieldTenantID, 8: audit.FieldActorID, 9: audit.FieldTraceID, 10: audit.FieldAction, 11: audit.FieldObjectID, 12: audit.FieldPatch, 15: audit.FieldDateCreated}
 
-func (s AuditServiceServer) Apply(ctx context.Context, req *custody.AuditApplyRequest) (*custody.Audit, error) {
+func (s AuditServiceServer) Apply(ctx context.Context, req *api.AuditApplyRequest) (*api.Audit, error) {
 	if !req.HasPatch() {
 		return nil, status.Errorf(codes.InvalidArgument, "%s", ormpatch.ErrNoPatch)
 	}
-	return s.apply(ctx, req.GetRef(), req.GetPatch(), custody.AuditService_Apply_FullMethodName)
+	return s.apply(ctx, req.GetRef(), req.GetPatch(), api.AuditService_Apply_FullMethodName)
 }
 
-func (s AuditServiceServer) apply(ctx context.Context, ref *custody.AuditRef, doc *patchpb.Patch, by string) (*custody.Audit, error) {
+func (s AuditServiceServer) apply(ctx context.Context, ref *api.AuditRef, doc *patchpb.Patch, by string) (*api.Audit, error) {
 	plan := &ormpatch.Plan{Entity: auditOrmEntity}
 	if doc != nil {
 		v, err := ormpatch.Compile(auditOrmEntity, doc)
@@ -316,7 +316,7 @@ func (s AuditServiceServer) apply(ctx context.Context, ref *custody.AuditRef, do
 	if err != nil {
 		return nil, err
 	}
-	at := &custody.AuditRef{}
+	at := &api.AuditRef{}
 	at.SetId(k[:])
 	p, err := s.narrow(ctx, audit.IDEQ(k))
 	if err != nil {
@@ -380,7 +380,7 @@ func (s AuditServiceServer) apply(ctx context.Context, ref *custody.AuditRef, do
 	return out, nil
 }
 
-func (s AuditServiceServer) Erase(ctx context.Context, req *custody.AuditRef) (*emptypb.Empty, error) {
+func (s AuditServiceServer) Erase(ctx context.Context, req *api.AuditRef) (*emptypb.Empty, error) {
 	p, err := AuditPick(req)
 	if err != nil {
 		return nil, err
@@ -419,7 +419,7 @@ func (s AuditServiceServer) Erase(ctx context.Context, req *custody.AuditRef) (*
 	}
 	if n > 0 {
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:  custody.AuditService_Erase_FullMethodName,
+			By:  api.AuditService_Erase_FullMethodName,
 			Key: k,
 		}); err != nil {
 			return nil, err
@@ -431,15 +431,15 @@ func (s AuditServiceServer) Erase(ctx context.Context, req *custody.AuditRef) (*
 	return &emptypb.Empty{}, nil
 }
 
-func AuditPick(req *custody.AuditRef) (predicate.Audit, error) {
+func AuditPick(req *api.AuditRef) (predicate.Audit, error) {
 	switch req.WhichKey() {
-	case custody.AuditRef_Id_case:
+	case api.AuditRef_Id_case:
 		if v, err := uuid.FromBytes(req.GetId()); err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			return audit.IDEQ(v), nil
 		}
-	case custody.AuditRef_Key_not_set_case:
+	case api.AuditRef_Key_not_set_case:
 		return nil, status.Errorf(codes.InvalidArgument, "key not set: Audit")
 	default:
 		return nil, status.Errorf(codes.Unimplemented, "unknown type of key: %s", req.WhichKey())

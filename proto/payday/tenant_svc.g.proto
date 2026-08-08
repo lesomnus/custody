@@ -10,7 +10,7 @@ import "google/protobuf/timestamp.proto";
 import "patch/patch.proto";
 import "payday/tenant.proto";
 
-option go_package = "github.com/lesomnus/custody";
+option go_package = "github.com/lesomnus/custody/api";
 
 service TenantService {
 	// Add creates a new Tenant

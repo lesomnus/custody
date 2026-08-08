@@ -9,7 +9,7 @@ import "orm.proto";
 import "payday.proto";
 
 option features.field_presence = IMPLICIT;
-option go_package = "github.com/lesomnus/custody";
+option go_package = "github.com/lesomnus/custody/api";
 
 // Asset is a thing the company owns and somebody is answerable for.
 //

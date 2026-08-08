@@ -11,7 +11,7 @@ import (
 
 	"github.com/lesomnus/payday/pdid"
 
-	app "github.com/lesomnus/custody"
+	app "github.com/lesomnus/custody/api"
 )
 
 // TestHeadquartersMovesAnAssetBetweenTenants is the gimmick this project exists

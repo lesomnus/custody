@@ -5,7 +5,7 @@ edition = "2023";
 
 package payday;
 
-option go_package = "github.com/lesomnus/custody";
+option go_package = "github.com/lesomnus/custody/api";
 
 service OutboxService {
 }

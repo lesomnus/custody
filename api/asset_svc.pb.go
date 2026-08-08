@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: app/asset_svc.g.proto
 
-package custody
+package api
 
 import (
 	patchpb "github.com/lesomnus/protobuf-patch/patchpb"
@@ -2277,7 +2277,7 @@ const file_app_asset_svc_g_proto_rawDesc = "" +
 	"\x04List\x12\x15.app.AssetListRequest\x1a\x16.app.AssetListResponse\x12:\n" +
 	"\x05Watch\x12\x16.app.AssetWatchRequest\x1a\x17.app.AssetWatchResponse0\x01\x121\n" +
 	"\bTransfer\x12\x19.app.AssetTransferRequest\x1a\n" +
-	".app.AssetB\x1dZ\x1bgithub.com/lesomnus/custodyb\beditionsp\xe8\a"
+	".app.AssetB!Z\x1fgithub.com/lesomnus/custody/apib\beditionsp\xe8\a"
 
 var file_app_asset_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_app_asset_svc_g_proto_goTypes = []any{

@@ -33,7 +33,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/lesomnus/custody"
+	"github.com/lesomnus/custody/api"
 	"github.com/lesomnus/custody/internal/ent"
 	"github.com/lesomnus/custody/internal/ent/asset"
 )
@@ -51,7 +51,7 @@ const (
 
 // Server answers the public catalogue.
 type Server struct {
-	custody.UnimplementedCatalogueServiceServer
+	api.UnimplementedCatalogueServiceServer
 
 	db *ent.Client
 }
@@ -63,7 +63,7 @@ func New(db *ent.Client) *Server { return &Server{db: db} }
 // Two narrowings and both are this file's: `listed`, which is what the owning
 // tenant said may be published, and the page. There is no third -- a caller has
 // no identity here, so there is nothing else to narrow by.
-func (s *Server) Search(ctx context.Context, req *custody.CatalogueSearchRequest) (*custody.CatalogueSearchResponse, error) {
+func (s *Server) Search(ctx context.Context, req *api.CatalogueSearchRequest) (*api.CatalogueSearchResponse, error) {
 	size := int(req.GetSize())
 	switch {
 	case size <= 0:
@@ -91,12 +91,12 @@ func (s *Server) Search(ctx context.Context, req *custody.CatalogueSearchRequest
 		next = vs[len(vs)-1].ID.String()
 	}
 
-	items := make([]*custody.CatalogueItem, len(vs))
+	items := make([]*api.CatalogueItem, len(vs))
 	for i, v := range vs {
 		// The projection, written out. A field added to Asset tomorrow is not
 		// published by having been forgotten -- it is published by somebody
 		// adding a line here, which is a thing a reviewer sees.
-		items[i] = custody.CatalogueItem_builder{
+		items[i] = api.CatalogueItem_builder{
 			Id:    v.ID[:],
 			Alias: v.Alias,
 			Name:  v.Name,
@@ -104,5 +104,5 @@ func (s *Server) Search(ctx context.Context, req *custody.CatalogueSearchRequest
 		}.Build()
 	}
 
-	return custody.CatalogueSearchResponse_builder{Items: items, Next: next}.Build(), nil
+	return api.CatalogueSearchResponse_builder{Items: items, Next: next}.Build(), nil
 }

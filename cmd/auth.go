@@ -10,7 +10,7 @@ import (
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
 
-	app "github.com/lesomnus/custody"
+	app "github.com/lesomnus/custody/api"
 )
 
 // Resolver turns a claim into the frame a request is served in.

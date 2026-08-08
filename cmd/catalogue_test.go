@@ -7,7 +7,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	app "github.com/lesomnus/custody"
+	app "github.com/lesomnus/custody/api"
 	"github.com/lesomnus/custody/server/catalogue"
 )
 

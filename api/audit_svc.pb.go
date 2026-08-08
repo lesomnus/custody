@@ -7,7 +7,7 @@
 // 	protoc        (unknown)
 // source: payday/audit_svc.g.proto
 
-package custody
+package api
 
 import (
 	patchpb "github.com/lesomnus/protobuf-patch/patchpb"
@@ -1140,7 +1140,7 @@ const file_payday_audit_svc_g_proto_rawDesc = "" +
 	"\x03Get\x12\x17.payday.AuditGetRequest\x1a\r.payday.Audit\x121\n" +
 	"\x05Patch\x12\x19.payday.AuditPatchRequest\x1a\r.payday.Audit\x121\n" +
 	"\x05Apply\x12\x19.payday.AuditApplyRequest\x1a\r.payday.Audit\x121\n" +
-	"\x05Erase\x12\x10.payday.AuditRef\x1a\x16.google.protobuf.EmptyB\x1dZ\x1bgithub.com/lesomnus/custodyb\beditionsp\xe8\a"
+	"\x05Erase\x12\x10.payday.AuditRef\x1a\x16.google.protobuf.EmptyB!Z\x1fgithub.com/lesomnus/custody/apib\beditionsp\xe8\a"
 
 var file_payday_audit_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_payday_audit_svc_g_proto_goTypes = []any{

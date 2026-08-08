@@ -4,12 +4,12 @@
 package ent
 
 import (
-	custody "github.com/lesomnus/custody"
+	api "github.com/lesomnus/custody/api"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (e *Outbox) Proto() *custody.Outbox {
-	x := &custody.Outbox{}
+func (e *Outbox) Proto() *api.Outbox {
+	x := &api.Outbox{}
 	x.SetId(e.ID[:])
 	x.SetTenantId(e.TenantID[:])
 	x.SetActorId(e.ActorID[:])

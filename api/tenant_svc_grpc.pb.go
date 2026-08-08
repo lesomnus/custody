@@ -7,7 +7,7 @@
 // - protoc             (unknown)
 // source: payday/tenant_svc.g.proto
 
-package custody
+package api
 
 import (
 	context "context"

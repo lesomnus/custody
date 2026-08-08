@@ -4,7 +4,7 @@
 // write. What is left is an operation that means something -- one with a rule
 // nothing else has -- and there is exactly one of those here.
 //
-// It is a layer in the same sense every other one is: a `struct{ custody.Overlay }`
+// It is a layer in the same sense every other one is: a `struct{ api.Overlay }`
 // that answers the RPCs it has something to say about and hands the rest down.
 // So it stacks with the wall, the gate and the trail rather than standing beside
 // them, and a `Transfer` is on the trail for the same reason an `Add` is --
@@ -22,26 +22,26 @@ import (
 	"github.com/lesomnus/payday/gate"
 	"github.com/lesomnus/payday/pderr"
 
-	"github.com/lesomnus/custody"
+	"github.com/lesomnus/custody/api"
 )
 
 // Core is the layer that answers what this app wrote.
 type Core struct {
-	custody.Overlay
+	api.Overlay
 }
 
-func New(next custody.Server) Core { return Core{custody.NewOverlay(next)} }
+func New(next api.Server) Core { return Core{api.NewOverlay(next)} }
 
 // Build makes a builder of this layer so that it can be stacked.
-func Build() custody.Builder { return builder{} }
+func Build() api.Builder { return builder{} }
 
 type builder struct{}
 
-func (builder) Build(next custody.Server) (custody.Server, error) { return New(next), nil }
+func (builder) Build(next api.Server) (api.Server, error) { return New(next), nil }
 
 var (
-	_ custody.Server               = Core{}
-	_ enttx.Binder[custody.Server] = Core{}
+	_ api.Server               = Core{}
+	_ enttx.Binder[api.Server] = Core{}
 )
 
 // WithDriver answers with this stack running on `drv`.
@@ -50,7 +50,7 @@ var (
 // behind it and has no way to make itself again, so a layer that did not write
 // it would be missing from the rebuilt stack and the requests inside the
 // transaction would go around it.
-func (s Core) WithDriver(drv dialect.Driver) (custody.Server, error) {
+func (s Core) WithDriver(drv dialect.Driver) (api.Server, error) {
 	next, err := enttx.Rebind(s.Next(), drv)
 	if err != nil {
 		return nil, err
@@ -61,10 +61,10 @@ func (s Core) WithDriver(drv dialect.Driver) (custody.Server, error) {
 
 type coreAsset struct {
 	Core
-	custody.AssetServiceServer
+	api.AssetServiceServer
 }
 
-func (s Core) Asset() custody.AssetServiceServer {
+func (s Core) Asset() api.AssetServiceServer {
 	return coreAsset{s, s.Next().Asset()}
 }
 
@@ -86,7 +86,7 @@ func (s Core) Asset() custody.AssetServiceServer {
 // of them; a customer may transfer only to a tenant it can already see, which
 // for an ordinary customer is itself, which is not a transfer. That is the rule
 // falling out of the scope rather than being written twice.
-func (s coreAsset) Transfer(ctx context.Context, req *custody.AssetTransferRequest) (*custody.Asset, error) {
+func (s coreAsset) Transfer(ctx context.Context, req *api.AssetTransferRequest) (*api.Asset, error) {
 	if _, err := gate.Actor(ctx); err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func (s coreAsset) Transfer(ctx context.Context, req *custody.AssetTransferReque
 		return nil, err
 	}
 
-	to, err := s.Core.Next().Tenant().Get(ctx, custody.TenantGetRequest_builder{
+	to, err := s.Core.Next().Tenant().Get(ctx, api.TenantGetRequest_builder{
 		Ref: req.GetTo(),
 	}.Build())
 	if err != nil {
@@ -110,7 +110,7 @@ func (s coreAsset) Transfer(ctx context.Context, req *custody.AssetTransferReque
 	}
 
 	// Read through the wall, so this is also the check that the caller holds it.
-	v, err := s.AssetServiceServer.Get(ctx, custody.AssetGetRequest_builder{
+	v, err := s.AssetServiceServer.Get(ctx, api.AssetGetRequest_builder{
 		Ref: req.GetRef(),
 	}.Build())
 	if err != nil {
@@ -126,8 +126,8 @@ func (s coreAsset) Transfer(ctx context.Context, req *custody.AssetTransferReque
 	// The keeper goes with it, and that is a decision rather than an omission:
 	// being answerable for something does not travel, because the person is in
 	// the tenant the asset left.
-	return s.AssetServiceServer.Patch(ctx, custody.AssetPatchRequest_builder{
-		Ref:         custody.AssetRef_builder{Id: v.GetId()}.Build(),
+	return s.AssetServiceServer.Patch(ctx, api.AssetPatchRequest_builder{
+		Ref:         api.AssetRef_builder{Id: v.GetId()}.Build(),
 		Tenant:      req.GetTo(),
 		DateUpdated: v.GetDateUpdated(),
 	}.Build())

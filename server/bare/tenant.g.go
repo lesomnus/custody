@@ -8,7 +8,7 @@ import (
 	sqlgraph "entgo.io/ent/dialect/sql/sqlgraph"
 	errors "errors"
 	uuid "github.com/google/uuid"
-	custody "github.com/lesomnus/custody"
+	api "github.com/lesomnus/custody/api"
 	ent "github.com/lesomnus/custody/internal/ent"
 	predicate "github.com/lesomnus/custody/internal/ent/predicate"
 	tenant "github.com/lesomnus/custody/internal/ent/tenant"
@@ -25,7 +25,7 @@ import (
 type TenantServiceServer struct {
 	Store
 
-	custody.UnimplementedTenantServiceServer
+	api.UnimplementedTenantServiceServer
 }
 
 // NewTenantServiceServer answers with a server that runs its queries with `db`.
@@ -33,7 +33,7 @@ type TenantServiceServer struct {
 // It takes the options of [Server] so that what is built here can be told
 // where to report its writes and what it may see. Built without them, it
 // reports nowhere and sees everything.
-func NewTenantServiceServer(db *ent.Client, opts ...Option) custody.TenantServiceServer {
+func NewTenantServiceServer(db *ent.Client, opts ...Option) api.TenantServiceServer {
 	s := Server{Store: Store{Db: db}}
 	for _, opt := range opts {
 		opt(&s)
@@ -77,7 +77,7 @@ func (s TenantServiceServer) narrow(ctx context.Context, p predicate.Tenant) (pr
 	return TenantNarrow(ctx, s.Scope, p)
 }
 
-func (s TenantServiceServer) Add(ctx context.Context, req *custody.TenantAddRequest) (*custody.Tenant, error) {
+func (s TenantServiceServer) Add(ctx context.Context, req *api.TenantAddRequest) (*api.Tenant, error) {
 	tx, err := enttx.Join[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
 		return nil, err
@@ -128,7 +128,7 @@ func (s TenantServiceServer) Add(ctx context.Context, req *custody.TenantAddRequ
 	}
 
 	if err := record(ctx, s.Rec, st.Db, Change{
-		By:  custody.TenantService_Add_FullMethodName,
+		By:  api.TenantService_Add_FullMethodName,
 		Key: u.ID,
 	}); err != nil {
 		return nil, err
@@ -140,7 +140,7 @@ func (s TenantServiceServer) Add(ctx context.Context, req *custody.TenantAddRequ
 	return u.Proto(), nil
 }
 
-func (s TenantServiceServer) Get(ctx context.Context, req *custody.TenantGetRequest) (*custody.Tenant, error) {
+func (s TenantServiceServer) Get(ctx context.Context, req *api.TenantGetRequest) (*api.Tenant, error) {
 	p, err := TenantPick(req.GetRef())
 	if err != nil {
 		return nil, err
@@ -167,7 +167,7 @@ func selectTenantKey(q *ent.TenantQuery) {
 	q.Select(tenant.FieldID)
 }
 
-func TenantSelectedFields(m *custody.TenantSelect) []string {
+func TenantSelectedFields(m *api.TenantSelect) []string {
 	if m.GetAll() {
 		return tenant.Columns
 	}
@@ -198,21 +198,21 @@ func TenantSelectedFields(m *custody.TenantSelect) []string {
 	return vs
 }
 
-func TenantSelect(q *ent.TenantQuery, m *custody.TenantSelect) {
+func TenantSelect(q *ent.TenantQuery, m *api.TenantSelect) {
 	if !m.GetAll() {
 		fields := TenantSelectedFields(m)
 		q.Select(fields...)
 	}
 }
 
-func TenantSelectInit(q *ent.TenantQuery, m *custody.TenantSelect) {
+func TenantSelectInit(q *ent.TenantQuery, m *api.TenantSelect) {
 	if m != nil {
 		TenantSelect(q, m)
 	} else {
 	}
 }
 
-func (s TenantServiceServer) Patch(ctx context.Context, req *custody.TenantPatchRequest) (*custody.Tenant, error) {
+func (s TenantServiceServer) Patch(ctx context.Context, req *api.TenantPatchRequest) (*api.Tenant, error) {
 	doc, err := ormpatch.FromPatchRequest(tenantOrmEntity, req.ProtoReflect(), nil)
 	if err != nil {
 		if _, ok := status.FromError(err); ok {
@@ -227,10 +227,10 @@ func (s TenantServiceServer) Patch(ctx context.Context, req *custody.TenantPatch
 		return nil, status.Errorf(codes.InvalidArgument, "%s", err)
 	}
 
-	return s.apply(ctx, req.GetRef(), doc, custody.TenantService_Patch_FullMethodName)
+	return s.apply(ctx, req.GetRef(), doc, api.TenantService_Patch_FullMethodName)
 }
 
-func TenantGetKey(ctx context.Context, db *ent.Client, ref *custody.TenantRef) (uuid.UUID, error) {
+func TenantGetKey(ctx context.Context, db *ent.Client, ref *api.TenantRef) (uuid.UUID, error) {
 	var z uuid.UUID
 	if ref.HasId() {
 		if v, err := uuid.FromBytes(ref.GetId()); err != nil {
@@ -256,19 +256,19 @@ func TenantGetKey(ctx context.Context, db *ent.Client, ref *custody.TenantRef) (
 	return v, nil
 }
 
-var tenantOrmEntity = ormpatch.MustEntityOf(custody.File_payday_tenant_proto, "Tenant")
+var tenantOrmEntity = ormpatch.MustEntityOf(api.File_payday_tenant_proto, "Tenant")
 
 var tenantPatchColumns = entpatch.Columns{
 	1: tenant.FieldID, 4: tenant.FieldAlias, 5: tenant.FieldName, 6: tenant.FieldDesc, 7: tenant.FieldLabels, 13: tenant.FieldDateUpdated, 15: tenant.FieldDateCreated}
 
-func (s TenantServiceServer) Apply(ctx context.Context, req *custody.TenantApplyRequest) (*custody.Tenant, error) {
+func (s TenantServiceServer) Apply(ctx context.Context, req *api.TenantApplyRequest) (*api.Tenant, error) {
 	if !req.HasPatch() {
 		return nil, status.Errorf(codes.InvalidArgument, "%s", ormpatch.ErrNoPatch)
 	}
-	return s.apply(ctx, req.GetRef(), req.GetPatch(), custody.TenantService_Apply_FullMethodName)
+	return s.apply(ctx, req.GetRef(), req.GetPatch(), api.TenantService_Apply_FullMethodName)
 }
 
-func (s TenantServiceServer) apply(ctx context.Context, ref *custody.TenantRef, doc *patchpb.Patch, by string) (*custody.Tenant, error) {
+func (s TenantServiceServer) apply(ctx context.Context, ref *api.TenantRef, doc *patchpb.Patch, by string) (*api.Tenant, error) {
 	plan := &ormpatch.Plan{Entity: tenantOrmEntity}
 	if doc != nil {
 		v, err := ormpatch.Compile(tenantOrmEntity, doc)
@@ -302,7 +302,7 @@ func (s TenantServiceServer) apply(ctx context.Context, ref *custody.TenantRef, 
 	if err != nil {
 		return nil, err
 	}
-	at := &custody.TenantRef{}
+	at := &api.TenantRef{}
 	at.SetId(k[:])
 	p, err := s.narrow(ctx, tenant.IDEQ(k))
 	if err != nil {
@@ -369,7 +369,7 @@ func (s TenantServiceServer) apply(ctx context.Context, ref *custody.TenantRef, 
 	return out, nil
 }
 
-func (s TenantServiceServer) Erase(ctx context.Context, req *custody.TenantRef) (*emptypb.Empty, error) {
+func (s TenantServiceServer) Erase(ctx context.Context, req *api.TenantRef) (*emptypb.Empty, error) {
 	p, err := TenantPick(req)
 	if err != nil {
 		return nil, err
@@ -408,7 +408,7 @@ func (s TenantServiceServer) Erase(ctx context.Context, req *custody.TenantRef) 
 	}
 	if n > 0 {
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:  custody.TenantService_Erase_FullMethodName,
+			By:  api.TenantService_Erase_FullMethodName,
 			Key: k,
 		}); err != nil {
 			return nil, err
@@ -420,17 +420,17 @@ func (s TenantServiceServer) Erase(ctx context.Context, req *custody.TenantRef) 
 	return &emptypb.Empty{}, nil
 }
 
-func TenantPick(req *custody.TenantRef) (predicate.Tenant, error) {
+func TenantPick(req *api.TenantRef) (predicate.Tenant, error) {
 	switch req.WhichKey() {
-	case custody.TenantRef_Id_case:
+	case api.TenantRef_Id_case:
 		if v, err := uuid.FromBytes(req.GetId()); err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			return tenant.IDEQ(v), nil
 		}
-	case custody.TenantRef_Alias_case:
+	case api.TenantRef_Alias_case:
 		return tenant.AliasEQ(req.GetAlias()), nil
-	case custody.TenantRef_Key_not_set_case:
+	case api.TenantRef_Key_not_set_case:
 		return nil, status.Errorf(codes.InvalidArgument, "key not set: Tenant")
 	default:
 		return nil, status.Errorf(codes.Unimplemented, "unknown type of key: %s", req.WhichKey())

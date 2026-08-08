@@ -15,7 +15,7 @@ import (
 	sql "entgo.io/ent/dialect/sql"
 	fmt "fmt"
 	uuid "github.com/google/uuid"
-	custody "github.com/lesomnus/custody"
+	api "github.com/lesomnus/custody/api"
 	ent "github.com/lesomnus/custody/internal/ent"
 	asset "github.com/lesomnus/custody/internal/ent/asset"
 	audit "github.com/lesomnus/custody/internal/ent/audit"
@@ -277,11 +277,11 @@ func (s Sink) WithNamer(n slug.Namer) Sink {
 	return s
 }
 
-var _ custody.Server = Sink{}
-var _ enttx.Binder[custody.Server] = Sink{}
+var _ api.Server = Sink{}
+var _ enttx.Binder[api.Server] = Sink{}
 
 // WithDriver answers with this server running on `drv`; see [Gate.WithDriver].
-func (s Sink) WithDriver(drv dialect.Driver) (custody.Server, error) {
+func (s Sink) WithDriver(drv dialect.Driver) (api.Server, error) {
 	v, err := s.Server.WithDriver(drv)
 	if err != nil {
 		return nil, err
@@ -294,14 +294,14 @@ func (s Sink) WithDriver(drv dialect.Driver) (custody.Server, error) {
 }
 
 type sinkAsset struct {
-	custody.AssetServiceServer
+	api.AssetServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) Asset() custody.AssetServiceServer {
+func (s Sink) Asset() api.AssetServiceServer {
 	return sinkAsset{s.Server.Asset(), s.Server.Store, s.w, s.namer, s.joined}
 }
 
@@ -317,7 +317,7 @@ func (s Sink) Asset() custody.AssetServiceServer {
 // called, and for a call made in this process that is a message they may
 // still be holding -- a server that folded a caller's own field would be
 // changing a value they can read back.
-func (s sinkAsset) Add(ctx context.Context, req *custody.AssetAddRequest) (*custody.Asset, error) {
+func (s sinkAsset) Add(ctx context.Context, req *api.AssetAddRequest) (*api.Asset, error) {
 	// How many names to try. More than one only when the caller named
 	// nothing -- then the name is this server's and a collision is this
 	// server's to resolve. A name the caller gave is theirs, and quietly
@@ -363,7 +363,7 @@ func (s sinkAsset) Add(ctx context.Context, req *custody.AssetAddRequest) (*cust
 // decides the name of a row being made; a patch that cleared the alias is
 // a caller asking for something invalid, and answering that with an
 // invented name would hand them a row they did not ask for.
-func (s sinkAsset) Patch(ctx context.Context, req *custody.AssetPatchRequest) (*custody.Asset, error) {
+func (s sinkAsset) Patch(ctx context.Context, req *api.AssetPatchRequest) (*api.Asset, error) {
 	if !req.HasAlias() {
 		return s.AssetServiceServer.Patch(ctx, req)
 	}
@@ -406,7 +406,7 @@ const (
 
 // List answers with the Assets that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkAsset) List(ctx context.Context, req *custody.AssetListRequest) (*custody.AssetListResponse, error) {
+func (s sinkAsset) List(ctx context.Context, req *api.AssetListRequest) (*api.AssetListResponse, error) {
 	q := s.store.Db.Asset.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -471,12 +471,12 @@ func (s sinkAsset) List(ctx context.Context, req *custody.AssetListRequest) (*cu
 		us = us[:size]
 	}
 
-	items := make([]*custody.Asset, len(us))
+	items := make([]*api.Asset, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := custody.AssetListResponse_builder{Items: items}.Build()
+	res := api.AssetListResponse_builder{Items: items}.Build()
 	if more {
 		last := us[len(us)-1]
 		next, err := entpage.Encode(last.DateCreated, last.ID)
@@ -493,7 +493,7 @@ func (s sinkAsset) List(ctx context.Context, req *custody.AssetListRequest) (*cu
 // filterAsset turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterAsset(f *custody.AssetFilter) (predicate.Asset, error) {
+func filterAsset(f *api.AssetFilter) (predicate.Asset, error) {
 	ps := make([]predicate.Asset, 0, 1)
 	if f.HasRef() {
 		p, err := bare.AssetPick(f.GetRef())
@@ -516,7 +516,7 @@ func filterAsset(f *custody.AssetFilter) (predicate.Asset, error) {
 // AssetService is the prefix of every RPC of that service, which is how a
 // change is known to be about a Asset. A service is named for the entity it
 // is about, so the name carries it.
-var AssetService = watch.ServiceOf(custody.AssetService_Get_FullMethodName)
+var AssetService = watch.ServiceOf(api.AssetService_Get_FullMethodName)
 
 // Watch answers with the Assets this caller may see, as they are now and as
 // they change.
@@ -525,7 +525,7 @@ var AssetService = watch.ServiceOf(custody.AssetService_Get_FullMethodName)
 // that missed something still correct: the next item about a row carries the
 // whole of it, so a client converges rather than replays. It is also what
 // makes the first message safe to duplicate against the ones after it.
-func (s sinkAsset) Watch(req *custody.AssetWatchRequest, out grpc.ServerStreamingServer[custody.AssetWatchResponse]) error {
+func (s sinkAsset) Watch(req *api.AssetWatchRequest, out grpc.ServerStreamingServer[api.AssetWatchResponse]) error {
 	ctx := out.Context()
 
 	// A watch with no filters is the whole table, forever. It is the one
@@ -559,7 +559,7 @@ func (s sinkAsset) Watch(req *custody.AssetWatchRequest, out grpc.ServerStreamin
 
 	return watch.Stream(ctx, s.w, AssetService, snapshot,
 		func(ks map[pdid.Id]string, sent watch.Seen) error {
-			items := make([]*custody.AssetWatchItem, 0, len(ks))
+			items := make([]*api.AssetWatchItem, 0, len(ks))
 			for k, action := range ks {
 				u, err := s.watchRead(ctx, watching, k)
 				if err != nil {
@@ -573,7 +573,7 @@ func (s sinkAsset) Watch(req *custody.AssetWatchRequest, out grpc.ServerStreamin
 				}
 
 				sent[k] = u != nil
-				items = append(items, custody.AssetWatchItem_builder{
+				items = append(items, api.AssetWatchItem_builder{
 					Id:     k.Bytes(),
 					Value:  u,
 					Action: action,
@@ -583,7 +583,7 @@ func (s sinkAsset) Watch(req *custody.AssetWatchRequest, out grpc.ServerStreamin
 				return nil
 			}
 
-			return out.Send(custody.AssetWatchResponse_builder{Items: items}.Build())
+			return out.Send(api.AssetWatchResponse_builder{Items: items}.Build())
 		})
 }
 
@@ -591,12 +591,12 @@ func (s sinkAsset) Watch(req *custody.AssetWatchRequest, out grpc.ServerStreamin
 // would have called -- so what a stream begins with and what a list answers
 // cannot disagree, and a client does not have to do both and race them.
 func (s sinkAsset) watchNow(
-	ctx context.Context, req *custody.AssetWatchRequest, out grpc.ServerStreamingServer[custody.AssetWatchResponse],
+	ctx context.Context, req *api.AssetWatchRequest, out grpc.ServerStreamingServer[api.AssetWatchResponse],
 	sent watch.Seen,
 ) error {
 	after := ""
 	for {
-		res, err := s.List(ctx, custody.AssetListRequest_builder{
+		res, err := s.List(ctx, api.AssetListRequest_builder{
 			Filters: req.GetFilters(),
 			After:   after,
 		}.Build())
@@ -604,7 +604,7 @@ func (s sinkAsset) watchNow(
 			return err
 		}
 
-		items := make([]*custody.AssetWatchItem, 0, len(res.GetItems()))
+		items := make([]*api.AssetWatchItem, 0, len(res.GetItems()))
 		for _, u := range res.GetItems() {
 			k, err := pdid.From(u.GetId())
 			if err != nil {
@@ -614,10 +614,10 @@ func (s sinkAsset) watchNow(
 			sent[k] = true
 			// No action: this is not something anybody asked for, it is
 			// what is already there.
-			items = append(items, custody.AssetWatchItem_builder{Id: u.GetId(), Value: u}.Build())
+			items = append(items, api.AssetWatchItem_builder{Id: u.GetId(), Value: u}.Build())
 		}
 		if len(items) > 0 {
-			if err := out.Send(custody.AssetWatchResponse_builder{Items: items}.Build()); err != nil {
+			if err := out.Send(api.AssetWatchResponse_builder{Items: items}.Build()); err != nil {
 				return err
 			}
 		}
@@ -639,15 +639,15 @@ func (s sinkAsset) watchNow(
 // a row they may not see comes back NotFound and is never sent.
 func (s sinkAsset) watchRead(
 	ctx context.Context, watching []pdid.Id, k pdid.Id,
-) (*custody.Asset, error) {
+) (*api.Asset, error) {
 	// Not one of the rows this stream is about. Asked before the read, so a
 	// busy table costs a stream nothing for the rows it does not watch.
 	if !slices.Contains(watching, k) {
 		return nil, nil
 	}
 
-	v, err := s.Get(ctx, custody.AssetGetRequest_builder{
-		Ref: custody.AssetRef_builder{Id: k.Bytes()}.Build(),
+	v, err := s.Get(ctx, api.AssetGetRequest_builder{
+		Ref: api.AssetRef_builder{Id: k.Bytes()}.Build(),
 	}.Build())
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
@@ -670,7 +670,7 @@ func (s sinkAsset) watchRead(
 // row renamed while the stream is open goes on being the row that was asked
 // for -- which is what somebody watching a thing meant.
 func (s sinkAsset) watchAssetKeys(
-	ctx context.Context, fs []*custody.AssetFilter,
+	ctx context.Context, fs []*api.AssetFilter,
 ) ([]pdid.Id, error) {
 	ks := make([]pdid.Id, 0, len(fs))
 	for i, f := range fs {
@@ -679,7 +679,7 @@ func (s sinkAsset) watchAssetKeys(
 				"filters[%d]: a watch says which rows it is about by naming them", i)
 		}
 
-		v, err := s.Get(ctx, custody.AssetGetRequest_builder{Ref: f.GetRef()}.Build())
+		v, err := s.Get(ctx, api.AssetGetRequest_builder{Ref: f.GetRef()}.Build())
 		if err != nil {
 			return nil, err
 		}
@@ -696,14 +696,14 @@ func (s sinkAsset) watchAssetKeys(
 }
 
 type sinkHolder struct {
-	custody.HolderServiceServer
+	api.HolderServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) Holder() custody.HolderServiceServer {
+func (s Sink) Holder() api.HolderServiceServer {
 	return sinkHolder{s.Server.Holder(), s.Server.Store, s.w, s.namer, s.joined}
 }
 
@@ -719,7 +719,7 @@ func (s Sink) Holder() custody.HolderServiceServer {
 // called, and for a call made in this process that is a message they may
 // still be holding -- a server that folded a caller's own field would be
 // changing a value they can read back.
-func (s sinkHolder) Add(ctx context.Context, req *custody.HolderAddRequest) (*custody.Holder, error) {
+func (s sinkHolder) Add(ctx context.Context, req *api.HolderAddRequest) (*api.Holder, error) {
 	// How many names to try. More than one only when the caller named
 	// nothing -- then the name is this server's and a collision is this
 	// server's to resolve. A name the caller gave is theirs, and quietly
@@ -765,7 +765,7 @@ func (s sinkHolder) Add(ctx context.Context, req *custody.HolderAddRequest) (*cu
 // decides the name of a row being made; a patch that cleared the alias is
 // a caller asking for something invalid, and answering that with an
 // invented name would hand them a row they did not ask for.
-func (s sinkHolder) Patch(ctx context.Context, req *custody.HolderPatchRequest) (*custody.Holder, error) {
+func (s sinkHolder) Patch(ctx context.Context, req *api.HolderPatchRequest) (*api.Holder, error) {
 	if !req.HasAlias() {
 		return s.HolderServiceServer.Patch(ctx, req)
 	}
@@ -782,14 +782,14 @@ func (s sinkHolder) Patch(ctx context.Context, req *custody.HolderPatchRequest) 
 }
 
 type sinkTenant struct {
-	custody.TenantServiceServer
+	api.TenantServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) Tenant() custody.TenantServiceServer {
+func (s Sink) Tenant() api.TenantServiceServer {
 	return sinkTenant{s.Server.Tenant(), s.Server.Store, s.w, s.namer, s.joined}
 }
 
@@ -805,7 +805,7 @@ func (s Sink) Tenant() custody.TenantServiceServer {
 // called, and for a call made in this process that is a message they may
 // still be holding -- a server that folded a caller's own field would be
 // changing a value they can read back.
-func (s sinkTenant) Add(ctx context.Context, req *custody.TenantAddRequest) (*custody.Tenant, error) {
+func (s sinkTenant) Add(ctx context.Context, req *api.TenantAddRequest) (*api.Tenant, error) {
 	// How many names to try. More than one only when the caller named
 	// nothing -- then the name is this server's and a collision is this
 	// server's to resolve. A name the caller gave is theirs, and quietly
@@ -851,7 +851,7 @@ func (s sinkTenant) Add(ctx context.Context, req *custody.TenantAddRequest) (*cu
 // decides the name of a row being made; a patch that cleared the alias is
 // a caller asking for something invalid, and answering that with an
 // invented name would hand them a row they did not ask for.
-func (s sinkTenant) Patch(ctx context.Context, req *custody.TenantPatchRequest) (*custody.Tenant, error) {
+func (s sinkTenant) Patch(ctx context.Context, req *api.TenantPatchRequest) (*api.Tenant, error) {
 	if !req.HasAlias() {
 		return s.TenantServiceServer.Patch(ctx, req)
 	}
@@ -877,16 +877,16 @@ func (s sinkTenant) Patch(ctx context.Context, req *custody.TenantPatchRequest) 
 //
 //	s, err := app.Build(walled, core.Build(), pd.AuditBuild(), pd.GateBuild())
 type Gate struct {
-	custody.Overlay
+	api.Overlay
 }
 
-func NewGate(next custody.Server) Gate {
-	return Gate{custody.NewOverlay(next)}
+func NewGate(next api.Server) Gate {
+	return Gate{api.NewOverlay(next)}
 }
 
-var _ custody.Server = Gate{}
+var _ api.Server = Gate{}
 
-var _ enttx.Binder[custody.Server] = Gate{}
+var _ enttx.Binder[api.Server] = Gate{}
 
 // WithDriver answers with this stack running on `drv`, which is how several
 // servers are put on one transaction.
@@ -895,7 +895,7 @@ var _ enttx.Binder[custody.Server] = Gate{}
 // behind it and has no way to make itself again, so a layer that did not
 // write it would be missing from the rebuilt stack and the requests inside
 // the transaction would go around it.
-func (s Gate) WithDriver(drv dialect.Driver) (custody.Server, error) {
+func (s Gate) WithDriver(drv dialect.Driver) (api.Server, error) {
 	next, err := enttx.Rebind(s.Next(), drv)
 	if err != nil {
 		return nil, err
@@ -905,41 +905,41 @@ func (s Gate) WithDriver(drv dialect.Driver) (custody.Server, error) {
 }
 
 // GateBuild makes a builder of this layer so that it can be stacked.
-func GateBuild() custody.Builder { return gateBuilder{} }
+func GateBuild() api.Builder { return gateBuilder{} }
 
 type gateBuilder struct{}
 
-func (gateBuilder) Build(next custody.Server) (custody.Server, error) {
+func (gateBuilder) Build(next api.Server) (api.Server, error) {
 	return NewGate(next), nil
 }
 
 type gateTenant struct {
 	Gate
-	custody.TenantServiceServer
+	api.TenantServiceServer
 }
 
-func (s Gate) Tenant() custody.TenantServiceServer {
+func (s Gate) Tenant() api.TenantServiceServer {
 	return gateTenant{s, s.Next().Tenant()}
 }
 
 // Add is not served. A tenant is put up by whoever runs the deployment,
 // through a server this layer is not in front of.
-func (s gateTenant) Add(ctx context.Context, req *custody.TenantAddRequest) (*custody.Tenant, error) {
+func (s gateTenant) Add(ctx context.Context, req *api.TenantAddRequest) (*api.Tenant, error) {
 	return nil, gate.ErrDeployment("put up")
 }
 
 // Erase is not served either, and it would take everything in the tenant
 // with it.
-func (s gateTenant) Erase(ctx context.Context, req *custody.TenantRef) (*emptypb.Empty, error) {
+func (s gateTenant) Erase(ctx context.Context, req *api.TenantRef) (*emptypb.Empty, error) {
 	return nil, gate.ErrDeployment("taken down")
 }
 
 type gateHolder struct {
 	Gate
-	custody.HolderServiceServer
+	api.HolderServiceServer
 }
 
-func (s Gate) Holder() custody.HolderServiceServer {
+func (s Gate) Holder() api.HolderServiceServer {
 	return gateHolder{s, s.Next().Holder()}
 }
 
@@ -959,12 +959,12 @@ func (s Gate) Holder() custody.HolderServiceServer {
 // tenant gives: that one exists is itself something a caller who may not see
 // it should not be told. It also gets a tenant that simply is not there
 // right, which comparing against a scope did not.
-func (s gateHolder) Add(ctx context.Context, req *custody.HolderAddRequest) (*custody.Holder, error) {
+func (s gateHolder) Add(ctx context.Context, req *api.HolderAddRequest) (*api.Holder, error) {
 	if _, err := gate.Actor(ctx); err != nil {
 		return nil, err
 	}
 
-	if _, err := s.Gate.Next().Tenant().Get(ctx, custody.TenantGetRequest_builder{
+	if _, err := s.Gate.Next().Tenant().Get(ctx, api.TenantGetRequest_builder{
 		Ref: req.GetTenant(),
 	}.Build()); err != nil {
 		if status.Code(err) == codes.NotFound {
@@ -983,18 +983,18 @@ func (s gateHolder) Add(ctx context.Context, req *custody.HolderAddRequest) (*cu
 // far plainer for having them. A deployment serves none of the ones that
 // write: a trail somebody can edit is evidence of nothing.
 type Audit struct {
-	custody.Overlay
+	api.Overlay
 }
 
-func NewAudit(next custody.Server) Audit {
-	return Audit{custody.NewOverlay(next)}
+func NewAudit(next api.Server) Audit {
+	return Audit{api.NewOverlay(next)}
 }
 
-var _ custody.Server = Audit{}
-var _ enttx.Binder[custody.Server] = Audit{}
+var _ api.Server = Audit{}
+var _ enttx.Binder[api.Server] = Audit{}
 
 // WithDriver answers with this stack running on `drv`; see [Gate.WithDriver].
-func (s Audit) WithDriver(drv dialect.Driver) (custody.Server, error) {
+func (s Audit) WithDriver(drv dialect.Driver) (api.Server, error) {
 	next, err := enttx.Rebind(s.Next(), drv)
 	if err != nil {
 		return nil, err
@@ -1004,36 +1004,36 @@ func (s Audit) WithDriver(drv dialect.Driver) (custody.Server, error) {
 }
 
 // AuditBuild makes a builder of this layer so that it can be stacked.
-func AuditBuild() custody.Builder { return auditBuilder{} }
+func AuditBuild() api.Builder { return auditBuilder{} }
 
 type auditBuilder struct{}
 
-func (auditBuilder) Build(next custody.Server) (custody.Server, error) {
+func (auditBuilder) Build(next api.Server) (api.Server, error) {
 	return NewAudit(next), nil
 }
 
 type auditService struct {
 	Audit
-	custody.AuditServiceServer
+	api.AuditServiceServer
 }
 
-func (s Audit) Audit() custody.AuditServiceServer {
+func (s Audit) Audit() api.AuditServiceServer {
 	return auditService{s, s.Next().Audit()}
 }
 
-func (s auditService) Add(ctx context.Context, req *custody.AuditAddRequest) (*custody.Audit, error) {
+func (s auditService) Add(ctx context.Context, req *api.AuditAddRequest) (*api.Audit, error) {
 	return nil, errTrail()
 }
 
-func (s auditService) Patch(ctx context.Context, req *custody.AuditPatchRequest) (*custody.Audit, error) {
+func (s auditService) Patch(ctx context.Context, req *api.AuditPatchRequest) (*api.Audit, error) {
 	return nil, errTrail()
 }
 
-func (s auditService) Apply(ctx context.Context, req *custody.AuditApplyRequest) (*custody.Audit, error) {
+func (s auditService) Apply(ctx context.Context, req *api.AuditApplyRequest) (*api.Audit, error) {
 	return nil, errTrail()
 }
 
-func (s auditService) Erase(ctx context.Context, req *custody.AuditRef) (*emptypb.Empty, error) {
+func (s auditService) Erase(ctx context.Context, req *api.AuditRef) (*emptypb.Empty, error) {
 	return nil, errTrail()
 }
 
@@ -1077,7 +1077,7 @@ func (recorder) Record(ctx context.Context, s bare.Server, c bare.Change) error 
 		return err
 	}
 
-	_, err = s.Audit().Add(ctx, custody.AuditAddRequest_builder{
+	_, err = s.Audit().Add(ctx, api.AuditAddRequest_builder{
 		TenantId: v.Tenant.Bytes(),
 		ActorId:  v.Actor.Bytes(),
 		TraceId:  v.Trace,
@@ -1348,7 +1348,7 @@ func (d drain) once(ctx context.Context) (int, error) {
 // transaction is begun on it and a `*ent.Client` does not hand out the
 // driver it was built with. The app has one: it is what it built the client
 // from.
-func Batch(s custody.Server, drv dialect.Driver, guard batch.Guard) (pdpb.BatchServiceServer, error) {
+func Batch(s api.Server, drv dialect.Driver, guard batch.Guard) (pdpb.BatchServiceServer, error) {
 	if guard.IsZero() {
 		// Nobody filled it in. It is the zero value and not a judgement about
 		// how open the deployment is: `config.ServerConfig.Guard` always sets
@@ -1367,7 +1367,7 @@ func Batch(s custody.Server, drv dialect.Driver, guard batch.Guard) (pdpb.BatchS
 type batchServer struct {
 	pdpb.UnimplementedBatchServiceServer
 
-	s     custody.Server
+	s     api.Server
 	drv   dialect.Driver
 	guard batch.Guard
 }
@@ -1440,10 +1440,10 @@ func (b batchServer) Do(ctx context.Context, req *pdpb.BatchRequest) (*pdpb.Batc
 // `Any` carrying anything else is refused rather than coerced -- a request
 // that decoded into a different message would be a write the caller did not
 // ask for, and `Any` is checked by type URL so there is a right answer.
-func dispatch(ctx context.Context, s custody.Server, op *pdpb.Op) (*anypb.Any, error) {
+func dispatch(ctx context.Context, s api.Server, op *pdpb.Op) (*anypb.Any, error) {
 	switch m := op.GetMethod(); m {
-	case custody.TenantService_Add_FullMethodName:
-		v := &custody.TenantAddRequest{}
+	case api.TenantService_Add_FullMethodName:
+		v := &api.TenantAddRequest{}
 		if err := op.GetRequest().UnmarshalTo(v); err != nil {
 			return nil, batch.ErrRequest(m, err)
 		}
@@ -1455,8 +1455,8 @@ func dispatch(ctx context.Context, s custody.Server, op *pdpb.Op) (*anypb.Any, e
 
 		return anypb.New(res)
 
-	case custody.TenantService_Get_FullMethodName:
-		v := &custody.TenantGetRequest{}
+	case api.TenantService_Get_FullMethodName:
+		v := &api.TenantGetRequest{}
 		if err := op.GetRequest().UnmarshalTo(v); err != nil {
 			return nil, batch.ErrRequest(m, err)
 		}
@@ -1468,8 +1468,8 @@ func dispatch(ctx context.Context, s custody.Server, op *pdpb.Op) (*anypb.Any, e
 
 		return anypb.New(res)
 
-	case custody.TenantService_Patch_FullMethodName:
-		v := &custody.TenantPatchRequest{}
+	case api.TenantService_Patch_FullMethodName:
+		v := &api.TenantPatchRequest{}
 		if err := op.GetRequest().UnmarshalTo(v); err != nil {
 			return nil, batch.ErrRequest(m, err)
 		}
@@ -1481,8 +1481,8 @@ func dispatch(ctx context.Context, s custody.Server, op *pdpb.Op) (*anypb.Any, e
 
 		return anypb.New(res)
 
-	case custody.TenantService_Apply_FullMethodName:
-		v := &custody.TenantApplyRequest{}
+	case api.TenantService_Apply_FullMethodName:
+		v := &api.TenantApplyRequest{}
 		if err := op.GetRequest().UnmarshalTo(v); err != nil {
 			return nil, batch.ErrRequest(m, err)
 		}
@@ -1494,8 +1494,8 @@ func dispatch(ctx context.Context, s custody.Server, op *pdpb.Op) (*anypb.Any, e
 
 		return anypb.New(res)
 
-	case custody.TenantService_Erase_FullMethodName:
-		v := &custody.TenantRef{}
+	case api.TenantService_Erase_FullMethodName:
+		v := &api.TenantRef{}
 		if err := op.GetRequest().UnmarshalTo(v); err != nil {
 			return nil, batch.ErrRequest(m, err)
 		}
@@ -1507,8 +1507,8 @@ func dispatch(ctx context.Context, s custody.Server, op *pdpb.Op) (*anypb.Any, e
 
 		return anypb.New(res)
 
-	case custody.HolderService_Add_FullMethodName:
-		v := &custody.HolderAddRequest{}
+	case api.HolderService_Add_FullMethodName:
+		v := &api.HolderAddRequest{}
 		if err := op.GetRequest().UnmarshalTo(v); err != nil {
 			return nil, batch.ErrRequest(m, err)
 		}
@@ -1520,8 +1520,8 @@ func dispatch(ctx context.Context, s custody.Server, op *pdpb.Op) (*anypb.Any, e
 
 		return anypb.New(res)
 
-	case custody.HolderService_Get_FullMethodName:
-		v := &custody.HolderGetRequest{}
+	case api.HolderService_Get_FullMethodName:
+		v := &api.HolderGetRequest{}
 		if err := op.GetRequest().UnmarshalTo(v); err != nil {
 			return nil, batch.ErrRequest(m, err)
 		}
@@ -1533,8 +1533,8 @@ func dispatch(ctx context.Context, s custody.Server, op *pdpb.Op) (*anypb.Any, e
 
 		return anypb.New(res)
 
-	case custody.HolderService_Patch_FullMethodName:
-		v := &custody.HolderPatchRequest{}
+	case api.HolderService_Patch_FullMethodName:
+		v := &api.HolderPatchRequest{}
 		if err := op.GetRequest().UnmarshalTo(v); err != nil {
 			return nil, batch.ErrRequest(m, err)
 		}
@@ -1546,8 +1546,8 @@ func dispatch(ctx context.Context, s custody.Server, op *pdpb.Op) (*anypb.Any, e
 
 		return anypb.New(res)
 
-	case custody.HolderService_Apply_FullMethodName:
-		v := &custody.HolderApplyRequest{}
+	case api.HolderService_Apply_FullMethodName:
+		v := &api.HolderApplyRequest{}
 		if err := op.GetRequest().UnmarshalTo(v); err != nil {
 			return nil, batch.ErrRequest(m, err)
 		}
@@ -1559,8 +1559,8 @@ func dispatch(ctx context.Context, s custody.Server, op *pdpb.Op) (*anypb.Any, e
 
 		return anypb.New(res)
 
-	case custody.HolderService_Erase_FullMethodName:
-		v := &custody.HolderRef{}
+	case api.HolderService_Erase_FullMethodName:
+		v := &api.HolderRef{}
 		if err := op.GetRequest().UnmarshalTo(v); err != nil {
 			return nil, batch.ErrRequest(m, err)
 		}
@@ -1572,8 +1572,8 @@ func dispatch(ctx context.Context, s custody.Server, op *pdpb.Op) (*anypb.Any, e
 
 		return anypb.New(res)
 
-	case custody.AssetService_Add_FullMethodName:
-		v := &custody.AssetAddRequest{}
+	case api.AssetService_Add_FullMethodName:
+		v := &api.AssetAddRequest{}
 		if err := op.GetRequest().UnmarshalTo(v); err != nil {
 			return nil, batch.ErrRequest(m, err)
 		}
@@ -1585,8 +1585,8 @@ func dispatch(ctx context.Context, s custody.Server, op *pdpb.Op) (*anypb.Any, e
 
 		return anypb.New(res)
 
-	case custody.AssetService_Get_FullMethodName:
-		v := &custody.AssetGetRequest{}
+	case api.AssetService_Get_FullMethodName:
+		v := &api.AssetGetRequest{}
 		if err := op.GetRequest().UnmarshalTo(v); err != nil {
 			return nil, batch.ErrRequest(m, err)
 		}
@@ -1598,8 +1598,8 @@ func dispatch(ctx context.Context, s custody.Server, op *pdpb.Op) (*anypb.Any, e
 
 		return anypb.New(res)
 
-	case custody.AssetService_Patch_FullMethodName:
-		v := &custody.AssetPatchRequest{}
+	case api.AssetService_Patch_FullMethodName:
+		v := &api.AssetPatchRequest{}
 		if err := op.GetRequest().UnmarshalTo(v); err != nil {
 			return nil, batch.ErrRequest(m, err)
 		}
@@ -1611,8 +1611,8 @@ func dispatch(ctx context.Context, s custody.Server, op *pdpb.Op) (*anypb.Any, e
 
 		return anypb.New(res)
 
-	case custody.AssetService_Apply_FullMethodName:
-		v := &custody.AssetApplyRequest{}
+	case api.AssetService_Apply_FullMethodName:
+		v := &api.AssetApplyRequest{}
 		if err := op.GetRequest().UnmarshalTo(v); err != nil {
 			return nil, batch.ErrRequest(m, err)
 		}
@@ -1624,8 +1624,8 @@ func dispatch(ctx context.Context, s custody.Server, op *pdpb.Op) (*anypb.Any, e
 
 		return anypb.New(res)
 
-	case custody.AssetService_Erase_FullMethodName:
-		v := &custody.AssetRef{}
+	case api.AssetService_Erase_FullMethodName:
+		v := &api.AssetRef{}
 		if err := op.GetRequest().UnmarshalTo(v); err != nil {
 			return nil, batch.ErrRequest(m, err)
 		}
@@ -1637,8 +1637,8 @@ func dispatch(ctx context.Context, s custody.Server, op *pdpb.Op) (*anypb.Any, e
 
 		return anypb.New(res)
 
-	case custody.AssetService_List_FullMethodName:
-		v := &custody.AssetListRequest{}
+	case api.AssetService_List_FullMethodName:
+		v := &api.AssetListRequest{}
 		if err := op.GetRequest().UnmarshalTo(v); err != nil {
 			return nil, batch.ErrRequest(m, err)
 		}
@@ -1650,8 +1650,8 @@ func dispatch(ctx context.Context, s custody.Server, op *pdpb.Op) (*anypb.Any, e
 
 		return anypb.New(res)
 
-	case custody.AssetService_Transfer_FullMethodName:
-		v := &custody.AssetTransferRequest{}
+	case api.AssetService_Transfer_FullMethodName:
+		v := &api.AssetTransferRequest{}
 		if err := op.GetRequest().UnmarshalTo(v); err != nil {
 			return nil, batch.ErrRequest(m, err)
 		}
@@ -1663,8 +1663,8 @@ func dispatch(ctx context.Context, s custody.Server, op *pdpb.Op) (*anypb.Any, e
 
 		return anypb.New(res)
 
-	case custody.AuditService_Add_FullMethodName:
-		v := &custody.AuditAddRequest{}
+	case api.AuditService_Add_FullMethodName:
+		v := &api.AuditAddRequest{}
 		if err := op.GetRequest().UnmarshalTo(v); err != nil {
 			return nil, batch.ErrRequest(m, err)
 		}
@@ -1676,8 +1676,8 @@ func dispatch(ctx context.Context, s custody.Server, op *pdpb.Op) (*anypb.Any, e
 
 		return anypb.New(res)
 
-	case custody.AuditService_Get_FullMethodName:
-		v := &custody.AuditGetRequest{}
+	case api.AuditService_Get_FullMethodName:
+		v := &api.AuditGetRequest{}
 		if err := op.GetRequest().UnmarshalTo(v); err != nil {
 			return nil, batch.ErrRequest(m, err)
 		}
@@ -1689,8 +1689,8 @@ func dispatch(ctx context.Context, s custody.Server, op *pdpb.Op) (*anypb.Any, e
 
 		return anypb.New(res)
 
-	case custody.AuditService_Patch_FullMethodName:
-		v := &custody.AuditPatchRequest{}
+	case api.AuditService_Patch_FullMethodName:
+		v := &api.AuditPatchRequest{}
 		if err := op.GetRequest().UnmarshalTo(v); err != nil {
 			return nil, batch.ErrRequest(m, err)
 		}
@@ -1702,8 +1702,8 @@ func dispatch(ctx context.Context, s custody.Server, op *pdpb.Op) (*anypb.Any, e
 
 		return anypb.New(res)
 
-	case custody.AuditService_Apply_FullMethodName:
-		v := &custody.AuditApplyRequest{}
+	case api.AuditService_Apply_FullMethodName:
+		v := &api.AuditApplyRequest{}
 		if err := op.GetRequest().UnmarshalTo(v); err != nil {
 			return nil, batch.ErrRequest(m, err)
 		}
@@ -1715,8 +1715,8 @@ func dispatch(ctx context.Context, s custody.Server, op *pdpb.Op) (*anypb.Any, e
 
 		return anypb.New(res)
 
-	case custody.AuditService_Erase_FullMethodName:
-		v := &custody.AuditRef{}
+	case api.AuditService_Erase_FullMethodName:
+		v := &api.AuditRef{}
 		if err := op.GetRequest().UnmarshalTo(v); err != nil {
 			return nil, batch.ErrRequest(m, err)
 		}

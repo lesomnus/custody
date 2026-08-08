@@ -7,7 +7,7 @@
 // 	protoc        (unknown)
 // source: payday/outbox_svc.g.proto
 
-package custody
+package api
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -28,7 +28,7 @@ var File_payday_outbox_svc_g_proto protoreflect.FileDescriptor
 const file_payday_outbox_svc_g_proto_rawDesc = "" +
 	"\n" +
 	"\x19payday/outbox_svc.g.proto\x12\x06payday2\x0f\n" +
-	"\rOutboxServiceB\x1dZ\x1bgithub.com/lesomnus/custodyb\beditionsp\xe8\a"
+	"\rOutboxServiceB!Z\x1fgithub.com/lesomnus/custody/apib\beditionsp\xe8\a"
 
 var file_payday_outbox_svc_g_proto_goTypes = []any{}
 var file_payday_outbox_svc_g_proto_depIdxs = []int32{

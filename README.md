@@ -64,6 +64,35 @@ receiving tenant reads what has happened since the asset arrived and nothing
 before. That is payday's decision, and this is the first thing to demonstrate
 it.
 
+## What is where
+
+| | |
+| --- | --- |
+| `proto/app/*.proto` | **yours** — the entities, and `catalogue.proto`, a service written by hand |
+| `proto/ext/**` | **yours** — the overlay that adds `Transfer` to a generated contract |
+| `proto/**/*_svc.g.proto` | generated: the contract of an entity |
+| `proto/payday/` | generated in whole: payday's own entities, copied in |
+| `api/` | generated: the messages, the stubs, the query helpers |
+| `internal/ent/`, `server/bare/`, `server/pd/` | generated |
+| `policy.go`, `server/core/`, `server/catalogue/`, `cmd/` | **yours** |
+
+So `.g` means a generator wrote it, `proto/payday/` is the one directory where
+that is true of every file rather than of the ones marked, and `proto/ext/` is
+excluded from the buf module because an overlay is a fragment rather than a file
+that compiles.
+
+The messages are in `api/` rather than at the module root, which is one line of
+schema:
+
+```proto
+option go_package = "github.com/lesomnus/custody/api";
+```
+
+payday reads that rather than taking a flag, so it is said once and everything
+follows from it. `internal/ent` and `server/bare` do not move with it — they are
+named from the module root — and the top of this repository is the app rather
+than a hundred `.pb.go`.
+
 ## Running it
 
 ```sh

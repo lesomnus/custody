@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: payday/outbox.proto
 
-package custody
+package api
 
 import (
 	_ "github.com/lesomnus/payday/pdpb"
@@ -279,7 +279,7 @@ const file_payday_outbox_proto_rawDesc = "" +
 	"\tobject_id\x18\v \x01(\fB\x06\xea\x82\x16\x02\x10@R\bobjectId\x12\x14\n" +
 	"\x05patch\x18\f \x01(\fR\x05patch\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:\x1d\xca\xfc\x15\x11\x1a\x0f\x12\x05queue\x1a\x06\n" +
-	"\x02id\x10\x01\x8a\xbb\x16\x04\b\x04*\x00B\"Z\x1bgithub.com/lesomnus/custody\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\x02id\x10\x01\x8a\xbb\x16\x04\b\x04*\x00B&Z\x1fgithub.com/lesomnus/custody/api\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
 var file_payday_outbox_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_payday_outbox_proto_goTypes = []any{

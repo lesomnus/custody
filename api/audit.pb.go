@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: payday/audit.proto
 
-package custody
+package api
 
 import (
 	_ "github.com/lesomnus/payday/pdpb"
@@ -289,7 +289,7 @@ const file_payday_audit_proto_rawDesc = "" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:^\xca\xfc\x15G\x12\x02\x10\x01\x1a\x17\x12\x06object\x1a\r\n" +
 	"\tobject_id\x10\v\x1a(\x12\x05trail\x1a\r\n" +
 	"\ttenant_id\x10\x02\x1a\x10\n" +
-	"\fdate_created\x10\x0f\x8a\xbb\x16\x0f\b\x03\"\v\x12\ttenant_idB\"Z\x1bgithub.com/lesomnus/custody\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\fdate_created\x10\x0f\x8a\xbb\x16\x0f\b\x03\"\v\x12\ttenant_idB&Z\x1fgithub.com/lesomnus/custody/api\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
 var file_payday_audit_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_payday_audit_proto_goTypes = []any{

@@ -8,7 +8,7 @@ import "patch/patch.proto";
 import "payday/holder_svc.g.proto";
 import "payday/tenant_svc.g.proto";
 
-option go_package = "github.com/lesomnus/custody";
+option go_package = "github.com/lesomnus/custody/api";
 
 service AssetService {
   // Add creates a new Asset

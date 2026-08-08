@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: app/asset_svc.g.proto
 
-package custody
+package api
 
 import (
 	context "context"

@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: payday/tenant.proto
 
-package custody
+package api
 
 import (
 	_ "github.com/lesomnus/payday/pdpb"
@@ -224,7 +224,7 @@ const file_payday_tenant_proto_rawDesc = "" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\x10\xca\xfc\x15\x04\x12\x02\x10\x01\x8a\xbb\x16\x04\b\x01\x1a\x00B\"Z\x1bgithub.com/lesomnus/custody\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\x10\xca\xfc\x15\x04\x12\x02\x10\x01\x8a\xbb\x16\x04\b\x01\x1a\x00B&Z\x1fgithub.com/lesomnus/custody/api\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
 var file_payday_tenant_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_payday_tenant_proto_goTypes = []any{

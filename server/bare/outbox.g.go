@@ -5,7 +5,7 @@ package bare
 
 import (
 	context "context"
-	custody "github.com/lesomnus/custody"
+	api "github.com/lesomnus/custody/api"
 	ent "github.com/lesomnus/custody/internal/ent"
 	outbox "github.com/lesomnus/custody/internal/ent/outbox"
 	predicate "github.com/lesomnus/custody/internal/ent/predicate"
@@ -14,7 +14,7 @@ import (
 type OutboxServiceServer struct {
 	Store
 
-	custody.UnimplementedOutboxServiceServer
+	api.UnimplementedOutboxServiceServer
 }
 
 // NewOutboxServiceServer answers with a server that runs its queries with `db`.
@@ -22,7 +22,7 @@ type OutboxServiceServer struct {
 // It takes the options of [Server] so that what is built here can be told
 // where to report its writes and what it may see. Built without them, it
 // reports nowhere and sees everything.
-func NewOutboxServiceServer(db *ent.Client, opts ...Option) custody.OutboxServiceServer {
+func NewOutboxServiceServer(db *ent.Client, opts ...Option) api.OutboxServiceServer {
 	s := Server{Store: Store{Db: db}}
 	for _, opt := range opts {
 		opt(&s)

@@ -16,7 +16,8 @@ import (
 	"github.com/lesomnus/payday/gate"
 	"github.com/lesomnus/payday/pdid"
 
-	app "github.com/lesomnus/custody"
+	"github.com/lesomnus/custody"
+	app "github.com/lesomnus/custody/api"
 	"github.com/lesomnus/custody/cmd"
 	"github.com/lesomnus/custody/server/pd"
 )
@@ -190,7 +191,7 @@ func TestTheHqPolicyRefusesEverybodyElse(t *testing.T) {
 	x := require.New(t)
 	b, ctx := build(t)
 
-	p := app.Hq{Tenant: b.Hq}
+	p := custody.Hq{Tenant: b.Hq}
 
 	x.NoError(p.May(ctx, gateCall(b.HqAdmin, b.Hq)))
 

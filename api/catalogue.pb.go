@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: app/catalogue.proto
 
-package custody
+package api
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -289,7 +289,7 @@ const file_app_catalogue_proto_rawDesc = "" +
 	"\x04name\x18\x05 \x01(\tR\x04name\x12\x12\n" +
 	"\x04desc\x18\x06 \x01(\tR\x04desc2W\n" +
 	"\x10CatalogueService\x12C\n" +
-	"\x06Search\x12\x1b.app.CatalogueSearchRequest\x1a\x1c.app.CatalogueSearchResponseB\"Z\x1bgithub.com/lesomnus/custody\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\x06Search\x12\x1b.app.CatalogueSearchRequest\x1a\x1c.app.CatalogueSearchResponseB&Z\x1fgithub.com/lesomnus/custody/api\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
 var file_app_catalogue_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_app_catalogue_proto_goTypes = []any{

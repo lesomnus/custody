@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: app/asset.proto
 
-package custody
+package api
 
 import (
 	_ "github.com/lesomnus/payday/pdpb"
@@ -337,7 +337,7 @@ const file_app_asset_proto_rawDesc = "" +
 	"\x0e\n" +
 	"\fdate_created\n" +
 	"\x04\n" +
-	"\x02id\x1a\x03ref\x1a\x06listed \x14(d:\x00B\"Z\x1bgithub.com/lesomnus/custody\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\x02id\x1a\x03ref\x1a\x06listed \x14(d:\x00B&Z\x1fgithub.com/lesomnus/custody/api\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
 var file_app_asset_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_app_asset_proto_goTypes = []any{

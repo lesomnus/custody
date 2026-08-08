@@ -4,12 +4,12 @@
 package ent
 
 import (
-	custody "github.com/lesomnus/custody"
+	api "github.com/lesomnus/custody/api"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (e *Holder) Proto() *custody.Holder {
-	x := &custody.Holder{}
+func (e *Holder) Proto() *api.Holder {
+	x := &api.Holder{}
 	x.SetId(e.ID[:])
 	if v := e.Edges.Tenant; v != nil {
 		x.SetTenant(v.Proto())

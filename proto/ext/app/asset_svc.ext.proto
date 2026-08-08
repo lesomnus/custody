@@ -5,7 +5,7 @@ package app;
 import "app/asset.proto";
 import "payday/tenant_svc.g.proto";
 
-option go_package = "github.com/lesomnus/custody";
+option go_package = "github.com/lesomnus/custody/api";
 
 // What this app adds to the generated contract of an Asset.
 //
