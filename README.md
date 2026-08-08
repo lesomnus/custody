@@ -105,7 +105,9 @@ having in a reference app, and most of the 1,200 is prose and tests.
 | `server/core/core.go` | the `Transfer` implementation |
 | `server/catalogue/catalogue.go` | the public projection |
 | `cmd/custody-admin/main.go` | the second binary. The first came from the template |
+| `cmd/init.go` | the first tenant, through `Ungated`; on the admin binary only |
 | `cmd/*_test.go` | three tests, and more than half the hand-written Go here |
+| `ts/src/`, `ts/index.html`, `ts/admin/` | two pages: the customer UI and headquarters' |
 
 Everything else under `cmd/` came from the template and was edited rather than
 written: `serve.go` is the stack spelled out, which payday deliberately does not
@@ -133,8 +135,8 @@ example of adding a field to an entity payday ships.
 | `proto/**/*_svc.g.proto` | generated: the contract of an entity |
 | `proto/payday/` | generated in whole: payday's own entities, copied in |
 | `api/` | generated: the messages, the stubs, the query helpers |
-| `internal/ent/`, `server/bare/`, `server/pd/` | generated |
-| `policy.go`, `server/core/`, `server/catalogue/`, `cmd/` | **yours** |
+| `internal/ent/`, `server/bare/`, `server/pd/`, `ts/gen/` | generated |
+| `policy.go`, `server/core/`, `server/catalogue/`, `cmd/`, `ts/src/` | **yours** |
 
 So `.g` means a generator wrote it, `proto/payday/` is the one directory where
 that is true of every file rather than of the ones marked, and `proto/ext/` is
@@ -158,13 +160,93 @@ than a hundred `.pb.go`.
 ```sh
 go tool pd gen .                        # everything the schema says
 go tool pd gen --check .                # and fail if a commit did not carry it
-go run ./cmd/custody serve              # customers
-go run ./cmd/custody-admin serve        # headquarters, behind the company network
+
+# The first tenant, and somebody in it. It cannot arrive over the API: a tenant
+# is not put up from inside one, and that rule refuses headquarters too. What
+# puts it there is `Server.Ungated`, reachable from this command and from
+# nowhere a request can get to -- which is why the command is on the admin
+# binary only.
+go run ./cmd/custody-admin --config custody-admin.yaml init
+go run ./cmd/custody-admin --config custody-admin.yaml init --tenant acme
+go run ./cmd/custody-admin --config custody-admin.yaml init --tenant globex
+
+# `init` prints the identifier of the tenant it made. Put the first one in
+# `custody-admin.yaml` as `hq:`, then:
+go run ./cmd/custody serve                                   # customers, :50051 and :8080
+go run ./cmd/custody-admin --config custody-admin.yaml serve # headquarters, :50052 and :8081
 ```
 
 `custody-admin` refuses to start without `hq:` in its configuration — an admin
 server that does not know which tenant headquarters is refuses everybody, which
 looks like a network problem.
+
+Two configuration files and one app: `--config` names which. They are two
+**deployments** rather than two programs, and a deployment's configuration is
+its own — in a real one they are two machines each with a `custody.yaml` of its
+own, and on one laptop they need different names.
+
+### From the shell
+
+There is a second listener on each, because a browser cannot speak gRPC. What
+answers there is Connect, which is a POST with a JSON body, so it is also the
+endpoint anything with an HTTP client can reach:
+
+```sh
+curl -sX POST http://localhost:8080/app.AssetService/List \
+  -H 'Content-Type: application/json' -H 'Connect-Protocol-Version: 1' \
+  -H 'Authorization: Plain @acme/admin' -d '{}'
+```
+
+The same call, four ways, which is the whole README in one table:
+
+| | |
+| --- | --- |
+| `:8080` as `@acme/admin` | acme's assets |
+| `:8080` as `@hq/admin` | **nothing** — that binary has no policy on it |
+| `:8081` as `@hq/admin` | every tenant's assets |
+| `:8081` as `@acme/admin` | `permission_denied: this server is not for you` |
+
+And `app.CatalogueService/Search` with no `Authorization` header at all.
+
+## The UI
+
+```sh
+npm install --prefix ts
+go tool pd gen --ts .        # the messages and service descriptors, as TypeScript
+npm run dev --prefix ts
+```
+
+`http://localhost:5173/` is the customer page and `http://localhost:5173/admin/`
+is headquarters'.
+
+**Two pages, and the split is not a security boundary.** That is worth saying
+plainly, because the two binaries are one and it would be easy to read this as
+the same thing. Anything a page can do, `curl` can do; the wall is on the
+server. What two pages buy is that each has one address in it and shows the
+screens that address has, and that the customer bundle carries no transfer form
+for an endpoint it cannot reach.
+
+They are two entries of one Vite package rather than two projects, because what
+makes them two is which server they point at — and that is a build, not a
+bundle. `npm run build --prefix ts` writes `dist/index.html` and
+`dist/admin/index.html`, and a deployment serves the one it means to.
+
+There is no framework. What these pages are for is to show that the generated
+client is the whole API — that a screen is a call, and the call is the one
+`curl` makes — and a framework would be the largest thing in the repository
+saying nothing about that. `ts/src/client.ts` is thirty lines and does not grow
+per service: protobuf-es emits the service descriptors and Connect's
+`createClient` takes one.
+
+Two things the pages show that the shell cannot:
+
+- **the same request, two answers.** `AssetService.List` with no filter at all,
+  on both pages. Nothing in either narrows it to a tenant and nothing could —
+  the wall is a predicate in the query, put there by the server out of the
+  credential.
+- **what a `List` does not answer with.** The admin table shows which tenant
+  each asset is in, and that is a second read per row with a `select` that names
+  it: a list answers rows and not their edges.
 
 ## What is not here
 
@@ -173,8 +255,15 @@ believes what the caller writes: it is for development and must not be served
 where anybody can reach it. Making it real is `auth.Issuer` and `auth.Sessions`,
 which payday leaves as a seam.
 
-**The TypeScript half.** `ts/` is the template's, unchanged, and `pd gen --ts`
-has never been run here — so `ts/src` imports a `ts/gen` that is not there. It
-takes `npm install --prefix ts` and `go tool pd gen --ts .`, and it is left
-undone because what this repository is for is the three axes above, all of which
-are on the server.
+**A browser.** The UI type-checks, builds, and its client module has been run
+against both live servers — the lists, the catalogue and a transfer all answer.
+What has **not** happened is somebody loading the page in a browser, because
+there is none here. So what is verified is that the pieces fit, and not that the
+thing renders.
+
+**The local store.** payday ships one — a replica of what a caller may see, with
+`Watch` applied to it — and `pd gen --ts` writes the declaration for it in
+`ts/gen/entities.ts`. It is unused here, and `tsconfig.json` excludes that file,
+because it imports `@lesomnus/payday`, which is not published to npm yet. These
+pages call the server on every read instead, which is the right shape for two
+pages and the wrong one for an app anybody uses all day.

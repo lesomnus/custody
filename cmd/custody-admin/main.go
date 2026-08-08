@@ -39,7 +39,7 @@ func main() {
 	defer stop()
 
 	var c cmd.Config
-	if err := cmd.Cmd(&c, hq).Run(ctx, os.Args[1:]); err != nil {
+	if err := cmd.Cmd(&c, hq, cmd.NewCmdInit(&c)).Run(ctx, os.Args[1:]); err != nil {
 		fmt.Fprintln(os.Stderr, "custody-admin:", err)
 		os.Exit(1)
 	}

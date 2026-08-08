@@ -3,12 +3,18 @@ package cmd
 import (
 	"context"
 	"database/sql"
+	"errors"
+	"fmt"
 	"log/slog"
 	"net"
+	"net/http"
+	"slices"
+	"strings"
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
 	"github.com/lesomnus/otx/log"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 
 	"github.com/lesomnus/xli"
@@ -17,7 +23,9 @@ import (
 	"github.com/lesomnus/payday/gate"
 	"github.com/lesomnus/payday/grpcx"
 	"github.com/lesomnus/payday/pdpb"
+	"github.com/lesomnus/payday/spin"
 	"github.com/lesomnus/payday/watch"
+	"github.com/lesomnus/payday/web"
 
 	app "github.com/lesomnus/custody/api"
 	"github.com/lesomnus/custody/internal/ent"
@@ -182,8 +190,8 @@ func (s *Server) Grpc(ctx context.Context, c Config, policy gate.Policy, opts ..
 	// `Plain` believes what the caller writes, which is right for a sandbox
 	// and for tests and is not something to serve where anyone can reach it.
 	chain := grpcx.Serving(ctx, grpcx.WithDeadline(c.Server.CallTimeout())).
-		WithUnary(auth.InterceptorUnary(auth.Plain(), Resolver(s.Ungated), auth.PublicDefault)).
-		WithStream(auth.InterceptorStream(auth.Plain(), Resolver(s.Ungated), auth.PublicDefault)).
+		WithUnary(auth.InterceptorUnary(auth.Plain(), Resolver(s.Ungated), public)).
+		WithStream(auth.InterceptorStream(auth.Plain(), Resolver(s.Ungated), public)).
 		WithUnary(grpcx.LimitUnary(c.Server.Limiter(), gate.ByTenant())).
 		With(gate.Interceptor(policy)).
 		With(s.Watch.Interceptor()).
@@ -198,6 +206,9 @@ func (s *Server) Grpc(ctx context.Context, c Config, policy gate.Policy, opts ..
 	// The catalogue, which is the one thing served without a wall -- and it is
 	// a different message rather than an asset with the wall off. See
 	// `server/catalogue`.
+	// Outside the walled stack, which is what makes the projection a projection
+	// rather than a hole in the wall: it reads `listed` rows itself and answers
+	// with a message that has four fields in it. See `server/catalogue`.
 	app.RegisterCatalogueServiceServer(g, catalogue.New(s.Ent))
 
 	// The batch, with the same rules the chain above enforces -- read off the
@@ -216,9 +227,36 @@ func (s *Server) Grpc(ctx context.Context, c Config, policy gate.Policy, opts ..
 	return g
 }
 
+// public is what this app serves without asking who is calling.
+//
+// The catalogue, and that is the whole list. It is here rather than in the
+// catalogue package because it is a statement about the **transport**: a
+// handler cannot make itself reachable, and a server whose auth chain refuses
+// everybody without a credential serves a public projection to nobody.
+//
+// That is exactly what happened. The catalogue was written, registered outside
+// the wall, described in the README as the axis where anybody may see part of a
+// row -- and every anonymous call was answered `unauthenticated`, because
+// nothing had said so here. It was found by pointing a browser at it.
+//
+// A prefix and not a list of methods: what is public is the service. A
+// `CatalogueService` that grows a second read grows it public, which is the
+// intent, and a method somewhere else does not become public by being named
+// `Search`.
+func public(method string) bool {
+	return auth.PublicDefault(method) ||
+		strings.HasPrefix(method, "/"+app.CatalogueService_ServiceDesc.ServiceName+"/")
+}
+
 // Serve answers on `l` until the context is done.
 func (s *Server) Serve(ctx context.Context, c Config, policy gate.Policy, l net.Listener) error {
 	g := s.Grpc(ctx, c, policy)
+
+	stop, err := s.serveHttp(ctx, c, g)
+	if err != nil {
+		return err
+	}
+	defer stop()
 
 	go func() {
 		<-ctx.Done()
@@ -226,6 +264,46 @@ func (s *Server) Serve(ctx context.Context, c Config, policy gate.Policy, l net.
 	}()
 
 	return g.Serve(l)
+}
+
+// serveHttp is the second listener, for whatever cannot speak gRPC -- which is
+// every browser. Nothing is opened unless the configuration named an address.
+//
+// It is the **same** `g`: a page reaches the handlers a gRPC client reaches,
+// through the interceptors a gRPC client goes through, behind the same wall.
+// There is no second stack here for a rule to be missing from.
+func (s *Server) serveHttp(ctx context.Context, c Config, g *grpc.Server) (func(), error) {
+	if !c.Server.Http.Serves() {
+		return func() {}, nil
+	}
+
+	h, err := web.Handler(c.Server.Http, g)
+	if err != nil {
+		return nil, err
+	}
+	if h == nil {
+		// An address, and nothing turned on to serve at it. That is a
+		// configuration to be told about rather than a port that accepts a
+		// connection and answers 404.
+		return nil, fmt.Errorf("server.http.addr is %s and nothing is served there: "+
+			"set allow_web for a browser, or allow_pprof, or take the address out", c.Server.Http.Addr)
+	}
+
+	l, err := net.Listen("tcp", c.Server.Http.Addr)
+	if err != nil {
+		return nil, err
+	}
+
+	srv := &http.Server{Handler: h}
+	go func() {
+		if err := srv.Serve(l); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.From(ctx).ErrorContext(ctx, "http", slog.String("err", err.Error()))
+		}
+	}()
+
+	log.From(ctx).InfoContext(ctx, "http", slog.String("addr", l.Addr().String()))
+
+	return func() { srv.Close() }, nil
 }
 
 // NewCmdServe is `<app> serve`.
@@ -260,7 +338,18 @@ func NewCmdServe(c *Config, policy Policy) *xli.Command {
 				return err
 			}
 
-			return s.Serve(ctx, *c, p, l)
+			log.From(ctx).InfoContext(ctx, "grpc", slog.String("addr", l.Addr().String()))
+
+			// The background work and the server, together: whichever stops
+			// first stops the other. A loop that keeps running under a server
+			// that is going down is a process that will not exit, and a server
+			// that goes on answering after its outbox drain has died is one
+			// that accepts writes it will never publish.
+			g, ctx := errgroup.WithContext(ctx)
+			g.Go(func() error { return spin.Run(ctx, slices.Values(s.Spin)) })
+			g.Go(func() error { return s.Serve(ctx, *c, p, l) })
+
+			return g.Wait()
 		}),
 	}
 }

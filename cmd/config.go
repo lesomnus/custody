@@ -10,6 +10,7 @@ package cmd
 
 import (
 	"github.com/lesomnus/xli"
+	"github.com/lesomnus/xli/flg"
 
 	"github.com/lesomnus/payday/gate"
 
@@ -66,18 +67,25 @@ type Config struct {
 // `policy` is what makes the two binaries this app builds different, and it is
 // a function rather than a value because it is read out of the configuration --
 // which is not loaded until a command runs.
-func Cmd(c *Config, policy Policy) *xli.Command {
+//
+// `more` is what one binary has and the other does not. It is a parameter
+// rather than a flag on a shared command for the same reason the policy is:
+// a command that is not on a binary cannot be reached on it, and a flag is a
+// configuration mistake away from being set.
+func Cmd(c *Config, policy Policy, more ...*xli.Command) *xli.Command {
 	return &xli.Command{
 		Name:  Name,
 		Brief: "custody",
 
-		Commands: []*xli.Command{
+		Flags: flg.Flags{pdcmd.ConfigFlag()},
+
+		Commands: append([]*xli.Command{
 			pdcmd.NewCmdVersion(),
 			pdcmd.NewCmdConfig(Loader, c),
 			NewCmdServe(c, policy),
-		},
+		}, more...),
 
-		Handler: xli.RequireSubcommand(),
+		Handler: xli.Chain(pdcmd.Load(Loader, c), xli.RequireSubcommand()),
 	}
 }
 

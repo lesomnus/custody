@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>custody</title>
+		<link rel="stylesheet" href="./src/style.css" />
+	</head>
+	<body>
+		<header>
+			<h1>custody</h1>
+			<p>
+				The customer server, at <code>:8080</code>. It has no policy on it, so a
+				headquarters credential typed below is served its own tenant's rows like
+				anybody else's — there is nothing on that binary that answers wider.
+			</p>
+			<label>
+				signed in as
+				<input id="who" placeholder="@acme/admin" size="20" />
+			</label>
+			<p class="note">
+				<code>Plain</code> believes what you type. It is what payday ships for
+				development and it is not something to serve where anybody can reach it.
+			</p>
+		</header>
+
+		<section>
+			<h2>your assets</h2>
+			<p>
+				<code>AssetService.List</code> with no filter at all. The same request the
+				headquarters page makes; the answer differs because the server narrows it.
+			</p>
+			<div id="assets"></div>
+		</section>
+
+		<section>
+			<h2>add one</h2>
+			<p>
+				The tenant it goes in is the one you are signed in as. Naming somebody
+				else's is refused by the server, not by this page.
+			</p>
+			<div class="form">
+				<input id="alias" placeholder="asset number, or leave empty" size="24" />
+				<input id="name" placeholder="name" size="24" />
+				<input id="location" placeholder="where it is" size="24" />
+				<label><input id="listed" type="checkbox" /> in the catalogue</label>
+				<button id="add">add</button>
+			</div>
+		</section>
+
+		<section>
+			<h2>the public catalogue</h2>
+			<p>
+				Called with <strong>no credential</strong>. What comes back is four fields
+				— a different message, not an <code>Asset</code> with things blanked out —
+				so nobody sees where a thing is or who is answerable for it.
+			</p>
+			<div id="catalogue"></div>
+		</section>
+
+		<script type="module" src="./src/customer.ts"></script>
+	</body>
+</html>

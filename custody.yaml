@@ -1,8 +1,11 @@
-# What this deployment is configured with.
+# What the customer-facing deployment is configured with.
 #
 # A file, then the environment over the top of it: `CUSTODY_DB_DSN` beats what
 # is written here. `custody config` prints what came out, and
 # `custody config env` lists every variable there is.
+#
+# `custody-admin` reads `custody-admin.yaml` instead, which is the same
+# database and a different policy; see that file.
 
 db:
   driver: sqlite3
@@ -10,6 +13,17 @@ db:
 
 server:
   addr: ":50051"
+
+  # What the customer UI reaches. A browser cannot speak gRPC, so this is a
+  # second listener answering Connect and gRPC-Web -- the same server, the same
+  # interceptors, the same wall.
+  http:
+    addr: ":8080"
+    allow_web: true
+    # Which page may call. `npm run dev` serves the UI from another origin, so
+    # it has to be named; a UI served from this same address needs nothing here.
+    origins:
+      - "http://localhost:5173"
 
 watch:
   # Named rather than defaulted, and it is the one field this app is refused for

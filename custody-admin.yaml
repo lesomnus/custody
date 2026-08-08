@@ -1,0 +1,35 @@
+# What the headquarters deployment is configured with.
+#
+# It is the same app and the same database. Two things differ: `hq:`, and the
+# fact that this binary has a policy at all -- `custody` has no code path that
+# answers "every tenant", whatever credential arrives there.
+#
+# This one is deployed where only the company can reach it. Nothing here makes
+# that true; it is a network decision, and `custody.Hq` refusing anybody who is
+# not headquarters is what holds if the network is wrong.
+
+db:
+  driver: sqlite3
+  dsn: "file:custody.db?_pragma=foreign_keys(1)"
+
+# Which tenant headquarters is, by identifier. `custody-admin init` prints it.
+#
+# Configuration rather than a value compiled in, and that is the point: a
+# privilege belonging to whoever holds a particular row cannot be revoked or
+# narrowed, and one written in a deployment's own file can.
+hq: ""
+
+server:
+  # Different ports, because both run on one machine while this is a sample.
+  # In a deployment they are different machines on different networks, which is
+  # the whole of what the second binary is for.
+  addr: ":50052"
+
+  http:
+    addr: ":8081"
+    allow_web: true
+    origins:
+      - "http://localhost:5173"
+
+watch:
+  broker: memory
