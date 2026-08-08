@@ -261,9 +261,13 @@ What has **not** happened is somebody loading the page in a browser, because
 there is none here. So what is verified is that the pieces fit, and not that the
 thing renders.
 
-**The local store.** payday ships one — a replica of what a caller may
-see, with `Watch` applied to it — and `pd gen --ts` writes its declaration in
-`ts/gen/entities.ts`. `ts/src/store.ts` opens it and nothing calls that yet:
-these pages read the server on every render, which is the right shape for two
-screens and the wrong one for an app somebody has open all day. A store is what
-turns `Watch` into a page that is already correct when it renders.
+**The local store, and the reads that follow it.** payday ships both — a
+replica of what a caller may see, and a query layer that knows which rows a
+screen drew, so a row that changes redraws every place it appears.
+`ts/src/store.ts` wires them and nothing calls it yet: these pages read the
+server on every render, which is the right shape for two screens and the wrong
+one for an app somebody has open all day.
+
+Using it means a view framework, and that is the app's choice rather than
+payday's — `@lesomnus/payday/react` is thirty lines of binding, and the same
+file for Vue or Svelte is the same length.
