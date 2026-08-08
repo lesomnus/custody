@@ -6,9 +6,9 @@ package bare
 import (
 	context "context"
 	custody "github.com/lesomnus/custody"
-	ent "github.com/lesomnus/custody/ent"
-	outbox "github.com/lesomnus/custody/ent/outbox"
-	predicate "github.com/lesomnus/custody/ent/predicate"
+	ent "github.com/lesomnus/custody/internal/ent"
+	outbox "github.com/lesomnus/custody/internal/ent/outbox"
+	predicate "github.com/lesomnus/custody/internal/ent/predicate"
 )
 
 type OutboxServiceServer struct {

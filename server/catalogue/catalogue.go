@@ -34,8 +34,8 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/lesomnus/custody"
-	"github.com/lesomnus/custody/ent"
-	"github.com/lesomnus/custody/ent/asset"
+	"github.com/lesomnus/custody/internal/ent"
+	"github.com/lesomnus/custody/internal/ent/asset"
 )
 
 // Size is how many items a page holds when the caller did not say, and Max is

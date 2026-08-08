@@ -5,7 +5,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        (unknown)
-// source: payday/holder_svc.proto
+// source: payday/holder_svc.g.proto
 
 package custody
 
@@ -44,7 +44,7 @@ type HolderAddRequest struct {
 
 func (x *HolderAddRequest) Reset() {
 	*x = HolderAddRequest{}
-	mi := &file_payday_holder_svc_proto_msgTypes[0]
+	mi := &file_payday_holder_svc_g_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -56,7 +56,7 @@ func (x *HolderAddRequest) String() string {
 func (*HolderAddRequest) ProtoMessage() {}
 
 func (x *HolderAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_payday_holder_svc_proto_msgTypes[0]
+	mi := &file_payday_holder_svc_g_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -255,7 +255,7 @@ type HolderRefBySlug struct {
 
 func (x *HolderRefBySlug) Reset() {
 	*x = HolderRefBySlug{}
-	mi := &file_payday_holder_svc_proto_msgTypes[1]
+	mi := &file_payday_holder_svc_g_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -267,7 +267,7 @@ func (x *HolderRefBySlug) String() string {
 func (*HolderRefBySlug) ProtoMessage() {}
 
 func (x *HolderRefBySlug) ProtoReflect() protoreflect.Message {
-	mi := &file_payday_holder_svc_proto_msgTypes[1]
+	mi := &file_payday_holder_svc_g_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -355,7 +355,7 @@ type HolderRef struct {
 
 func (x *HolderRef) Reset() {
 	*x = HolderRef{}
-	mi := &file_payday_holder_svc_proto_msgTypes[2]
+	mi := &file_payday_holder_svc_g_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -367,7 +367,7 @@ func (x *HolderRef) String() string {
 func (*HolderRef) ProtoMessage() {}
 
 func (x *HolderRef) ProtoReflect() protoreflect.Message {
-	mi := &file_payday_holder_svc_proto_msgTypes[2]
+	mi := &file_payday_holder_svc_g_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -527,7 +527,7 @@ func (b0 HolderRef_builder) Build() *HolderRef {
 type case_HolderRef_Key protoreflect.FieldNumber
 
 func (x case_HolderRef_Key) String() string {
-	md := file_payday_holder_svc_proto_msgTypes[2].Descriptor()
+	md := file_payday_holder_svc_g_proto_msgTypes[2].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -576,7 +576,7 @@ type HolderSelect struct {
 
 func (x *HolderSelect) Reset() {
 	*x = HolderSelect{}
-	mi := &file_payday_holder_svc_proto_msgTypes[3]
+	mi := &file_payday_holder_svc_g_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -588,7 +588,7 @@ func (x *HolderSelect) String() string {
 func (*HolderSelect) ProtoMessage() {}
 
 func (x *HolderSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_payday_holder_svc_proto_msgTypes[3]
+	mi := &file_payday_holder_svc_g_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -906,7 +906,7 @@ type HolderGetRequest struct {
 
 func (x *HolderGetRequest) Reset() {
 	*x = HolderGetRequest{}
-	mi := &file_payday_holder_svc_proto_msgTypes[4]
+	mi := &file_payday_holder_svc_g_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -918,7 +918,7 @@ func (x *HolderGetRequest) String() string {
 func (*HolderGetRequest) ProtoMessage() {}
 
 func (x *HolderGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_payday_holder_svc_proto_msgTypes[4]
+	mi := &file_payday_holder_svc_g_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1008,7 +1008,7 @@ type HolderPatchRequest struct {
 
 func (x *HolderPatchRequest) Reset() {
 	*x = HolderPatchRequest{}
-	mi := &file_payday_holder_svc_proto_msgTypes[5]
+	mi := &file_payday_holder_svc_g_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1020,7 +1020,7 @@ func (x *HolderPatchRequest) String() string {
 func (*HolderPatchRequest) ProtoMessage() {}
 
 func (x *HolderPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_payday_holder_svc_proto_msgTypes[5]
+	mi := &file_payday_holder_svc_g_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1316,7 +1316,7 @@ type HolderApplyRequest struct {
 
 func (x *HolderApplyRequest) Reset() {
 	*x = HolderApplyRequest{}
-	mi := &file_payday_holder_svc_proto_msgTypes[6]
+	mi := &file_payday_holder_svc_g_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1328,7 +1328,7 @@ func (x *HolderApplyRequest) String() string {
 func (*HolderApplyRequest) ProtoMessage() {}
 
 func (x *HolderApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_payday_holder_svc_proto_msgTypes[6]
+	mi := &file_payday_holder_svc_g_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1399,11 +1399,11 @@ func (b0 HolderApplyRequest_builder) Build() *HolderApplyRequest {
 	return m0
 }
 
-var File_payday_holder_svc_proto protoreflect.FileDescriptor
+var File_payday_holder_svc_g_proto protoreflect.FileDescriptor
 
-const file_payday_holder_svc_proto_rawDesc = "" +
+const file_payday_holder_svc_g_proto_rawDesc = "" +
 	"\n" +
-	"\x17payday/holder_svc.proto\x12\x06payday\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11patch/patch.proto\x1a\x13payday/holder.proto\x1a\x17payday/tenant_svc.proto\"\xf9\x02\n" +
+	"\x19payday/holder_svc.g.proto\x12\x06payday\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11patch/patch.proto\x1a\x13payday/holder.proto\x1a\x19payday/tenant_svc.g.proto\"\xf9\x02\n" +
 	"\x10HolderAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12)\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x11.payday.TenantRefR\x06tenant\x12\x1b\n" +
@@ -1467,8 +1467,8 @@ const file_payday_holder_svc_proto_rawDesc = "" +
 	"\x05Apply\x12\x1a.payday.HolderApplyRequest\x1a\x0e.payday.Holder\x122\n" +
 	"\x05Erase\x12\x11.payday.HolderRef\x1a\x16.google.protobuf.EmptyB\x1dZ\x1bgithub.com/lesomnus/custodyb\beditionsp\xe8\a"
 
-var file_payday_holder_svc_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
-var file_payday_holder_svc_proto_goTypes = []any{
+var file_payday_holder_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_payday_holder_svc_g_proto_goTypes = []any{
 	(*HolderAddRequest)(nil),      // 0: payday.HolderAddRequest
 	(*HolderRefBySlug)(nil),       // 1: payday.HolderRefBySlug
 	(*HolderRef)(nil),             // 2: payday.HolderRef
@@ -1485,7 +1485,7 @@ var file_payday_holder_svc_proto_goTypes = []any{
 	(*Holder)(nil),                // 13: payday.Holder
 	(*emptypb.Empty)(nil),         // 14: google.protobuf.Empty
 }
-var file_payday_holder_svc_proto_depIdxs = []int32{
+var file_payday_holder_svc_g_proto_depIdxs = []int32{
 	9,  // 0: payday.HolderAddRequest.tenant:type_name -> payday.TenantRef
 	7,  // 1: payday.HolderAddRequest.labels:type_name -> payday.HolderAddRequest.LabelsEntry
 	10, // 2: payday.HolderAddRequest.date_created:type_name -> google.protobuf.Timestamp
@@ -1516,14 +1516,14 @@ var file_payday_holder_svc_proto_depIdxs = []int32{
 	0,  // [0:13] is the sub-list for field type_name
 }
 
-func init() { file_payday_holder_svc_proto_init() }
-func file_payday_holder_svc_proto_init() {
-	if File_payday_holder_svc_proto != nil {
+func init() { file_payday_holder_svc_g_proto_init() }
+func file_payday_holder_svc_g_proto_init() {
+	if File_payday_holder_svc_g_proto != nil {
 		return
 	}
 	file_payday_holder_proto_init()
-	file_payday_tenant_svc_proto_init()
-	file_payday_holder_svc_proto_msgTypes[2].OneofWrappers = []any{
+	file_payday_tenant_svc_g_proto_init()
+	file_payday_holder_svc_g_proto_msgTypes[2].OneofWrappers = []any{
 		(*holderRef_Id)(nil),
 		(*holderRef_Slug)(nil),
 		(*holderRef_IdpSubject)(nil),
@@ -1532,17 +1532,17 @@ func file_payday_holder_svc_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_payday_holder_svc_proto_rawDesc), len(file_payday_holder_svc_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_payday_holder_svc_g_proto_rawDesc), len(file_payday_holder_svc_g_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_payday_holder_svc_proto_goTypes,
-		DependencyIndexes: file_payday_holder_svc_proto_depIdxs,
-		MessageInfos:      file_payday_holder_svc_proto_msgTypes,
+		GoTypes:           file_payday_holder_svc_g_proto_goTypes,
+		DependencyIndexes: file_payday_holder_svc_g_proto_depIdxs,
+		MessageInfos:      file_payday_holder_svc_g_proto_msgTypes,
 	}.Build()
-	File_payday_holder_svc_proto = out.File
-	file_payday_holder_svc_proto_goTypes = nil
-	file_payday_holder_svc_proto_depIdxs = nil
+	File_payday_holder_svc_g_proto = out.File
+	file_payday_holder_svc_g_proto_goTypes = nil
+	file_payday_holder_svc_g_proto_depIdxs = nil
 }

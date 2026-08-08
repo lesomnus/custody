@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        (unknown)
-// source: app/asset_svc.proto
+// source: app/asset_svc.g.proto
 
 package custody
 
@@ -43,7 +43,7 @@ type AssetAddRequest struct {
 
 func (x *AssetAddRequest) Reset() {
 	*x = AssetAddRequest{}
-	mi := &file_app_asset_svc_proto_msgTypes[0]
+	mi := &file_app_asset_svc_g_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -55,7 +55,7 @@ func (x *AssetAddRequest) String() string {
 func (*AssetAddRequest) ProtoMessage() {}
 
 func (x *AssetAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_app_asset_svc_proto_msgTypes[0]
+	mi := &file_app_asset_svc_g_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -270,7 +270,7 @@ type AssetGetRequest struct {
 
 func (x *AssetGetRequest) Reset() {
 	*x = AssetGetRequest{}
-	mi := &file_app_asset_svc_proto_msgTypes[1]
+	mi := &file_app_asset_svc_g_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -282,7 +282,7 @@ func (x *AssetGetRequest) String() string {
 func (*AssetGetRequest) ProtoMessage() {}
 
 func (x *AssetGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_app_asset_svc_proto_msgTypes[1]
+	mi := &file_app_asset_svc_g_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -362,7 +362,7 @@ type AssetRef struct {
 
 func (x *AssetRef) Reset() {
 	*x = AssetRef{}
-	mi := &file_app_asset_svc_proto_msgTypes[2]
+	mi := &file_app_asset_svc_g_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -374,7 +374,7 @@ func (x *AssetRef) String() string {
 func (*AssetRef) ProtoMessage() {}
 
 func (x *AssetRef) ProtoReflect() protoreflect.Message {
-	mi := &file_app_asset_svc_proto_msgTypes[2]
+	mi := &file_app_asset_svc_g_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -500,7 +500,7 @@ func (b0 AssetRef_builder) Build() *AssetRef {
 type case_AssetRef_Key protoreflect.FieldNumber
 
 func (x case_AssetRef_Key) String() string {
-	md := file_app_asset_svc_proto_msgTypes[2].Descriptor()
+	md := file_app_asset_svc_g_proto_msgTypes[2].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -535,7 +535,7 @@ type AssetRefBySlug struct {
 
 func (x *AssetRefBySlug) Reset() {
 	*x = AssetRefBySlug{}
-	mi := &file_app_asset_svc_proto_msgTypes[3]
+	mi := &file_app_asset_svc_g_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -547,7 +547,7 @@ func (x *AssetRefBySlug) String() string {
 func (*AssetRefBySlug) ProtoMessage() {}
 
 func (x *AssetRefBySlug) ProtoReflect() protoreflect.Message {
-	mi := &file_app_asset_svc_proto_msgTypes[3]
+	mi := &file_app_asset_svc_g_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -647,7 +647,7 @@ type AssetSelect struct {
 
 func (x *AssetSelect) Reset() {
 	*x = AssetSelect{}
-	mi := &file_app_asset_svc_proto_msgTypes[4]
+	mi := &file_app_asset_svc_g_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -659,7 +659,7 @@ func (x *AssetSelect) String() string {
 func (*AssetSelect) ProtoMessage() {}
 
 func (x *AssetSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_app_asset_svc_proto_msgTypes[4]
+	mi := &file_app_asset_svc_g_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1013,7 +1013,7 @@ type AssetPatchRequest struct {
 
 func (x *AssetPatchRequest) Reset() {
 	*x = AssetPatchRequest{}
-	mi := &file_app_asset_svc_proto_msgTypes[5]
+	mi := &file_app_asset_svc_g_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1025,7 +1025,7 @@ func (x *AssetPatchRequest) String() string {
 func (*AssetPatchRequest) ProtoMessage() {}
 
 func (x *AssetPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_app_asset_svc_proto_msgTypes[5]
+	mi := &file_app_asset_svc_g_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1398,7 +1398,7 @@ type AssetApplyRequest struct {
 
 func (x *AssetApplyRequest) Reset() {
 	*x = AssetApplyRequest{}
-	mi := &file_app_asset_svc_proto_msgTypes[6]
+	mi := &file_app_asset_svc_g_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1410,7 +1410,7 @@ func (x *AssetApplyRequest) String() string {
 func (*AssetApplyRequest) ProtoMessage() {}
 
 func (x *AssetApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_app_asset_svc_proto_msgTypes[6]
+	mi := &file_app_asset_svc_g_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1492,7 +1492,7 @@ type AssetListRequest struct {
 
 func (x *AssetListRequest) Reset() {
 	*x = AssetListRequest{}
-	mi := &file_app_asset_svc_proto_msgTypes[7]
+	mi := &file_app_asset_svc_g_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1504,7 +1504,7 @@ func (x *AssetListRequest) String() string {
 func (*AssetListRequest) ProtoMessage() {}
 
 func (x *AssetListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_app_asset_svc_proto_msgTypes[7]
+	mi := &file_app_asset_svc_g_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1587,7 +1587,7 @@ type AssetListResponse struct {
 
 func (x *AssetListResponse) Reset() {
 	*x = AssetListResponse{}
-	mi := &file_app_asset_svc_proto_msgTypes[8]
+	mi := &file_app_asset_svc_g_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1599,7 +1599,7 @@ func (x *AssetListResponse) String() string {
 func (*AssetListResponse) ProtoMessage() {}
 
 func (x *AssetListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_app_asset_svc_proto_msgTypes[8]
+	mi := &file_app_asset_svc_g_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1669,7 +1669,7 @@ type AssetFilter struct {
 
 func (x *AssetFilter) Reset() {
 	*x = AssetFilter{}
-	mi := &file_app_asset_svc_proto_msgTypes[9]
+	mi := &file_app_asset_svc_g_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1681,7 +1681,7 @@ func (x *AssetFilter) String() string {
 func (*AssetFilter) ProtoMessage() {}
 
 func (x *AssetFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_app_asset_svc_proto_msgTypes[9]
+	mi := &file_app_asset_svc_g_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1767,7 +1767,7 @@ type AssetWatchRequest struct {
 
 func (x *AssetWatchRequest) Reset() {
 	*x = AssetWatchRequest{}
-	mi := &file_app_asset_svc_proto_msgTypes[10]
+	mi := &file_app_asset_svc_g_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1779,7 +1779,7 @@ func (x *AssetWatchRequest) String() string {
 func (*AssetWatchRequest) ProtoMessage() {}
 
 func (x *AssetWatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_app_asset_svc_proto_msgTypes[10]
+	mi := &file_app_asset_svc_g_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1851,7 +1851,7 @@ type AssetWatchResponse struct {
 
 func (x *AssetWatchResponse) Reset() {
 	*x = AssetWatchResponse{}
-	mi := &file_app_asset_svc_proto_msgTypes[11]
+	mi := &file_app_asset_svc_g_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1863,7 +1863,7 @@ func (x *AssetWatchResponse) String() string {
 func (*AssetWatchResponse) ProtoMessage() {}
 
 func (x *AssetWatchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_app_asset_svc_proto_msgTypes[11]
+	mi := &file_app_asset_svc_g_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1915,7 +1915,7 @@ type AssetWatchItem struct {
 
 func (x *AssetWatchItem) Reset() {
 	*x = AssetWatchItem{}
-	mi := &file_app_asset_svc_proto_msgTypes[12]
+	mi := &file_app_asset_svc_g_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1927,7 +1927,7 @@ func (x *AssetWatchItem) String() string {
 func (*AssetWatchItem) ProtoMessage() {}
 
 func (x *AssetWatchItem) ProtoReflect() protoreflect.Message {
-	mi := &file_app_asset_svc_proto_msgTypes[12]
+	mi := &file_app_asset_svc_g_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2049,7 +2049,7 @@ type AssetTransferRequest struct {
 
 func (x *AssetTransferRequest) Reset() {
 	*x = AssetTransferRequest{}
-	mi := &file_app_asset_svc_proto_msgTypes[13]
+	mi := &file_app_asset_svc_g_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2061,7 +2061,7 @@ func (x *AssetTransferRequest) String() string {
 func (*AssetTransferRequest) ProtoMessage() {}
 
 func (x *AssetTransferRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_app_asset_svc_proto_msgTypes[13]
+	mi := &file_app_asset_svc_g_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2175,11 +2175,11 @@ func (b0 AssetTransferRequest_builder) Build() *AssetTransferRequest {
 	return m0
 }
 
-var File_app_asset_svc_proto protoreflect.FileDescriptor
+var File_app_asset_svc_g_proto protoreflect.FileDescriptor
 
-const file_app_asset_svc_proto_rawDesc = "" +
+const file_app_asset_svc_g_proto_rawDesc = "" +
 	"\n" +
-	"\x13app/asset_svc.proto\x12\x03app\x1a\x0fapp/asset.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11patch/patch.proto\x1a\x17payday/holder_svc.proto\x1a\x17payday/tenant_svc.proto\"\xc0\x03\n" +
+	"\x15app/asset_svc.g.proto\x12\x03app\x1a\x0fapp/asset.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11patch/patch.proto\x1a\x19payday/holder_svc.g.proto\x1a\x19payday/tenant_svc.g.proto\"\xc0\x03\n" +
 	"\x0fAssetAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12)\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x11.payday.TenantRefR\x06tenant\x12\x1b\n" +
@@ -2279,8 +2279,8 @@ const file_app_asset_svc_proto_rawDesc = "" +
 	"\bTransfer\x12\x19.app.AssetTransferRequest\x1a\n" +
 	".app.AssetB\x1dZ\x1bgithub.com/lesomnus/custodyb\beditionsp\xe8\a"
 
-var file_app_asset_svc_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
-var file_app_asset_svc_proto_goTypes = []any{
+var file_app_asset_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_app_asset_svc_g_proto_goTypes = []any{
 	(*AssetAddRequest)(nil),       // 0: app.AssetAddRequest
 	(*AssetGetRequest)(nil),       // 1: app.AssetGetRequest
 	(*AssetRef)(nil),              // 2: app.AssetRef
@@ -2306,7 +2306,7 @@ var file_app_asset_svc_proto_goTypes = []any{
 	(*Asset)(nil),                 // 22: app.Asset
 	(*emptypb.Empty)(nil),         // 23: google.protobuf.Empty
 }
-var file_app_asset_svc_proto_depIdxs = []int32{
+var file_app_asset_svc_g_proto_depIdxs = []int32{
 	16, // 0: app.AssetAddRequest.tenant:type_name -> payday.TenantRef
 	14, // 1: app.AssetAddRequest.labels:type_name -> app.AssetAddRequest.LabelsEntry
 	17, // 2: app.AssetAddRequest.keeper:type_name -> payday.HolderRef
@@ -2355,15 +2355,15 @@ var file_app_asset_svc_proto_depIdxs = []int32{
 	0,  // [0:25] is the sub-list for field type_name
 }
 
-func init() { file_app_asset_svc_proto_init() }
-func file_app_asset_svc_proto_init() {
-	if File_app_asset_svc_proto != nil {
+func init() { file_app_asset_svc_g_proto_init() }
+func file_app_asset_svc_g_proto_init() {
+	if File_app_asset_svc_g_proto != nil {
 		return
 	}
 	file_app_asset_proto_init()
-	file_payday_holder_svc_proto_init()
-	file_payday_tenant_svc_proto_init()
-	file_app_asset_svc_proto_msgTypes[2].OneofWrappers = []any{
+	file_payday_holder_svc_g_proto_init()
+	file_payday_tenant_svc_g_proto_init()
+	file_app_asset_svc_g_proto_msgTypes[2].OneofWrappers = []any{
 		(*assetRef_Id)(nil),
 		(*assetRef_Slug)(nil),
 	}
@@ -2371,17 +2371,17 @@ func file_app_asset_svc_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_app_asset_svc_proto_rawDesc), len(file_app_asset_svc_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_app_asset_svc_g_proto_rawDesc), len(file_app_asset_svc_g_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_app_asset_svc_proto_goTypes,
-		DependencyIndexes: file_app_asset_svc_proto_depIdxs,
-		MessageInfos:      file_app_asset_svc_proto_msgTypes,
+		GoTypes:           file_app_asset_svc_g_proto_goTypes,
+		DependencyIndexes: file_app_asset_svc_g_proto_depIdxs,
+		MessageInfos:      file_app_asset_svc_g_proto_msgTypes,
 	}.Build()
-	File_app_asset_svc_proto = out.File
-	file_app_asset_svc_proto_goTypes = nil
-	file_app_asset_svc_proto_depIdxs = nil
+	File_app_asset_svc_g_proto = out.File
+	file_app_asset_svc_g_proto_goTypes = nil
+	file_app_asset_svc_g_proto_depIdxs = nil
 }

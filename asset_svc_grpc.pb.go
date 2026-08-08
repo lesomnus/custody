@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.2
 // - protoc             (unknown)
-// source: app/asset_svc.proto
+// source: app/asset_svc.g.proto
 
 package custody
 
@@ -464,5 +464,5 @@ var AssetService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "app/asset_svc.proto",
+	Metadata: "app/asset_svc.g.proto",
 }
