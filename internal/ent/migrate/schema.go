@@ -19,6 +19,7 @@ var (
 		{Name: "location", Type: field.TypeString},
 		{Name: "listed", Type: field.TypeBool},
 		{Name: "date_updated", Type: field.TypeTime},
+		{Name: "date_erased", Type: field.TypeTime, Nullable: true},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
 		{Name: "tenant_id", Type: field.TypeUUID},
 		{Name: "keeper_id", Type: field.TypeUUID, Nullable: true},
@@ -31,13 +32,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "asset_tenant_tenant",
-				Columns:    []*schema.Column{AssetColumns[9]},
+				Columns:    []*schema.Column{AssetColumns[10]},
 				RefColumns: []*schema.Column{TenantColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "asset_holder_keeper",
-				Columns:    []*schema.Column{AssetColumns[10]},
+				Columns:    []*schema.Column{AssetColumns[11]},
 				RefColumns: []*schema.Column{HolderColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -46,17 +47,20 @@ var (
 			{
 				Name:    "asset_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{AssetColumns[8], AssetColumns[0]},
+				Columns: []*schema.Column{AssetColumns[9], AssetColumns[0]},
 			},
 			{
 				Name:    "asset_alias_tenant_id",
 				Unique:  true,
-				Columns: []*schema.Column{AssetColumns[1], AssetColumns[9]},
+				Columns: []*schema.Column{AssetColumns[1], AssetColumns[10]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "date_erased IS NULL",
+				},
 			},
 			{
 				Name:    "asset_listed_date_created",
 				Unique:  false,
-				Columns: []*schema.Column{AssetColumns[6], AssetColumns[8]},
+				Columns: []*schema.Column{AssetColumns[6], AssetColumns[9]},
 			},
 		},
 	}
@@ -70,6 +74,8 @@ var (
 		{Name: "object_id", Type: field.TypeUUID},
 		{Name: "patch", Type: field.TypeBytes},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
+		{Name: "actor_tenant_id", Type: field.TypeUUID},
+		{Name: "value", Type: field.TypeBytes},
 	}
 	// AuditTable holds the schema information for the "audit" table.
 	AuditTable = &schema.Table{
@@ -86,6 +92,16 @@ var (
 				Name:    "audit_tenant_id_date_created",
 				Unique:  false,
 				Columns: []*schema.Column{AuditColumns[1], AuditColumns[7]},
+			},
+			{
+				Name:    "audit_actor_tenant_id_date_created",
+				Unique:  false,
+				Columns: []*schema.Column{AuditColumns[8], AuditColumns[7]},
+			},
+			{
+				Name:    "audit_actor_id_date_created",
+				Unique:  false,
+				Columns: []*schema.Column{AuditColumns[2], AuditColumns[7]},
 			},
 		},
 	}

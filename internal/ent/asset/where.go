@@ -86,6 +86,11 @@ func DateUpdated(v time.Time) predicate.Asset {
 	return predicate.Asset(sql.FieldEQ(FieldDateUpdated, v))
 }
 
+// DateErased applies equality check predicate on the "date_erased" field. It's identical to DateErasedEQ.
+func DateErased(v time.Time) predicate.Asset {
+	return predicate.Asset(sql.FieldEQ(FieldDateErased, v))
+}
+
 // DateCreated applies equality check predicate on the "date_created" field. It's identical to DateCreatedEQ.
 func DateCreated(v time.Time) predicate.Asset {
 	return predicate.Asset(sql.FieldEQ(FieldDateCreated, v))
@@ -419,6 +424,56 @@ func DateUpdatedLT(v time.Time) predicate.Asset {
 // DateUpdatedLTE applies the LTE predicate on the "date_updated" field.
 func DateUpdatedLTE(v time.Time) predicate.Asset {
 	return predicate.Asset(sql.FieldLTE(FieldDateUpdated, v))
+}
+
+// DateErasedEQ applies the EQ predicate on the "date_erased" field.
+func DateErasedEQ(v time.Time) predicate.Asset {
+	return predicate.Asset(sql.FieldEQ(FieldDateErased, v))
+}
+
+// DateErasedNEQ applies the NEQ predicate on the "date_erased" field.
+func DateErasedNEQ(v time.Time) predicate.Asset {
+	return predicate.Asset(sql.FieldNEQ(FieldDateErased, v))
+}
+
+// DateErasedIn applies the In predicate on the "date_erased" field.
+func DateErasedIn(vs ...time.Time) predicate.Asset {
+	return predicate.Asset(sql.FieldIn(FieldDateErased, vs...))
+}
+
+// DateErasedNotIn applies the NotIn predicate on the "date_erased" field.
+func DateErasedNotIn(vs ...time.Time) predicate.Asset {
+	return predicate.Asset(sql.FieldNotIn(FieldDateErased, vs...))
+}
+
+// DateErasedGT applies the GT predicate on the "date_erased" field.
+func DateErasedGT(v time.Time) predicate.Asset {
+	return predicate.Asset(sql.FieldGT(FieldDateErased, v))
+}
+
+// DateErasedGTE applies the GTE predicate on the "date_erased" field.
+func DateErasedGTE(v time.Time) predicate.Asset {
+	return predicate.Asset(sql.FieldGTE(FieldDateErased, v))
+}
+
+// DateErasedLT applies the LT predicate on the "date_erased" field.
+func DateErasedLT(v time.Time) predicate.Asset {
+	return predicate.Asset(sql.FieldLT(FieldDateErased, v))
+}
+
+// DateErasedLTE applies the LTE predicate on the "date_erased" field.
+func DateErasedLTE(v time.Time) predicate.Asset {
+	return predicate.Asset(sql.FieldLTE(FieldDateErased, v))
+}
+
+// DateErasedIsNil applies the IsNil predicate on the "date_erased" field.
+func DateErasedIsNil() predicate.Asset {
+	return predicate.Asset(sql.FieldIsNull(FieldDateErased))
+}
+
+// DateErasedNotNil applies the NotNil predicate on the "date_erased" field.
+func DateErasedNotNil() predicate.Asset {
+	return predicate.Asset(sql.FieldNotNull(FieldDateErased))
 }
 
 // DateCreatedEQ applies the EQ predicate on the "date_created" field.

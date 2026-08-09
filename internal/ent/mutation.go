@@ -49,6 +49,7 @@ type AssetMutation struct {
 	location      *string
 	listed        *bool
 	date_updated  *time.Time
+	date_erased   *time.Time
 	date_created  *time.Time
 	clearedFields map[string]struct{}
 	tenant        *uuid.UUID
@@ -429,6 +430,55 @@ func (m *AssetMutation) ResetDateUpdated() {
 	m.date_updated = nil
 }
 
+// SetDateErased sets the "date_erased" field.
+func (m *AssetMutation) SetDateErased(t time.Time) {
+	m.date_erased = &t
+}
+
+// DateErased returns the value of the "date_erased" field in the mutation.
+func (m *AssetMutation) DateErased() (r time.Time, exists bool) {
+	v := m.date_erased
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDateErased returns the old "date_erased" field's value of the Asset entity.
+// If the Asset object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AssetMutation) OldDateErased(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDateErased is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDateErased requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDateErased: %w", err)
+	}
+	return oldValue.DateErased, nil
+}
+
+// ClearDateErased clears the value of the "date_erased" field.
+func (m *AssetMutation) ClearDateErased() {
+	m.date_erased = nil
+	m.clearedFields[asset.FieldDateErased] = struct{}{}
+}
+
+// DateErasedCleared returns if the "date_erased" field was cleared in this mutation.
+func (m *AssetMutation) DateErasedCleared() bool {
+	_, ok := m.clearedFields[asset.FieldDateErased]
+	return ok
+}
+
+// ResetDateErased resets all changes to the "date_erased" field.
+func (m *AssetMutation) ResetDateErased() {
+	m.date_erased = nil
+	delete(m.clearedFields, asset.FieldDateErased)
+}
+
 // SetDateCreated sets the "date_created" field.
 func (m *AssetMutation) SetDateCreated(t time.Time) {
 	m.date_created = &t
@@ -651,7 +701,7 @@ func (m *AssetMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AssetMutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 11)
 	if m.alias != nil {
 		fields = append(fields, asset.FieldAlias)
 	}
@@ -672,6 +722,9 @@ func (m *AssetMutation) Fields() []string {
 	}
 	if m.date_updated != nil {
 		fields = append(fields, asset.FieldDateUpdated)
+	}
+	if m.date_erased != nil {
+		fields = append(fields, asset.FieldDateErased)
 	}
 	if m.date_created != nil {
 		fields = append(fields, asset.FieldDateCreated)
@@ -704,6 +757,8 @@ func (m *AssetMutation) Field(name string) (ent.Value, bool) {
 		return m.Listed()
 	case asset.FieldDateUpdated:
 		return m.DateUpdated()
+	case asset.FieldDateErased:
+		return m.DateErased()
 	case asset.FieldDateCreated:
 		return m.DateCreated()
 	case asset.FieldTenantID:
@@ -733,6 +788,8 @@ func (m *AssetMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldListed(ctx)
 	case asset.FieldDateUpdated:
 		return m.OldDateUpdated(ctx)
+	case asset.FieldDateErased:
+		return m.OldDateErased(ctx)
 	case asset.FieldDateCreated:
 		return m.OldDateCreated(ctx)
 	case asset.FieldTenantID:
@@ -797,6 +854,13 @@ func (m *AssetMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDateUpdated(v)
 		return nil
+	case asset.FieldDateErased:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDateErased(v)
+		return nil
 	case asset.FieldDateCreated:
 		v, ok := value.(time.Time)
 		if !ok {
@@ -851,6 +915,9 @@ func (m *AssetMutation) ClearedFields() []string {
 	if m.FieldCleared(asset.FieldLabels) {
 		fields = append(fields, asset.FieldLabels)
 	}
+	if m.FieldCleared(asset.FieldDateErased) {
+		fields = append(fields, asset.FieldDateErased)
+	}
 	if m.FieldCleared(asset.FieldDateCreated) {
 		fields = append(fields, asset.FieldDateCreated)
 	}
@@ -873,6 +940,9 @@ func (m *AssetMutation) ClearField(name string) error {
 	switch name {
 	case asset.FieldLabels:
 		m.ClearLabels()
+		return nil
+	case asset.FieldDateErased:
+		m.ClearDateErased()
 		return nil
 	case asset.FieldDateCreated:
 		m.ClearDateCreated()
@@ -908,6 +978,9 @@ func (m *AssetMutation) ResetField(name string) error {
 		return nil
 	case asset.FieldDateUpdated:
 		m.ResetDateUpdated()
+		return nil
+	case asset.FieldDateErased:
+		m.ResetDateErased()
 		return nil
 	case asset.FieldDateCreated:
 		m.ResetDateCreated()
@@ -1017,20 +1090,22 @@ func (m *AssetMutation) ResetEdge(name string) error {
 // AuditMutation represents an operation that mutates the Audit nodes in the graph.
 type AuditMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *uuid.UUID
-	tenant_id     *uuid.UUID
-	actor_id      *uuid.UUID
-	trace_id      *[]byte
-	action        *string
-	object_id     *uuid.UUID
-	patch         *[]byte
-	date_created  *time.Time
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*Audit, error)
-	predicates    []predicate.Audit
+	op              Op
+	typ             string
+	id              *uuid.UUID
+	tenant_id       *uuid.UUID
+	actor_id        *uuid.UUID
+	trace_id        *[]byte
+	action          *string
+	object_id       *uuid.UUID
+	patch           *[]byte
+	date_created    *time.Time
+	actor_tenant_id *uuid.UUID
+	value           *[]byte
+	clearedFields   map[string]struct{}
+	done            bool
+	oldValue        func(context.Context) (*Audit, error)
+	predicates      []predicate.Audit
 }
 
 var _ ent.Mutation = (*AuditMutation)(nil)
@@ -1402,6 +1477,78 @@ func (m *AuditMutation) ResetDateCreated() {
 	delete(m.clearedFields, audit.FieldDateCreated)
 }
 
+// SetActorTenantID sets the "actor_tenant_id" field.
+func (m *AuditMutation) SetActorTenantID(u uuid.UUID) {
+	m.actor_tenant_id = &u
+}
+
+// ActorTenantID returns the value of the "actor_tenant_id" field in the mutation.
+func (m *AuditMutation) ActorTenantID() (r uuid.UUID, exists bool) {
+	v := m.actor_tenant_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldActorTenantID returns the old "actor_tenant_id" field's value of the Audit entity.
+// If the Audit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AuditMutation) OldActorTenantID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldActorTenantID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldActorTenantID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldActorTenantID: %w", err)
+	}
+	return oldValue.ActorTenantID, nil
+}
+
+// ResetActorTenantID resets all changes to the "actor_tenant_id" field.
+func (m *AuditMutation) ResetActorTenantID() {
+	m.actor_tenant_id = nil
+}
+
+// SetValue sets the "value" field.
+func (m *AuditMutation) SetValue(b []byte) {
+	m.value = &b
+}
+
+// Value returns the value of the "value" field in the mutation.
+func (m *AuditMutation) Value() (r []byte, exists bool) {
+	v := m.value
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldValue returns the old "value" field's value of the Audit entity.
+// If the Audit object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AuditMutation) OldValue(ctx context.Context) (v []byte, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldValue is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldValue requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldValue: %w", err)
+	}
+	return oldValue.Value, nil
+}
+
+// ResetValue resets all changes to the "value" field.
+func (m *AuditMutation) ResetValue() {
+	m.value = nil
+}
+
 // Where appends a list predicates to the AuditMutation builder.
 func (m *AuditMutation) Where(ps ...predicate.Audit) {
 	m.predicates = append(m.predicates, ps...)
@@ -1436,7 +1583,7 @@ func (m *AuditMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AuditMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 9)
 	if m.tenant_id != nil {
 		fields = append(fields, audit.FieldTenantID)
 	}
@@ -1457,6 +1604,12 @@ func (m *AuditMutation) Fields() []string {
 	}
 	if m.date_created != nil {
 		fields = append(fields, audit.FieldDateCreated)
+	}
+	if m.actor_tenant_id != nil {
+		fields = append(fields, audit.FieldActorTenantID)
+	}
+	if m.value != nil {
+		fields = append(fields, audit.FieldValue)
 	}
 	return fields
 }
@@ -1480,6 +1633,10 @@ func (m *AuditMutation) Field(name string) (ent.Value, bool) {
 		return m.Patch()
 	case audit.FieldDateCreated:
 		return m.DateCreated()
+	case audit.FieldActorTenantID:
+		return m.ActorTenantID()
+	case audit.FieldValue:
+		return m.Value()
 	}
 	return nil, false
 }
@@ -1503,6 +1660,10 @@ func (m *AuditMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldPatch(ctx)
 	case audit.FieldDateCreated:
 		return m.OldDateCreated(ctx)
+	case audit.FieldActorTenantID:
+		return m.OldActorTenantID(ctx)
+	case audit.FieldValue:
+		return m.OldValue(ctx)
 	}
 	return nil, fmt.Errorf("unknown Audit field %s", name)
 }
@@ -1560,6 +1721,20 @@ func (m *AuditMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDateCreated(v)
+		return nil
+	case audit.FieldActorTenantID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetActorTenantID(v)
+		return nil
+	case audit.FieldValue:
+		v, ok := value.([]byte)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetValue(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Audit field %s", name)
@@ -1639,6 +1814,12 @@ func (m *AuditMutation) ResetField(name string) error {
 		return nil
 	case audit.FieldDateCreated:
 		m.ResetDateCreated()
+		return nil
+	case audit.FieldActorTenantID:
+		m.ResetActorTenantID()
+		return nil
+	case audit.FieldValue:
+		m.ResetValue()
 		return nil
 	}
 	return fmt.Errorf("unknown Audit field %s", name)

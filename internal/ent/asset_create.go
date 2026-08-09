@@ -65,6 +65,20 @@ func (_c *AssetCreate) SetDateUpdated(v time.Time) *AssetCreate {
 	return _c
 }
 
+// SetDateErased sets the "date_erased" field.
+func (_c *AssetCreate) SetDateErased(v time.Time) *AssetCreate {
+	_c.mutation.SetDateErased(v)
+	return _c
+}
+
+// SetNillableDateErased sets the "date_erased" field if the given value is not nil.
+func (_c *AssetCreate) SetNillableDateErased(v *time.Time) *AssetCreate {
+	if v != nil {
+		_c.SetDateErased(*v)
+	}
+	return _c
+}
+
 // SetDateCreated sets the "date_created" field.
 func (_c *AssetCreate) SetDateCreated(v time.Time) *AssetCreate {
 	_c.mutation.SetDateCreated(v)
@@ -235,6 +249,10 @@ func (_c *AssetCreate) createSpec() (*Asset, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DateUpdated(); ok {
 		_spec.SetField(asset.FieldDateUpdated, field.TypeTime, value)
 		_node.DateUpdated = value
+	}
+	if value, ok := _c.mutation.DateErased(); ok {
+		_spec.SetField(asset.FieldDateErased, field.TypeTime, value)
+		_node.DateErased = &value
 	}
 	if value, ok := _c.mutation.DateCreated(); ok {
 		_spec.SetField(asset.FieldDateCreated, field.TypeTime, value)

@@ -20,7 +20,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file app/asset_svc.g.proto.
  */
 export const file_app_asset_svc_g: GenFile = /*@__PURE__*/
-  fileDesc("ChVhcHAvYXNzZXRfc3ZjLmcucHJvdG8SA2FwcCLmAgoPQXNzZXRBZGRSZXF1ZXN0EgoKAmlkGAEgASgMEiEKBnRlbmFudBgCIAEoCzIRLnBheWRheS5UZW5hbnRSZWYSFAoFYWxpYXMYBCABKAlCBaoBAggCEhMKBG5hbWUYBSABKAlCBaoBAggCEhMKBGRlc2MYBiABKAlCBaoBAggCEjAKBmxhYmVscxgHIAMoCzIgLmFwcC5Bc3NldEFkZFJlcXVlc3QuTGFiZWxzRW50cnkSIQoGa2VlcGVyGAggASgLMhEucGF5ZGF5LkhvbGRlclJlZhIXCghsb2NhdGlvbhgJIAEoCUIFqgECCAISFQoGbGlzdGVkGAogASgIQgWqAQIIAhIwCgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiTwoPQXNzZXRHZXRSZXF1ZXN0EhoKA3JlZhgBIAEoCzINLmFwcC5Bc3NldFJlZhIgCgZzZWxlY3QYAiABKAsyEC5hcHAuQXNzZXRTZWxlY3QiRAoIQXNzZXRSZWYSDAoCaWQYASABKAxIABIjCgRzbHVnGAQgASgLMhMuYXBwLkFzc2V0UmVmQnlTbHVnSABCBQoDa2V5IkIKDkFzc2V0UmVmQnlTbHVnEg0KBWFsaWFzGAQgASgJEiEKBnRlbmFudBgCIAEoCzIRLnBheWRheS5UZW5hbnRSZWYi7wEKC0Fzc2V0U2VsZWN0EgsKA2FsbBgBIAEoCBIkCgZ0ZW5hbnQYAiABKAsyFC5wYXlkYXkuVGVuYW50U2VsZWN0Eg0KBWFsaWFzGAQgASgIEgwKBG5hbWUYBSABKAgSDAoEZGVzYxgGIAEoCBIOCgZsYWJlbHMYByABKAgSJAoGa2VlcGVyGAggASgLMhQucGF5ZGF5LkhvbGRlclNlbGVjdBIQCghsb2NhdGlvbhgJIAEoCBIOCgZsaXN0ZWQYCiABKAgSFAoMZGF0ZV91cGRhdGVkGA0gASgIEhQKDGRhdGVfY3JlYXRlZBgPIAEoCCKIAwoRQXNzZXRQYXRjaFJlcXVlc3QSGgoDcmVmGAEgASgLMg0uYXBwLkFzc2V0UmVmEiEKBnRlbmFudBgEIAEoCzIRLnBheWRheS5UZW5hbnRSZWYSDQoFYWxpYXMYCCABKAkSDAoEbmFtZRgKIAEoCRIMCgRkZXNjGAwgASgJEjIKBmxhYmVscxgOIAMoCzIiLmFwcC5Bc3NldFBhdGNoUmVxdWVzdC5MYWJlbHNFbnRyeRIhCgZrZWVwZXIYECABKAsyES5wYXlkYXkuSG9sZGVyUmVmEhMKC2tlZXBlcl9udWxsGBEgASgIEhAKCGxvY2F0aW9uGBIgASgJEg4KBmxpc3RlZBgUIAEoCBIwCgxkYXRlX3VwZGF0ZWQYGiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEmRhdGVfdXBkYXRlZF9mb3JjZRgbIAEoCBotCgtMYWJlbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIkwKEUFzc2V0QXBwbHlSZXF1ZXN0EhoKA3JlZhgBIAEoCzINLmFwcC5Bc3NldFJlZhIbCgVwYXRjaBgCIAEoCzIMLnBhdGNoLlBhdGNoImAKEEFzc2V0TGlzdFJlcXVlc3QSIQoHZmlsdGVycxgBIAMoCzIQLmFwcC5Bc3NldEZpbHRlchITCgRzaXplGAIgASgFQgWqAQIIAhIUCgVhZnRlchgDIAEoCUIFqgECCAIiQwoRQXNzZXRMaXN0UmVzcG9uc2USGQoFaXRlbXMYASADKAsyCi5hcHAuQXNzZXQSEwoEbmV4dBgCIAEoCUIFqgECCAIiOQoLQXNzZXRGaWx0ZXISGgoDcmVmGAEgASgLMg0uYXBwLkFzc2V0UmVmEg4KBmxpc3RlZBgCIAEoCCJUChFBc3NldFdhdGNoUmVxdWVzdBIhCgdmaWx0ZXJzGAEgAygLMhAuYXBwLkFzc2V0RmlsdGVyEhwKDXNraXBfc25hcHNob3QYAiABKAhCBaoBAggCIjgKEkFzc2V0V2F0Y2hSZXNwb25zZRIiCgVpdGVtcxgBIAMoCzITLmFwcC5Bc3NldFdhdGNoSXRlbSJOCg5Bc3NldFdhdGNoSXRlbRIKCgJpZBgBIAEoDBIZCgV2YWx1ZRgCIAEoCzIKLmFwcC5Bc3NldBIVCgZhY3Rpb24YAyABKAlCBaoBAggCImEKFEFzc2V0VHJhbnNmZXJSZXF1ZXN0EhoKA3JlZhgBIAEoCzINLmFwcC5Bc3NldFJlZhIdCgJ0bxgCIAEoCzIRLnBheWRheS5UZW5hbnRSZWYSDgoGcmVhc29uGAMgASgJMpADCgxBc3NldFNlcnZpY2USJwoDQWRkEhQuYXBwLkFzc2V0QWRkUmVxdWVzdBoKLmFwcC5Bc3NldBInCgNHZXQSFC5hcHAuQXNzZXRHZXRSZXF1ZXN0GgouYXBwLkFzc2V0EisKBVBhdGNoEhYuYXBwLkFzc2V0UGF0Y2hSZXF1ZXN0GgouYXBwLkFzc2V0EisKBUFwcGx5EhYuYXBwLkFzc2V0QXBwbHlSZXF1ZXN0GgouYXBwLkFzc2V0Ei4KBUVyYXNlEg0uYXBwLkFzc2V0UmVmGhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5EjUKBExpc3QSFS5hcHAuQXNzZXRMaXN0UmVxdWVzdBoWLmFwcC5Bc3NldExpc3RSZXNwb25zZRI6CgVXYXRjaBIWLmFwcC5Bc3NldFdhdGNoUmVxdWVzdBoXLmFwcC5Bc3NldFdhdGNoUmVzcG9uc2UwARIxCghUcmFuc2ZlchIZLmFwcC5Bc3NldFRyYW5zZmVyUmVxdWVzdBoKLmFwcC5Bc3NldEIhWh9naXRodWIuY29tL2xlc29tbnVzL2N1c3RvZHkvYXBpYghlZGl0aW9uc3DoBw", [file_app_asset, file_google_protobuf_empty, file_google_protobuf_timestamp, file_patch_patch, file_payday_holder_svc_g, file_payday_tenant_svc_g]);
+  fileDesc("ChVhcHAvYXNzZXRfc3ZjLmcucHJvdG8SA2FwcCLgAgoPQXNzZXRBZGRSZXF1ZXN0EgoKAmlkGAEgASgMEh4KBnRlbmFudBgCIAEoCzIOLmFwcC5UZW5hbnRSZWYSFAoFYWxpYXMYBCABKAlCBaoBAggCEhMKBG5hbWUYBSABKAlCBaoBAggCEhMKBGRlc2MYBiABKAlCBaoBAggCEjAKBmxhYmVscxgHIAMoCzIgLmFwcC5Bc3NldEFkZFJlcXVlc3QuTGFiZWxzRW50cnkSHgoGa2VlcGVyGAggASgLMg4uYXBwLkhvbGRlclJlZhIXCghsb2NhdGlvbhgJIAEoCUIFqgECCAISFQoGbGlzdGVkGAogASgIQgWqAQIIAhIwCgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiTwoPQXNzZXRHZXRSZXF1ZXN0EhoKA3JlZhgBIAEoCzINLmFwcC5Bc3NldFJlZhIgCgZzZWxlY3QYAiABKAsyEC5hcHAuQXNzZXRTZWxlY3QiRAoIQXNzZXRSZWYSDAoCaWQYASABKAxIABIjCgRzbHVnGAQgASgLMhMuYXBwLkFzc2V0UmVmQnlTbHVnSABCBQoDa2V5Ij8KDkFzc2V0UmVmQnlTbHVnEg0KBWFsaWFzGAQgASgJEh4KBnRlbmFudBgCIAEoCzIOLmFwcC5UZW5hbnRSZWYi/gEKC0Fzc2V0U2VsZWN0EgsKA2FsbBgBIAEoCBIhCgZ0ZW5hbnQYAiABKAsyES5hcHAuVGVuYW50U2VsZWN0Eg0KBWFsaWFzGAQgASgIEgwKBG5hbWUYBSABKAgSDAoEZGVzYxgGIAEoCBIOCgZsYWJlbHMYByABKAgSIQoGa2VlcGVyGAggASgLMhEuYXBwLkhvbGRlclNlbGVjdBIQCghsb2NhdGlvbhgJIAEoCBIOCgZsaXN0ZWQYCiABKAgSFAoMZGF0ZV91cGRhdGVkGA0gASgIEhMKC2RhdGVfZXJhc2VkGA4gASgIEhQKDGRhdGVfY3JlYXRlZBgPIAEoCCKCAwoRQXNzZXRQYXRjaFJlcXVlc3QSGgoDcmVmGAEgASgLMg0uYXBwLkFzc2V0UmVmEh4KBnRlbmFudBgEIAEoCzIOLmFwcC5UZW5hbnRSZWYSDQoFYWxpYXMYCCABKAkSDAoEbmFtZRgKIAEoCRIMCgRkZXNjGAwgASgJEjIKBmxhYmVscxgOIAMoCzIiLmFwcC5Bc3NldFBhdGNoUmVxdWVzdC5MYWJlbHNFbnRyeRIeCgZrZWVwZXIYECABKAsyDi5hcHAuSG9sZGVyUmVmEhMKC2tlZXBlcl9udWxsGBEgASgIEhAKCGxvY2F0aW9uGBIgASgJEg4KBmxpc3RlZBgUIAEoCBIwCgxkYXRlX3VwZGF0ZWQYGiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEmRhdGVfdXBkYXRlZF9mb3JjZRgbIAEoCBotCgtMYWJlbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIkwKEUFzc2V0QXBwbHlSZXF1ZXN0EhoKA3JlZhgBIAEoCzINLmFwcC5Bc3NldFJlZhIbCgVwYXRjaBgCIAEoCzIMLnBhdGNoLlBhdGNoImAKEEFzc2V0TGlzdFJlcXVlc3QSIQoHZmlsdGVycxgBIAMoCzIQLmFwcC5Bc3NldEZpbHRlchITCgRzaXplGAIgASgFQgWqAQIIAhIUCgVhZnRlchgDIAEoCUIFqgECCAIiQwoRQXNzZXRMaXN0UmVzcG9uc2USGQoFaXRlbXMYASADKAsyCi5hcHAuQXNzZXQSEwoEbmV4dBgCIAEoCUIFqgECCAIiOQoLQXNzZXRGaWx0ZXISGgoDcmVmGAEgASgLMg0uYXBwLkFzc2V0UmVmEg4KBmxpc3RlZBgCIAEoCCJUChFBc3NldFdhdGNoUmVxdWVzdBIhCgdmaWx0ZXJzGAEgAygLMhAuYXBwLkFzc2V0RmlsdGVyEhwKDXNraXBfc25hcHNob3QYAiABKAhCBaoBAggCIjgKEkFzc2V0V2F0Y2hSZXNwb25zZRIiCgVpdGVtcxgBIAMoCzITLmFwcC5Bc3NldFdhdGNoSXRlbSJOCg5Bc3NldFdhdGNoSXRlbRIKCgJpZBgBIAEoDBIZCgV2YWx1ZRgCIAEoCzIKLmFwcC5Bc3NldBIVCgZhY3Rpb24YAyABKAlCBaoBAggCIl4KFEFzc2V0VHJhbnNmZXJSZXF1ZXN0EhoKA3JlZhgBIAEoCzINLmFwcC5Bc3NldFJlZhIaCgJ0bxgCIAEoCzIOLmFwcC5UZW5hbnRSZWYSDgoGcmVhc29uGAMgASgJMpADCgxBc3NldFNlcnZpY2USJwoDQWRkEhQuYXBwLkFzc2V0QWRkUmVxdWVzdBoKLmFwcC5Bc3NldBInCgNHZXQSFC5hcHAuQXNzZXRHZXRSZXF1ZXN0GgouYXBwLkFzc2V0EisKBVBhdGNoEhYuYXBwLkFzc2V0UGF0Y2hSZXF1ZXN0GgouYXBwLkFzc2V0EisKBUFwcGx5EhYuYXBwLkFzc2V0QXBwbHlSZXF1ZXN0GgouYXBwLkFzc2V0Ei4KBUVyYXNlEg0uYXBwLkFzc2V0UmVmGhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5EjUKBExpc3QSFS5hcHAuQXNzZXRMaXN0UmVxdWVzdBoWLmFwcC5Bc3NldExpc3RSZXNwb25zZRI6CgVXYXRjaBIWLmFwcC5Bc3NldFdhdGNoUmVxdWVzdBoXLmFwcC5Bc3NldFdhdGNoUmVzcG9uc2UwARIxCghUcmFuc2ZlchIZLmFwcC5Bc3NldFRyYW5zZmVyUmVxdWVzdBoKLmFwcC5Bc3NldEIhWh9naXRodWIuY29tL2xlc29tbnVzL2N1c3RvZHkvYXBpYghlZGl0aW9uc3DoBw", [file_app_asset, file_google_protobuf_empty, file_google_protobuf_timestamp, file_patch_patch, file_payday_holder_svc_g, file_payday_tenant_svc_g]);
 
 /**
  * @generated from message app.AssetAddRequest
@@ -32,7 +32,7 @@ export type AssetAddRequest = Message<"app.AssetAddRequest"> & {
   id: Uint8Array;
 
   /**
-   * @generated from field: payday.TenantRef tenant = 2;
+   * @generated from field: app.TenantRef tenant = 2;
    */
   tenant?: TenantRef | undefined;
 
@@ -57,7 +57,7 @@ export type AssetAddRequest = Message<"app.AssetAddRequest"> & {
   labels: { [key: string]: string };
 
   /**
-   * @generated from field: payday.HolderRef keeper = 8;
+   * @generated from field: app.HolderRef keeper = 8;
    */
   keeper?: HolderRef | undefined;
 
@@ -145,7 +145,7 @@ export type AssetRefBySlug = Message<"app.AssetRefBySlug"> & {
   alias: string;
 
   /**
-   * @generated from field: payday.TenantRef tenant = 2;
+   * @generated from field: app.TenantRef tenant = 2;
    */
   tenant?: TenantRef | undefined;
 };
@@ -167,7 +167,7 @@ export type AssetSelect = Message<"app.AssetSelect"> & {
   all: boolean;
 
   /**
-   * @generated from field: payday.TenantSelect tenant = 2;
+   * @generated from field: app.TenantSelect tenant = 2;
    */
   tenant?: TenantSelect | undefined;
 
@@ -192,7 +192,7 @@ export type AssetSelect = Message<"app.AssetSelect"> & {
   labels: boolean;
 
   /**
-   * @generated from field: payday.HolderSelect keeper = 8;
+   * @generated from field: app.HolderSelect keeper = 8;
    */
   keeper?: HolderSelect | undefined;
 
@@ -210,6 +210,11 @@ export type AssetSelect = Message<"app.AssetSelect"> & {
    * @generated from field: bool date_updated = 13;
    */
   dateUpdated: boolean;
+
+  /**
+   * @generated from field: bool date_erased = 14;
+   */
+  dateErased: boolean;
 
   /**
    * @generated from field: bool date_created = 15;
@@ -234,7 +239,7 @@ export type AssetPatchRequest = Message<"app.AssetPatchRequest"> & {
   ref?: AssetRef | undefined;
 
   /**
-   * @generated from field: payday.TenantRef tenant = 4;
+   * @generated from field: app.TenantRef tenant = 4;
    */
   tenant?: TenantRef | undefined;
 
@@ -259,7 +264,7 @@ export type AssetPatchRequest = Message<"app.AssetPatchRequest"> & {
   labels: { [key: string]: string };
 
   /**
-   * @generated from field: payday.HolderRef keeper = 16;
+   * @generated from field: app.HolderRef keeper = 16;
    */
   keeper?: HolderRef | undefined;
 
@@ -551,7 +556,7 @@ export type AssetTransferRequest = Message<"app.AssetTransferRequest"> & {
    * It is the same shape as payday's own "a holder is added to a tenant you can
    * see", which is a layer rather than a wall.
    *
-   * @generated from field: payday.TenantRef to = 2;
+   * @generated from field: app.TenantRef to = 2;
    */
   to?: TenantRef | undefined;
 

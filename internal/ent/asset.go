@@ -35,6 +35,8 @@ type Asset struct {
 	Listed bool `json:"listed,omitempty"`
 	// DateUpdated holds the value of the "date_updated" field.
 	DateUpdated time.Time `json:"date_updated,omitempty"`
+	// DateErased holds the value of the "date_erased" field.
+	DateErased *time.Time `json:"date_erased,omitempty"`
 	// DateCreated holds the value of the "date_created" field.
 	DateCreated time.Time `json:"date_created,omitempty"`
 	// TenantID holds the value of the "tenant_id" field.
@@ -91,7 +93,7 @@ func (*Asset) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case asset.FieldAlias, asset.FieldName, asset.FieldDesc, asset.FieldLocation:
 			values[i] = new(sql.NullString)
-		case asset.FieldDateUpdated, asset.FieldDateCreated:
+		case asset.FieldDateUpdated, asset.FieldDateErased, asset.FieldDateCreated:
 			values[i] = new(sql.NullTime)
 		case asset.FieldID, asset.FieldTenantID, asset.FieldKeeperID:
 			values[i] = new(uuid.UUID)
@@ -159,6 +161,13 @@ func (_m *Asset) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field date_updated", values[i])
 			} else if value.Valid {
 				_m.DateUpdated = value.Time
+			}
+		case asset.FieldDateErased:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field date_erased", values[i])
+			} else if value.Valid {
+				_m.DateErased = new(time.Time)
+				*_m.DateErased = value.Time
 			}
 		case asset.FieldDateCreated:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -244,6 +253,11 @@ func (_m *Asset) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("date_updated=")
 	builder.WriteString(_m.DateUpdated.Format(time.ANSIC))
+	builder.WriteString(", ")
+	if v := _m.DateErased; v != nil {
+		builder.WriteString("date_erased=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("date_created=")
 	builder.WriteString(_m.DateCreated.Format(time.ANSIC))

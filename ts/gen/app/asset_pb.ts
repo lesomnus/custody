@@ -19,7 +19,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file app/asset.proto.
  */
 export const file_app_asset: GenFile = /*@__PURE__*/
-  fileDesc("Cg9hcHAvYXNzZXQucHJvdG8SA2FwcCKxBAoFQXNzZXQSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIOLnBheWRheS5UZW5hbnRCBPKCFgASDQoFYWxpYXMYBCABKAkSDAoEbmFtZRgFIAEoCRIMCgRkZXNjGAYgASgJEiYKBmxhYmVscxgHIAMoCzIWLmFwcC5Bc3NldC5MYWJlbHNFbnRyeRImCgZrZWVwZXIYCCABKAsyDi5wYXlkYXkuSG9sZGVyQgbyghYCOAESEAoIbG9jYXRpb24YCSABKAkSDgoGbGlzdGVkGAogASgIEjkKDGRhdGVfdXBkYXRlZBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOKAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAE6pAHK/BVvEgIQARogEgRwYWdlGhAKDGRhdGVfY3JlYXRlZBAPGgYKAmlkEAEaHxIEc2x1ZxoJCgVhbGlhcxAEGgoKBnRlbmFudBACMAEaJhIGbGlzdGVkGgoKBmxpc3RlZBAKGhAKDGRhdGVfY3JlYXRlZBAPirsWLQgHMicKDgoMZGF0ZV9jcmVhdGVkCgQKAmlkGgNyZWYaBmxpc3RlZCAUKGQ6AEImWh9naXRodWIuY29tL2xlc29tbnVzL2N1c3RvZHkvYXBpkgMCCAJiCGVkaXRpb25zcOgH", [file_payday_holder, file_payday_tenant, file_google_protobuf_timestamp, file_orm, file_payday]);
+  fileDesc("Cg9hcHAvYXNzZXQucHJvdG8SA2FwcCLlBAoFQXNzZXQSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiEKBnRlbmFudBgCIAEoCzILLmFwcC5UZW5hbnRCBPKCFgASDQoFYWxpYXMYBCABKAkSDAoEbmFtZRgFIAEoCRIMCgRkZXNjGAYgASgJEiYKBmxhYmVscxgHIAMoCzIWLmFwcC5Bc3NldC5MYWJlbHNFbnRyeRIjCgZrZWVwZXIYCCABKAsyCy5hcHAuSG9sZGVyQgbyghYCOAESEAoIbG9jYXRpb24YCSABKAkSDgoGbGlzdGVkGAogASgIEjkKDGRhdGVfdXBkYXRlZBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOKAQASOAoLZGF0ZV9lcmFzZWQYDiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDkgEAEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBABotCgtMYWJlbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBOqQByvwVbxICEAEaIBIEcGFnZRoQCgxkYXRlX2NyZWF0ZWQQDxoGCgJpZBABGh8SBHNsdWcaCQoFYWxpYXMQBBoKCgZ0ZW5hbnQQAjABGiYSBmxpc3RlZBoKCgZsaXN0ZWQQChoQCgxkYXRlX2NyZWF0ZWQQD4q7Fi0IBzInCg4KDGRhdGVfY3JlYXRlZAoECgJpZBoDcmVmGgZsaXN0ZWQgFChkOgBCJlofZ2l0aHViLmNvbS9sZXNvbW51cy9jdXN0b2R5L2FwaZIDAggCYghlZGl0aW9uc3DoBw", [file_payday_holder, file_payday_tenant, file_google_protobuf_timestamp, file_orm, file_payday]);
 
 /**
  * Asset is a thing the company owns and somebody is answerable for.
@@ -53,7 +53,7 @@ export type Asset = Message<"app.Asset"> & {
    * default (`grpcx.Closed`), and this app leaves them closed. Opening them
    * would make every rule in `Transfer` optional.
    *
-   * @generated from field: payday.Tenant tenant = 2;
+   * @generated from field: app.Tenant tenant = 2;
    */
   tenant?: Tenant | undefined;
 
@@ -87,7 +87,7 @@ export type Asset = Message<"app.Asset"> & {
    *
    * It is optional: an asset in a store room is nobody's until it is issued.
    *
-   * @generated from field: payday.Holder keeper = 8;
+   * @generated from field: app.Holder keeper = 8;
    */
   keeper?: Holder | undefined;
 
@@ -117,6 +117,22 @@ export type Asset = Message<"app.Asset"> & {
    * @generated from field: google.protobuf.Timestamp date_updated = 13;
    */
   dateUpdated?: Timestamp | undefined;
+
+  /**
+   * Erased softly, which is what saying nothing about erasure would have meant
+   * if payday could add a field to this schema. It cannot, so the field is the
+   * declaration: the row is stamped and stays, so an erased asset cannot be
+   * read or changed, its number comes free for a new one, and the trail can
+   * still say what it held.
+   *
+   * It matters more here than in most entities. An asset that leaves the
+   * company is a row somebody will ask about a year later -- who had it, when
+   * it was transferred, what it was worth -- and a hard erase would answer none
+   * of that.
+   *
+   * @generated from field: google.protobuf.Timestamp date_erased = 14;
+   */
+  dateErased?: Timestamp | undefined;
 
   /**
    * @generated from field: google.protobuf.Timestamp date_created = 15;

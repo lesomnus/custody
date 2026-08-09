@@ -38,7 +38,7 @@ message Asset {
   // `Transfer` exists to put rules around. They are closed to callers by
   // default (`grpcx.Closed`), and this app leaves them closed. Opening them
   // would make every rule in `Transfer` optional.
-  payday.Tenant tenant = 2 [(orm.edge) = {}];
+  Tenant tenant = 2 [(orm.edge) = {}];
 
   // The asset number, which is what a person writes on a sticker and reads back
   // over a phone. It is the alias, so it is folded and checked on the way in
@@ -53,7 +53,7 @@ message Asset {
   // "who is responsible" has to stop being true when that person is gone.
   //
   // It is optional: an asset in a store room is nobody's until it is issued.
-  payday.Holder keeper = 8 [(orm.edge) = {nullable: true}];
+  Holder keeper = 8 [(orm.edge) = {nullable: true}];
 
   // Where it is, as a person would say it: "Seoul HQ 7F", "warehouse B, rack
   // 12", "https://console.example.com". Text rather than a structure, because
@@ -70,6 +70,18 @@ message Asset {
   bool listed = 10;
 
   google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+
+  // Erased softly, which is what saying nothing about erasure would have meant
+  // if payday could add a field to this schema. It cannot, so the field is the
+  // declaration: the row is stamped and stays, so an erased asset cannot be
+  // read or changed, its number comes free for a new one, and the trail can
+  // still say what it held.
+  //
+  // It matters more here than in most entities. An asset that leaves the
+  // company is a row somebody will ask about a year later -- who had it, when
+  // it was transferred, what it was worth -- and a hard erase would answer none
+  // of that.
+  google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];
 
   google.protobuf.Timestamp date_created = 15 [(orm.field) = {
     immutable: true

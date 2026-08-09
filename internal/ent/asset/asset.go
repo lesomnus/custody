@@ -26,6 +26,8 @@ const (
 	FieldListed = "listed"
 	// FieldDateUpdated holds the string denoting the date_updated field in the database.
 	FieldDateUpdated = "date_updated"
+	// FieldDateErased holds the string denoting the date_erased field in the database.
+	FieldDateErased = "date_erased"
 	// FieldDateCreated holds the string denoting the date_created field in the database.
 	FieldDateCreated = "date_created"
 	// FieldTenantID holds the string denoting the tenant_id field in the database.
@@ -64,6 +66,7 @@ var Columns = []string{
 	FieldLocation,
 	FieldListed,
 	FieldDateUpdated,
+	FieldDateErased,
 	FieldDateCreated,
 	FieldTenantID,
 	FieldKeeperID,
@@ -115,6 +118,11 @@ func ByListed(opts ...sql.OrderTermOption) OrderOption {
 // ByDateUpdated orders the results by the date_updated field.
 func ByDateUpdated(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDateUpdated, opts...).ToFunc()
+}
+
+// ByDateErased orders the results by the date_erased field.
+func ByDateErased(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateErased, opts...).ToFunc()
 }
 
 // ByDateCreated orders the results by the date_created field.

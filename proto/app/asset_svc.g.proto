@@ -61,12 +61,12 @@ service AssetService {
 
 message AssetAddRequest {
   bytes id = 1;
-  payday.TenantRef tenant = 2;
+  TenantRef tenant = 2;
   string alias = 4 [features.field_presence = IMPLICIT];
   string name = 5 [features.field_presence = IMPLICIT];
   string desc = 6 [features.field_presence = IMPLICIT];
   map<string, string> labels = 7;
-  payday.HolderRef keeper = 8;
+  HolderRef keeper = 8;
   string location = 9 [features.field_presence = IMPLICIT];
   bool listed = 10 [features.field_presence = IMPLICIT];
   google.protobuf.Timestamp date_created = 15;
@@ -86,31 +86,32 @@ message AssetRef {
 
 message AssetRefBySlug {
   string alias = 4;
-  payday.TenantRef tenant = 2;
+  TenantRef tenant = 2;
 }
 
 message AssetSelect {
   bool all = 1;
-  payday.TenantSelect tenant = 2;
+  TenantSelect tenant = 2;
   bool alias = 4;
   bool name = 5;
   bool desc = 6;
   bool labels = 7;
-  payday.HolderSelect keeper = 8;
+  HolderSelect keeper = 8;
   bool location = 9;
   bool listed = 10;
   bool date_updated = 13;
+  bool date_erased = 14;
   bool date_created = 15;
 }
 
 message AssetPatchRequest {
   AssetRef ref = 1;
-  payday.TenantRef tenant = 4;
+  TenantRef tenant = 4;
   string alias = 8;
   string name = 10;
   string desc = 12;
   map<string, string> labels = 14;
-  payday.HolderRef keeper = 16;
+  HolderRef keeper = 16;
   // Clear keeper instead of writing it.
   // It takes a field of its own because an unset value already means
   // "leave it alone", so no value could have meant NULL. It wins
@@ -234,7 +235,7 @@ message AssetTransferRequest {
   // not a predicate: the row has not moved yet, so there is nothing to narrow.
   // It is the same shape as payday's own "a holder is added to a tenant you can
   // see", which is a layer rather than a wall.
-  payday.TenantRef to = 2;
+  TenantRef to = 2;
 
   // Why, for the trail. Required, because a transfer with no reason is one
   // nobody can explain a year later.

@@ -33,6 +33,9 @@ func (e *Asset) Proto() *api.Asset {
 	x.SetLocation(e.Location)
 	x.SetListed(e.Listed)
 	x.SetDateUpdated(timestamppb.New(e.DateUpdated))
+	if e.DateErased != nil {
+		x.SetDateErased(timestamppb.New(*e.DateErased))
+	}
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
 	return x
 }

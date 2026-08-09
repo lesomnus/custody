@@ -128,6 +128,26 @@ func (_u *AssetUpdate) SetNillableDateUpdated(v *time.Time) *AssetUpdate {
 	return _u
 }
 
+// SetDateErased sets the "date_erased" field.
+func (_u *AssetUpdate) SetDateErased(v time.Time) *AssetUpdate {
+	_u.mutation.SetDateErased(v)
+	return _u
+}
+
+// SetNillableDateErased sets the "date_erased" field if the given value is not nil.
+func (_u *AssetUpdate) SetNillableDateErased(v *time.Time) *AssetUpdate {
+	if v != nil {
+		_u.SetDateErased(*v)
+	}
+	return _u
+}
+
+// ClearDateErased clears the value of the "date_erased" field.
+func (_u *AssetUpdate) ClearDateErased() *AssetUpdate {
+	_u.mutation.ClearDateErased()
+	return _u
+}
+
 // SetTenantID sets the "tenant_id" field.
 func (_u *AssetUpdate) SetTenantID(v uuid.UUID) *AssetUpdate {
 	_u.mutation.SetTenantID(v)
@@ -265,6 +285,12 @@ func (_u *AssetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(asset.FieldDateUpdated, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DateErased(); ok {
+		_spec.SetField(asset.FieldDateErased, field.TypeTime, value)
+	}
+	if _u.mutation.DateErasedCleared() {
+		_spec.ClearField(asset.FieldDateErased, field.TypeTime)
 	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(asset.FieldDateCreated, field.TypeTime)
@@ -445,6 +471,26 @@ func (_u *AssetUpdateOne) SetNillableDateUpdated(v *time.Time) *AssetUpdateOne {
 	return _u
 }
 
+// SetDateErased sets the "date_erased" field.
+func (_u *AssetUpdateOne) SetDateErased(v time.Time) *AssetUpdateOne {
+	_u.mutation.SetDateErased(v)
+	return _u
+}
+
+// SetNillableDateErased sets the "date_erased" field if the given value is not nil.
+func (_u *AssetUpdateOne) SetNillableDateErased(v *time.Time) *AssetUpdateOne {
+	if v != nil {
+		_u.SetDateErased(*v)
+	}
+	return _u
+}
+
+// ClearDateErased clears the value of the "date_erased" field.
+func (_u *AssetUpdateOne) ClearDateErased() *AssetUpdateOne {
+	_u.mutation.ClearDateErased()
+	return _u
+}
+
 // SetTenantID sets the "tenant_id" field.
 func (_u *AssetUpdateOne) SetTenantID(v uuid.UUID) *AssetUpdateOne {
 	_u.mutation.SetTenantID(v)
@@ -612,6 +658,12 @@ func (_u *AssetUpdateOne) sqlSave(ctx context.Context) (_node *Asset, err error)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(asset.FieldDateUpdated, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.DateErased(); ok {
+		_spec.SetField(asset.FieldDateErased, field.TypeTime, value)
+	}
+	if _u.mutation.DateErasedCleared() {
+		_spec.ClearField(asset.FieldDateErased, field.TypeTime)
 	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(asset.FieldDateCreated, field.TypeTime)

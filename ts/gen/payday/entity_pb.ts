@@ -3,15 +3,15 @@
 // option features.field_presence = IMPLICIT;
 /* eslint-disable */
 
-import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
-import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
+import { enumDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file payday/entity.proto.
  */
 export const file_payday_entity: GenFile = /*@__PURE__*/
-  fileDesc("ChNwYXlkYXkvZW50aXR5LnByb3RvEgZwYXlkYXki1gMKBkVudGl0eRIOCgZkb21haW4YASABKA0SDAoEbmFtZRgCIAEoCRInCgZ0ZW5hbnQYAyABKAsyFS5wYXlkYXkuRW50aXR5LlRlbmFudEgAEisKCHRlbmFudGVkGAQgASgLMhcucGF5ZGF5LkVudGl0eS5UZW5hbnRlZEgAEicKBmdsb2JhbBgFIAEoCzIVLnBheWRheS5FbnRpdHkuR2xvYmFsSAASIQoEbGlzdBgGIAEoCzITLnBheWRheS5FbnRpdHkuTGlzdBIjCgV3YXRjaBgHIAEoCzIULnBheWRheS5FbnRpdHkuV2F0Y2gaCAoGVGVuYW50GiYKCFRlbmFudGVkEgsKA3ZpYRgBIAEoCRINCgVmaWVsZBgCIAEoCRoICgZHbG9iYWwacQoETGlzdBIjCgVvcmRlchgBIAMoCzIULnBheWRheS5FbnRpdHkuT3JkZXISDAoEd2l0aBgCIAMoCRIKCgJieRgDIAMoCRIMCgRzaXplGAQgASgNEgsKA21heBgFIAEoDRIPCgdmaWx0ZXJzGAYgASgNGgcKBVdhdGNoGiQKBU9yZGVyEg0KBWZpZWxkGAEgASgJEgwKBGRlc2MYAiABKAhCCQoHdGVuYW5jeUImWh9naXRodWIuY29tL2xlc29tbnVzL3BheWRheS9wZHBikgMCCAJiCGVkaXRpb25zcOgH");
+  fileDesc("ChNwYXlkYXkvZW50aXR5LnByb3RvEgZwYXlkYXkiyQQKBkVudGl0eRIOCgZkb21haW4YASABKA0SDAoEbmFtZRgCIAEoCRInCgZ0ZW5hbnQYAyABKAsyFS5wYXlkYXkuRW50aXR5LlRlbmFudEgAEisKCHRlbmFudGVkGAQgASgLMhcucGF5ZGF5LkVudGl0eS5UZW5hbnRlZEgAEicKBmdsb2JhbBgFIAEoCzIVLnBheWRheS5FbnRpdHkuR2xvYmFsSAASIQoEbGlzdBgGIAEoCzITLnBheWRheS5FbnRpdHkuTGlzdBIjCgV3YXRjaBgHIAEoCzIULnBheWRheS5FbnRpdHkuV2F0Y2gSIwoFZXJhc2UYCCABKAsyFC5wYXlkYXkuRW50aXR5LkVyYXNlEhgKA293bhgJIAEoDjILLnBheWRheS5Pd24aCAoGVGVuYW50GiYKCFRlbmFudGVkEgsKA3ZpYRgBIAEoCRINCgVmaWVsZBgCIAMoCRoICgZHbG9iYWwaKgoFRXJhc2USIQoEaGFyZBgBIAEoCzITLnBheWRheS5FbnRpdHkuSGFyZBoGCgRIYXJkGnEKBExpc3QSIwoFb3JkZXIYASADKAsyFC5wYXlkYXkuRW50aXR5Lk9yZGVyEgwKBHdpdGgYAiADKAkSCgoCYnkYAyADKAkSDAoEc2l6ZRgEIAEoDRILCgNtYXgYBSABKA0SDwoHZmlsdGVycxgGIAEoDRoHCgVXYXRjaBokCgVPcmRlchINCgVmaWVsZBgBIAEoCRIMCgRkZXNjGAIgASgIQgkKB3RlbmFuY3kqWQoDT3duEhMKD09XTl9VTlNQRUNJRklFRBAAEg4KCk9XTl9URU5BTlQQARIOCgpPV05fSE9MREVSEAISDQoJT1dOX0FVRElUEAMSDgoKT1dOX09VVEJPWBAEQiZaH2dpdGh1Yi5jb20vbGVzb21udXMvcGF5ZGF5L3BkcGKSAwIIAmIIZWRpdGlvbnNw6Ac");
 
 /**
  * Entity is what payday has to be told about a message that `orm` already
@@ -128,6 +128,47 @@ export type Entity = Message<"payday.Entity"> & {
    * @generated from field: payday.Entity.Watch watch = 7;
    */
   watch?: Entity_Watch | undefined;
+
+  /**
+   * Erase is what `Erase` does to a row, and it is only ever said to declare
+   * the destructive answer.
+   *
+   * Saying nothing means **softly**: the row is stamped and stays, so it cannot
+   * be read, cannot be changed, and its alias comes free again -- and the trail
+   * can still say what it held, because it is still there to be read. Which is
+   * what an entity gets by carrying a field marked `erased:`.
+   *
+   * An entity with no such field loses the row for good, and that is refused
+   * unless it is written here. The two failures are not alike: assuming soft
+   * wrongly leaves rows somebody meant to be gone, which is noticed by looking;
+   * assuming hard wrongly destroys them, which is noticed by somebody asking
+   * for one back.
+   *
+   * @generated from field: payday.Entity.Erase erase = 8;
+   */
+  erase?: Entity_Erase | undefined;
+
+  /**
+   * Own says this is one of payday's own entities, and is written **only in
+   * payday's own schema.** An app never writes it; `pd gen` copies these files
+   * in whole, and the line comes with them.
+   *
+   * It exists so that generation can find them without reading their names.
+   * Three things are built out of them -- the Gate layer, which is the whole of
+   * the `Add` tenant check; the layer that refuses a hand-written trail row;
+   * and the outbox drain -- and each used to look for `payday.Tenant`,
+   * `payday.Holder`, `payday.Audit`, `payday.Outbox` by full name.
+   *
+   * That made the proto package payday's rather than the app's, and it did so
+   * in the worst way available: renaming it did not fail, it made those layers
+   * **not be generated**, so reads stayed walled and writes stopped being.
+   *
+   * With the marker the name is free. An app may put payday's entities in its
+   * own package, and what a caller of that app sees is that app's namespace.
+   *
+   * @generated from field: payday.Own own = 9;
+   */
+  own: Own;
 };
 
 /**
@@ -185,11 +226,25 @@ export type Entity_Tenanted = Message<"payday.Entity.Tenanted"> & {
    * trail row wants exactly the second: what it records happened, and it goes
    * on being true after the tenant it happened in is gone.
    *
-   * Say one or the other, never both.
+   * Say this or `via`, never both.
    *
-   * @generated from field: string field = 2;
+   * # Several of them is OR, and it widens
+   *
+   * A row with more than one is behind the wall of **any** of them: readable
+   * by every tenant it names. That is the trail and nothing else -- one write
+   * has a tenant whose row changed and a tenant whose actor made it, and both
+   * are parties to the record.
+   *
+   * It is the one construct here that makes a row *more* visible, so it is
+   * worth saying what it is not for. Two tenants sharing a row is not a thing
+   * payday models: there is no owner, no answer to who may erase it, and the
+   * wall stops being the sentence "a row belongs to a tenant". A record of
+   * something that happened between two of them is a different shape, and it
+   * is the only one this is for.
+   *
+   * @generated from field: repeated string field = 2;
    */
-  field: string;
+  field: string[];
 };
 
 /**
@@ -218,6 +273,56 @@ export type Entity_Global = Message<"payday.Entity.Global"> & {
  */
 export const Entity_GlobalSchema: GenMessage<Entity_Global> = /*@__PURE__*/
   messageDesc(file_payday_entity, 0, 2);
+
+/**
+ * Erase says the row goes. See [Entity.erase].
+ *
+ * @generated from message payday.Entity.Erase
+ */
+export type Entity_Erase = Message<"payday.Entity.Erase"> & {
+  /**
+   * Hard is losing the row, said out loud.
+   *
+   * It is a real answer and not a mistake to allow: a table of readings, of
+   * events, of anything that arrives faster than anybody reads it, cannot be
+   * one nothing may ever be removed from -- and payday has no retention story
+   * to offer instead.
+   *
+   * What it costs is what the trail then cannot say. `Audit.value` is read
+   * off the row **after** the write, so for a row that is gone there is
+   * nothing to read: the trail records that the erase happened and not what
+   * was destroyed, and the record is filed under the actor's tenant rather
+   * than the row's, because that is the last thing known about it.
+   *
+   * Do not answer this by going to the database instead. A `DELETE` run
+   * outside the app skips the trail, the version and the `Watch` -- and a
+   * watch says a row is gone by not sending it, so a row removed behind the
+   * app's back is one every client that has it keeps forever.
+   *
+   * @generated from field: payday.Entity.Hard hard = 1;
+   */
+  hard?: Entity_Hard | undefined;
+};
+
+/**
+ * Describes the message payday.Entity.Erase.
+ * Use `create(Entity_EraseSchema)` to create a new message.
+ */
+export const Entity_EraseSchema: GenMessage<Entity_Erase> = /*@__PURE__*/
+  messageDesc(file_payday_entity, 0, 3);
+
+/**
+ * @generated from message payday.Entity.Hard
+ */
+export type Entity_Hard = Message<"payday.Entity.Hard"> & {
+};
+
+/**
+ * Describes the message payday.Entity.Hard.
+ * Use `create(Entity_HardSchema)` to create a new message.
+ */
+export const Entity_HardSchema: GenMessage<Entity_Hard> = /*@__PURE__*/
+  messageDesc(file_payday_entity, 0, 4);
 
 /**
  * List is how this entity is read a page at a time.
@@ -306,7 +411,7 @@ export type Entity_List = Message<"payday.Entity.List"> & {
  * Use `create(Entity_ListSchema)` to create a new message.
  */
 export const Entity_ListSchema: GenMessage<Entity_List> = /*@__PURE__*/
-  messageDesc(file_payday_entity, 0, 3);
+  messageDesc(file_payday_entity, 0, 5);
 
 /**
  * Watch is how this entity is read as it changes.
@@ -328,7 +433,7 @@ export type Entity_Watch = Message<"payday.Entity.Watch"> & {
  * Use `create(Entity_WatchSchema)` to create a new message.
  */
 export const Entity_WatchSchema: GenMessage<Entity_Watch> = /*@__PURE__*/
-  messageDesc(file_payday_entity, 0, 4);
+  messageDesc(file_payday_entity, 0, 6);
 
 /**
  * Order is one column of a list's order.
@@ -355,5 +460,51 @@ export type Entity_Order = Message<"payday.Entity.Order"> & {
  * Use `create(Entity_OrderSchema)` to create a new message.
  */
 export const Entity_OrderSchema: GenMessage<Entity_Order> = /*@__PURE__*/
-  messageDesc(file_payday_entity, 0, 5);
+  messageDesc(file_payday_entity, 0, 7);
+
+/**
+ * Own names one of payday's own entities, so that generation can find it
+ * whatever the proto package is called.
+ *
+ * The numbers are of the same kind as a field number: chosen once and never
+ * given to something else. They are **not** domains -- a domain is what an
+ * identifier carries and an app declares, and these are what payday declares
+ * about its own four.
+ *
+ * @generated from enum payday.Own
+ */
+export enum Own {
+  /**
+   * The app's own entity, which is everything an app writes.
+   *
+   * @generated from enum value: OWN_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * @generated from enum value: OWN_TENANT = 1;
+   */
+  TENANT = 1,
+
+  /**
+   * @generated from enum value: OWN_HOLDER = 2;
+   */
+  HOLDER = 2,
+
+  /**
+   * @generated from enum value: OWN_AUDIT = 3;
+   */
+  AUDIT = 3,
+
+  /**
+   * @generated from enum value: OWN_OUTBOX = 4;
+   */
+  OUTBOX = 4,
+}
+
+/**
+ * Describes the enum payday.Own.
+ */
+export const OwnSchema: GenEnum<Own> = /*@__PURE__*/
+  enumDesc(file_payday_entity, 0);
 

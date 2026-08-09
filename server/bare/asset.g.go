@@ -44,13 +44,17 @@ func NewAssetServiceServer(db *ent.Client, opts ...Option) api.AssetServiceServe
 }
 
 // AssetNarrow answers with `p` and everything else that narrows a
-// read of a Asset, which is whatever `scope` says.
+// read of a Asset: the rows that have not been erased, and whatever
+// `scope` says of those.
 //
 // Every read this package makes goes through it, and a read written by
 // hand should too -- a List is the one read nothing generates, and so the
 // one that would otherwise answer with rows nobody should be given.
 func AssetNarrow(ctx context.Context, scope Scope, p predicate.Asset) (predicate.Asset, error) {
-	ps := make([]predicate.Asset, 0, 2)
+	ps := make([]predicate.Asset, 0, 3)
+
+	// A row that was erased is not a row a read answers with.
+	ps = append(ps, asset.DateErasedIsNil())
 	if p != nil {
 		ps = append(ps, p)
 	}
@@ -224,6 +228,9 @@ func AssetSelectedFields(m *api.AssetSelect) []string {
 	if m.GetDateUpdated() {
 		vs = append(vs, asset.FieldDateUpdated)
 	}
+	if m.GetDateErased() {
+		vs = append(vs, asset.FieldDateErased)
+	}
 	if m.GetDateCreated() {
 		vs = append(vs, asset.FieldDateCreated)
 	}
@@ -320,7 +327,7 @@ func AssetGetKey(ctx context.Context, db *ent.Client, ref *api.AssetRef) (uuid.U
 var assetOrmEntity = ormpatch.MustEntityOf(api.File_app_asset_proto, "Asset")
 
 var assetPatchColumns = entpatch.Columns{
-	1: asset.FieldID, 2: asset.TenantColumn, 4: asset.FieldAlias, 5: asset.FieldName, 6: asset.FieldDesc, 7: asset.FieldLabels, 8: asset.KeeperColumn, 9: asset.FieldLocation, 10: asset.FieldListed, 13: asset.FieldDateUpdated, 15: asset.FieldDateCreated}
+	1: asset.FieldID, 2: asset.TenantColumn, 4: asset.FieldAlias, 5: asset.FieldName, 6: asset.FieldDesc, 7: asset.FieldLabels, 8: asset.KeeperColumn, 9: asset.FieldLocation, 10: asset.FieldListed, 13: asset.FieldDateUpdated, 14: asset.FieldDateErased, 15: asset.FieldDateCreated}
 
 func (s AssetServiceServer) Apply(ctx context.Context, req *api.AssetApplyRequest) (*api.Asset, error) {
 	if !req.HasPatch() {
@@ -463,7 +470,10 @@ func (s AssetServiceServer) Erase(ctx context.Context, req *api.AssetRef) (*empt
 		p = asset.IDEQ(v)
 	}
 
-	n, err := st.Db.Asset.Delete().Where(p).Exec(ctx)
+	u := st.Db.Asset.Update().Where(p)
+	u.SetDateErased(time.Now().UTC())
+	u.SetDateUpdated(time.Now().UTC())
+	n, err := u.Save(ctx)
 	if err != nil {
 		return nil, err
 	}

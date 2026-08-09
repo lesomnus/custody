@@ -15,23 +15,23 @@ import { pdid } from '@lesomnus/payday'
 /** The domain identifiers of app.Asset carry. */
 export const AssetDomain = 7
 
-/** The domain identifiers of payday.Audit carry. */
+/** The domain identifiers of app.Audit carry. */
 export const AuditDomain = 3
 
-/** The domain identifiers of payday.Holder carry. */
+/** The domain identifiers of app.Holder carry. */
 export const HolderDomain = 2
 
-/** The domain identifiers of payday.Outbox carry. */
+/** The domain identifiers of app.Outbox carry. */
 export const OutboxDomain = 4
 
-/** The domain identifiers of payday.Tenant carry. */
+/** The domain identifiers of app.Tenant carry. */
 export const TenantDomain = 1
 
 // Registered as this module is loaded, which is why importing it is the
 // whole of what an app does with it.
 pdid.register("app.Asset", AssetDomain, "asset")
-pdid.register("payday.Audit", AuditDomain, "audit")
-pdid.register("payday.Holder", HolderDomain, "holder")
-pdid.register("payday.Outbox", OutboxDomain, "outbox")
-pdid.register("payday.Tenant", TenantDomain, "tenant")
+pdid.register("app.Audit", AuditDomain, "audit")
+pdid.register("app.Holder", HolderDomain, "holder")
+pdid.register("app.Outbox", OutboxDomain, "outbox")
+pdid.register("app.Tenant", TenantDomain, "tenant")
 

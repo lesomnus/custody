@@ -40,6 +40,7 @@ type Asset struct {
 	xxx_hidden_Location    string                 `protobuf:"bytes,9,opt,name=location"`
 	xxx_hidden_Listed      bool                   `protobuf:"varint,10,opt,name=listed"`
 	xxx_hidden_DateUpdated *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateErased  *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_erased,json=dateErased"`
 	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
@@ -140,6 +141,13 @@ func (x *Asset) GetDateUpdated() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *Asset) GetDateErased() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateErased
+	}
+	return nil
+}
+
 func (x *Asset) GetDateCreated() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_DateCreated
@@ -190,6 +198,10 @@ func (x *Asset) SetDateUpdated(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateUpdated = v
 }
 
+func (x *Asset) SetDateErased(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateErased = v
+}
+
 func (x *Asset) SetDateCreated(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateCreated = v
 }
@@ -215,6 +227,13 @@ func (x *Asset) HasDateUpdated() bool {
 	return x.xxx_hidden_DateUpdated != nil
 }
 
+func (x *Asset) HasDateErased() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateErased != nil
+}
+
 func (x *Asset) HasDateCreated() bool {
 	if x == nil {
 		return false
@@ -232,6 +251,10 @@ func (x *Asset) ClearKeeper() {
 
 func (x *Asset) ClearDateUpdated() {
 	x.xxx_hidden_DateUpdated = nil
+}
+
+func (x *Asset) ClearDateErased() {
+	x.xxx_hidden_DateErased = nil
 }
 
 func (x *Asset) ClearDateCreated() {
@@ -283,6 +306,17 @@ type Asset_builder struct {
 	// that is a projection rather than a wall with a hole in it.
 	Listed      bool
 	DateUpdated *timestamppb.Timestamp
+	// Erased softly, which is what saying nothing about erasure would have meant
+	// if payday could add a field to this schema. It cannot, so the field is the
+	// declaration: the row is stamped and stays, so an erased asset cannot be
+	// read or changed, its number comes free for a new one, and the trail can
+	// still say what it held.
+	//
+	// It matters more here than in most entities. An asset that leaves the
+	// company is a row somebody will ask about a year later -- who had it, when
+	// it was transferred, what it was worth -- and a hard erase would answer none
+	// of that.
+	DateErased  *timestamppb.Timestamp
 	DateCreated *timestamppb.Timestamp
 }
 
@@ -300,6 +334,7 @@ func (b0 Asset_builder) Build() *Asset {
 	x.xxx_hidden_Location = b.Location
 	x.xxx_hidden_Listed = b.Listed
 	x.xxx_hidden_DateUpdated = b.DateUpdated
+	x.xxx_hidden_DateErased = b.DateErased
 	x.xxx_hidden_DateCreated = b.DateCreated
 	return m0
 }
@@ -308,19 +343,21 @@ var File_app_asset_proto protoreflect.FileDescriptor
 
 const file_app_asset_proto_rawDesc = "" +
 	"\n" +
-	"\x0fapp/asset.proto\x12\x03app\x1a\x13payday/holder.proto\x1a\x13payday/tenant.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\x98\x05\n" +
+	"\x0fapp/asset.proto\x12\x03app\x1a\x13payday/holder.proto\x1a\x13payday/tenant.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\xd8\x05\n" +
 	"\x05Asset\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0e.payday.TenantB\x04\xf2\x82\x16\x00R\x06tenant\x12\x14\n" +
+	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12)\n" +
+	"\x06tenant\x18\x02 \x01(\v2\v.app.TenantB\x04\xf2\x82\x16\x00R\x06tenant\x12\x14\n" +
 	"\x05alias\x18\x04 \x01(\tR\x05alias\x12\x12\n" +
 	"\x04name\x18\x05 \x01(\tR\x04name\x12\x12\n" +
 	"\x04desc\x18\x06 \x01(\tR\x04desc\x12.\n" +
-	"\x06labels\x18\a \x03(\v2\x16.app.Asset.LabelsEntryR\x06labels\x12.\n" +
-	"\x06keeper\x18\b \x01(\v2\x0e.payday.HolderB\x06\xf2\x82\x16\x028\x01R\x06keeper\x12\x1a\n" +
+	"\x06labels\x18\a \x03(\v2\x16.app.Asset.LabelsEntryR\x06labels\x12+\n" +
+	"\x06keeper\x18\b \x01(\v2\v.app.HolderB\x06\xf2\x82\x16\x028\x01R\x06keeper\x12\x1a\n" +
 	"\blocation\x18\t \x01(\tR\blocation\x12\x16\n" +
 	"\x06listed\x18\n" +
 	" \x01(\bR\x06listed\x12F\n" +
-	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12H\n" +
+	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
+	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
+	"dateErased\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -343,21 +380,22 @@ var file_app_asset_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_app_asset_proto_goTypes = []any{
 	(*Asset)(nil),                 // 0: app.Asset
 	nil,                           // 1: app.Asset.LabelsEntry
-	(*Tenant)(nil),                // 2: payday.Tenant
-	(*Holder)(nil),                // 3: payday.Holder
+	(*Tenant)(nil),                // 2: app.Tenant
+	(*Holder)(nil),                // 3: app.Holder
 	(*timestamppb.Timestamp)(nil), // 4: google.protobuf.Timestamp
 }
 var file_app_asset_proto_depIdxs = []int32{
-	2, // 0: app.Asset.tenant:type_name -> payday.Tenant
+	2, // 0: app.Asset.tenant:type_name -> app.Tenant
 	1, // 1: app.Asset.labels:type_name -> app.Asset.LabelsEntry
-	3, // 2: app.Asset.keeper:type_name -> payday.Holder
+	3, // 2: app.Asset.keeper:type_name -> app.Holder
 	4, // 3: app.Asset.date_updated:type_name -> google.protobuf.Timestamp
-	4, // 4: app.Asset.date_created:type_name -> google.protobuf.Timestamp
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	4, // 4: app.Asset.date_erased:type_name -> google.protobuf.Timestamp
+	4, // 5: app.Asset.date_created:type_name -> google.protobuf.Timestamp
+	6, // [6:6] is the sub-list for method output_type
+	6, // [6:6] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_app_asset_proto_init() }

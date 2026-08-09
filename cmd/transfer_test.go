@@ -3,7 +3,6 @@ package cmd_test
 import (
 	"testing"
 
-	"github.com/google/uuid"
 	"github.com/lesomnus/z"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -103,13 +102,24 @@ func TestATransferSaysWhy(t *testing.T) {
 	x.Contains(err.Error(), "reason")
 }
 
-// TestTheTrailStaysWithTheTenantItLeft is payday's decision, demonstrated.
+// TestTheTrailIsFiledWithTheAssetAndNotTheActor is payday's decision,
+// demonstrated -- and the decision changed, so this is what it is now.
 //
-// `Audit` stamps the tenant of the **actor**, and nothing moves it. So the
-// receiving tenant reads what has happened since the asset arrived and nothing
-// before -- receiving something does not come with the right to read what its
-// previous owner did inside their own walls.
-func TestTheTrailStaysWithTheTenantItLeft(t *testing.T) {
+// A trail row is filed under the tenant of the **thing that changed**, as it
+// was when the write happened, with the actor's tenant beside it. It used to be
+// filed under the actor's, and the case that broke was this one: headquarters
+// acting on a customer's asset put the record behind headquarters' wall, where
+// the customer could not see it, and their trail said nothing had happened.
+//
+// What survives the change is the property this test was written for. Nothing
+// moves a row after it is stamped, so what acme did while it held the asset
+// stays filed under acme -- receiving something does not come with the right to
+// read what its previous owner did inside their own walls.
+//
+// What is different is the transfer itself. The row belongs to hooli by the
+// time the write is over, so hooli reads "this arrived, and headquarters moved
+// it", which is the one event about the asset they are a party to.
+func TestTheTrailIsFiledWithTheAssetAndNotTheActor(t *testing.T) {
 	x := require.New(t)
 	b, ctx := build(t)
 
@@ -117,7 +127,7 @@ func TestTheTrailStaysWithTheTenantItLeft(t *testing.T) {
 	k, err := pdid.From(v.GetId())
 	x.NoError(err)
 
-	// Something happens inside acme.
+	// Something happens inside acme, and is refused, so it writes nothing.
 	_, err = b.Walled.Asset().Transfer(b.asHqFor(ctx, b.Acme), app.AssetTransferRequest_builder{
 		Ref:    app.AssetRef_builder{Id: v.GetId()}.Build(),
 		To:     app.TenantRef_builder{Id: b.Acme.Bytes()}.Build(),
@@ -136,11 +146,7 @@ func TestTheTrailStaysWithTheTenantItLeft(t *testing.T) {
 	rows, err := b.Ent.Audit.Query().All(ctx)
 	x.NoError(err)
 
-	// Every row about this asset is stamped with the tenant of whoever acted --
-	// headquarters, or nobody for the write the deployment made itself before
-	// there was anybody to be asking. Never the tenant that held it and never
-	// the one that received it.
-	var seen, byHq int
+	var seen, moved int
 	for _, row := range rows {
 		if pdid.Id(row.ObjectID) != k {
 			continue
@@ -148,15 +154,35 @@ func TestTheTrailStaysWithTheTenantItLeft(t *testing.T) {
 
 		seen++
 		switch row.TenantID {
-		case b.Hq.Uuid():
-			byHq++
-		case uuid.Nil:
-			// The setup, which nobody asked for.
+		case b.Acme.Uuid():
+			// Written while acme held it. The actor is whoever it was --
+			// nobody, for the setup the deployment made before there was
+			// anybody to be asking.
+			x.NotEqual(b.Hooli.Uuid(), row.ActorTenantID)
+
+		case b.Hooli.Uuid():
+			// The transfer. Filed with the tenant that now holds the asset,
+			// and carrying headquarters as the tenant whose operator did it --
+			// so both parties read it and neither needs a scope wide enough to
+			// see the other.
+			moved++
+			x.Equal(b.Hq.Uuid(), row.ActorTenantID,
+				"the transfer does not say whose operator made it")
+
 		default:
-			x.Failf("a trail row moved with the asset",
-				"stamped %s, which is neither headquarters nor nobody", pdid.Id(row.TenantID))
+			x.Failf("a trail row is filed with neither tenant",
+				"stamped %s", pdid.Id(row.TenantID))
 		}
 	}
 	x.NotZero(seen, "the transfer was not recorded")
-	x.NotZero(byHq, "the transfer headquarters made is not on the trail")
+	x.Equal(1, moved, "the transfer is not filed with the tenant that received the asset")
+
+	// And the whole of what hooli may read about this asset is that one event.
+	// Everything acme did stays behind acme's wall.
+	for _, row := range rows {
+		if pdid.Id(row.ObjectID) != k || row.TenantID != b.Hooli.Uuid() {
+			continue
+		}
+		x.Equal(b.Hq.Uuid(), row.ActorTenantID)
+	}
 }

@@ -489,7 +489,7 @@ func mint(ctx context.Context, m Minter, entity string, given uuid.UUID, ok bool
 // is rendered for that dialect, not just what this server writes.
 //
 // That set is also what a soft erasure needs, so this is the whole
-// check. Holder frees the names it held when a row
+// check. Asset and Holder free the names they held when a row
 // is erased, which is a unique index covering only the rows that are
 // still there -- a partial index, and the dialects above are the ones
 // that have one. MySQL does not, and ent writes the annotation out for

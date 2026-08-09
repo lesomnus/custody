@@ -18,5 +18,7 @@ func (e *Audit) Proto() *api.Audit {
 	x.SetObjectId(e.ObjectID[:])
 	x.SetPatch(e.Patch)
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
+	x.SetActorTenantId(e.ActorTenantID[:])
+	x.SetValue(e.Value)
 	return x
 }

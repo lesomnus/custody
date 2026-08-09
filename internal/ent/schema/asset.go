@@ -30,6 +30,9 @@ func (Asset) Fields() []ent.Field {
 		field.String("location"),
 		field.Bool("listed"),
 		field.Time("date_updated"),
+		field.Time("date_erased").
+			Nillable().
+			Optional(),
 		field.Time("date_created").
 			Immutable().
 			Optional(),
@@ -56,7 +59,8 @@ func (Asset) Indexes() []ent.Index {
 		index.Fields("date_created", "id"),
 		index.Fields("alias").
 			Edges("tenant").
-			Unique(),
+			Unique().
+			Annotations(entsql.IndexWhere("date_erased IS NULL")),
 		index.Fields("listed", "date_created"),
 	}
 }

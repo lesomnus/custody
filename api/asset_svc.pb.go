@@ -638,6 +638,7 @@ type AssetSelect struct {
 	xxx_hidden_Location    bool                   `protobuf:"varint,9,opt,name=location"`
 	xxx_hidden_Listed      bool                   `protobuf:"varint,10,opt,name=listed"`
 	xxx_hidden_DateUpdated bool                   `protobuf:"varint,13,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateErased  bool                   `protobuf:"varint,14,opt,name=date_erased,json=dateErased"`
 	xxx_hidden_DateCreated bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
@@ -740,6 +741,13 @@ func (x *AssetSelect) GetDateUpdated() bool {
 	return false
 }
 
+func (x *AssetSelect) GetDateErased() bool {
+	if x != nil {
+		return x.xxx_hidden_DateErased
+	}
+	return false
+}
+
 func (x *AssetSelect) GetDateCreated() bool {
 	if x != nil {
 		return x.xxx_hidden_DateCreated
@@ -749,7 +757,7 @@ func (x *AssetSelect) GetDateCreated() bool {
 
 func (x *AssetSelect) SetAll(v bool) {
 	x.xxx_hidden_All = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 12)
 }
 
 func (x *AssetSelect) SetTenant(v *TenantSelect) {
@@ -758,22 +766,22 @@ func (x *AssetSelect) SetTenant(v *TenantSelect) {
 
 func (x *AssetSelect) SetAlias(v bool) {
 	x.xxx_hidden_Alias = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 12)
 }
 
 func (x *AssetSelect) SetName(v bool) {
 	x.xxx_hidden_Name = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 12)
 }
 
 func (x *AssetSelect) SetDesc(v bool) {
 	x.xxx_hidden_Desc = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 12)
 }
 
 func (x *AssetSelect) SetLabels(v bool) {
 	x.xxx_hidden_Labels = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 12)
 }
 
 func (x *AssetSelect) SetKeeper(v *HolderSelect) {
@@ -782,22 +790,27 @@ func (x *AssetSelect) SetKeeper(v *HolderSelect) {
 
 func (x *AssetSelect) SetLocation(v bool) {
 	x.xxx_hidden_Location = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 12)
 }
 
 func (x *AssetSelect) SetListed(v bool) {
 	x.xxx_hidden_Listed = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 12)
 }
 
 func (x *AssetSelect) SetDateUpdated(v bool) {
 	x.xxx_hidden_DateUpdated = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 12)
+}
+
+func (x *AssetSelect) SetDateErased(v bool) {
+	x.xxx_hidden_DateErased = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 12)
 }
 
 func (x *AssetSelect) SetDateCreated(v bool) {
 	x.xxx_hidden_DateCreated = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 12)
 }
 
 func (x *AssetSelect) HasAll() bool {
@@ -870,11 +883,18 @@ func (x *AssetSelect) HasDateUpdated() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
 }
 
-func (x *AssetSelect) HasDateCreated() bool {
+func (x *AssetSelect) HasDateErased() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 10)
+}
+
+func (x *AssetSelect) HasDateCreated() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 11)
 }
 
 func (x *AssetSelect) ClearAll() {
@@ -925,8 +945,13 @@ func (x *AssetSelect) ClearDateUpdated() {
 	x.xxx_hidden_DateUpdated = false
 }
 
-func (x *AssetSelect) ClearDateCreated() {
+func (x *AssetSelect) ClearDateErased() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 10)
+	x.xxx_hidden_DateErased = false
+}
+
+func (x *AssetSelect) ClearDateCreated() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
 	x.xxx_hidden_DateCreated = false
 }
 
@@ -943,6 +968,7 @@ type AssetSelect_builder struct {
 	Location    *bool
 	Listed      *bool
 	DateUpdated *bool
+	DateErased  *bool
 	DateCreated *bool
 }
 
@@ -951,41 +977,45 @@ func (b0 AssetSelect_builder) Build() *AssetSelect {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.All != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 12)
 		x.xxx_hidden_All = *b.All
 	}
 	x.xxx_hidden_Tenant = b.Tenant
 	if b.Alias != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 12)
 		x.xxx_hidden_Alias = *b.Alias
 	}
 	if b.Name != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 12)
 		x.xxx_hidden_Name = *b.Name
 	}
 	if b.Desc != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 12)
 		x.xxx_hidden_Desc = *b.Desc
 	}
 	if b.Labels != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 12)
 		x.xxx_hidden_Labels = *b.Labels
 	}
 	x.xxx_hidden_Keeper = b.Keeper
 	if b.Location != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 12)
 		x.xxx_hidden_Location = *b.Location
 	}
 	if b.Listed != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 12)
 		x.xxx_hidden_Listed = *b.Listed
 	}
 	if b.DateUpdated != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 12)
 		x.xxx_hidden_DateUpdated = *b.DateUpdated
 	}
+	if b.DateErased != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 12)
+		x.xxx_hidden_DateErased = *b.DateErased
+	}
 	if b.DateCreated != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 12)
 		x.xxx_hidden_DateCreated = *b.DateCreated
 	}
 	return m0
@@ -2179,15 +2209,15 @@ var File_app_asset_svc_g_proto protoreflect.FileDescriptor
 
 const file_app_asset_svc_g_proto_rawDesc = "" +
 	"\n" +
-	"\x15app/asset_svc.g.proto\x12\x03app\x1a\x0fapp/asset.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11patch/patch.proto\x1a\x19payday/holder_svc.g.proto\x1a\x19payday/tenant_svc.g.proto\"\xc0\x03\n" +
+	"\x15app/asset_svc.g.proto\x12\x03app\x1a\x0fapp/asset.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11patch/patch.proto\x1a\x19payday/holder_svc.g.proto\x1a\x19payday/tenant_svc.g.proto\"\xba\x03\n" +
 	"\x0fAssetAddRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\fR\x02id\x12)\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x11.payday.TenantRefR\x06tenant\x12\x1b\n" +
+	"\x02id\x18\x01 \x01(\fR\x02id\x12&\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0e.app.TenantRefR\x06tenant\x12\x1b\n" +
 	"\x05alias\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05alias\x12\x19\n" +
 	"\x04name\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name\x12\x19\n" +
 	"\x04desc\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04desc\x128\n" +
-	"\x06labels\x18\a \x03(\v2 .app.AssetAddRequest.LabelsEntryR\x06labels\x12)\n" +
-	"\x06keeper\x18\b \x01(\v2\x11.payday.HolderRefR\x06keeper\x12!\n" +
+	"\x06labels\x18\a \x03(\v2 .app.AssetAddRequest.LabelsEntryR\x06labels\x12&\n" +
+	"\x06keeper\x18\b \x01(\v2\x0e.app.HolderRefR\x06keeper\x12!\n" +
 	"\blocation\x18\t \x01(\tB\x05\xaa\x01\x02\b\x02R\blocation\x12\x1d\n" +
 	"\x06listed\x18\n" +
 	" \x01(\bB\x05\xaa\x01\x02\b\x02R\x06listed\x12=\n" +
@@ -2201,32 +2231,34 @@ const file_app_asset_svc_g_proto_rawDesc = "" +
 	"\bAssetRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02id\x12)\n" +
 	"\x04slug\x18\x04 \x01(\v2\x13.app.AssetRefBySlugH\x00R\x04slugB\x05\n" +
-	"\x03key\"Q\n" +
+	"\x03key\"N\n" +
 	"\x0eAssetRefBySlug\x12\x14\n" +
-	"\x05alias\x18\x04 \x01(\tR\x05alias\x12)\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x11.payday.TenantRefR\x06tenant\"\xcb\x02\n" +
+	"\x05alias\x18\x04 \x01(\tR\x05alias\x12&\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0e.app.TenantRefR\x06tenant\"\xe6\x02\n" +
 	"\vAssetSelect\x12\x10\n" +
-	"\x03all\x18\x01 \x01(\bR\x03all\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x14.payday.TenantSelectR\x06tenant\x12\x14\n" +
+	"\x03all\x18\x01 \x01(\bR\x03all\x12)\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x11.app.TenantSelectR\x06tenant\x12\x14\n" +
 	"\x05alias\x18\x04 \x01(\bR\x05alias\x12\x12\n" +
 	"\x04name\x18\x05 \x01(\bR\x04name\x12\x12\n" +
 	"\x04desc\x18\x06 \x01(\bR\x04desc\x12\x16\n" +
-	"\x06labels\x18\a \x01(\bR\x06labels\x12,\n" +
-	"\x06keeper\x18\b \x01(\v2\x14.payday.HolderSelectR\x06keeper\x12\x1a\n" +
+	"\x06labels\x18\a \x01(\bR\x06labels\x12)\n" +
+	"\x06keeper\x18\b \x01(\v2\x11.app.HolderSelectR\x06keeper\x12\x1a\n" +
 	"\blocation\x18\t \x01(\bR\blocation\x12\x16\n" +
 	"\x06listed\x18\n" +
 	" \x01(\bR\x06listed\x12!\n" +
-	"\fdate_updated\x18\r \x01(\bR\vdateUpdated\x12!\n" +
-	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\"\x81\x04\n" +
+	"\fdate_updated\x18\r \x01(\bR\vdateUpdated\x12\x1f\n" +
+	"\vdate_erased\x18\x0e \x01(\bR\n" +
+	"dateErased\x12!\n" +
+	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\"\xfb\x03\n" +
 	"\x11AssetPatchRequest\x12\x1f\n" +
-	"\x03ref\x18\x01 \x01(\v2\r.app.AssetRefR\x03ref\x12)\n" +
-	"\x06tenant\x18\x04 \x01(\v2\x11.payday.TenantRefR\x06tenant\x12\x14\n" +
+	"\x03ref\x18\x01 \x01(\v2\r.app.AssetRefR\x03ref\x12&\n" +
+	"\x06tenant\x18\x04 \x01(\v2\x0e.app.TenantRefR\x06tenant\x12\x14\n" +
 	"\x05alias\x18\b \x01(\tR\x05alias\x12\x12\n" +
 	"\x04name\x18\n" +
 	" \x01(\tR\x04name\x12\x12\n" +
 	"\x04desc\x18\f \x01(\tR\x04desc\x12:\n" +
-	"\x06labels\x18\x0e \x03(\v2\".app.AssetPatchRequest.LabelsEntryR\x06labels\x12)\n" +
-	"\x06keeper\x18\x10 \x01(\v2\x11.payday.HolderRefR\x06keeper\x12\x1f\n" +
+	"\x06labels\x18\x0e \x03(\v2\".app.AssetPatchRequest.LabelsEntryR\x06labels\x12&\n" +
+	"\x06keeper\x18\x10 \x01(\v2\x0e.app.HolderRefR\x06keeper\x12\x1f\n" +
 	"\vkeeper_null\x18\x11 \x01(\bR\n" +
 	"keeperNull\x12\x1a\n" +
 	"\blocation\x18\x12 \x01(\tR\blocation\x12\x16\n" +
@@ -2259,10 +2291,10 @@ const file_app_asset_svc_g_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12 \n" +
 	"\x05value\x18\x02 \x01(\v2\n" +
 	".app.AssetR\x05value\x12\x1d\n" +
-	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action\"r\n" +
+	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action\"o\n" +
 	"\x14AssetTransferRequest\x12\x1f\n" +
-	"\x03ref\x18\x01 \x01(\v2\r.app.AssetRefR\x03ref\x12!\n" +
-	"\x02to\x18\x02 \x01(\v2\x11.payday.TenantRefR\x02to\x12\x16\n" +
+	"\x03ref\x18\x01 \x01(\v2\r.app.AssetRefR\x03ref\x12\x1e\n" +
+	"\x02to\x18\x02 \x01(\v2\x0e.app.TenantRefR\x02to\x12\x16\n" +
 	"\x06reason\x18\x03 \x01(\tR\x06reason2\x90\x03\n" +
 	"\fAssetService\x12'\n" +
 	"\x03Add\x12\x14.app.AssetAddRequest\x1a\n" +
@@ -2297,30 +2329,30 @@ var file_app_asset_svc_g_proto_goTypes = []any{
 	(*AssetTransferRequest)(nil),  // 13: app.AssetTransferRequest
 	nil,                           // 14: app.AssetAddRequest.LabelsEntry
 	nil,                           // 15: app.AssetPatchRequest.LabelsEntry
-	(*TenantRef)(nil),             // 16: payday.TenantRef
-	(*HolderRef)(nil),             // 17: payday.HolderRef
+	(*TenantRef)(nil),             // 16: app.TenantRef
+	(*HolderRef)(nil),             // 17: app.HolderRef
 	(*timestamppb.Timestamp)(nil), // 18: google.protobuf.Timestamp
-	(*TenantSelect)(nil),          // 19: payday.TenantSelect
-	(*HolderSelect)(nil),          // 20: payday.HolderSelect
+	(*TenantSelect)(nil),          // 19: app.TenantSelect
+	(*HolderSelect)(nil),          // 20: app.HolderSelect
 	(*patchpb.Patch)(nil),         // 21: patch.Patch
 	(*Asset)(nil),                 // 22: app.Asset
 	(*emptypb.Empty)(nil),         // 23: google.protobuf.Empty
 }
 var file_app_asset_svc_g_proto_depIdxs = []int32{
-	16, // 0: app.AssetAddRequest.tenant:type_name -> payday.TenantRef
+	16, // 0: app.AssetAddRequest.tenant:type_name -> app.TenantRef
 	14, // 1: app.AssetAddRequest.labels:type_name -> app.AssetAddRequest.LabelsEntry
-	17, // 2: app.AssetAddRequest.keeper:type_name -> payday.HolderRef
+	17, // 2: app.AssetAddRequest.keeper:type_name -> app.HolderRef
 	18, // 3: app.AssetAddRequest.date_created:type_name -> google.protobuf.Timestamp
 	2,  // 4: app.AssetGetRequest.ref:type_name -> app.AssetRef
 	4,  // 5: app.AssetGetRequest.select:type_name -> app.AssetSelect
 	3,  // 6: app.AssetRef.slug:type_name -> app.AssetRefBySlug
-	16, // 7: app.AssetRefBySlug.tenant:type_name -> payday.TenantRef
-	19, // 8: app.AssetSelect.tenant:type_name -> payday.TenantSelect
-	20, // 9: app.AssetSelect.keeper:type_name -> payday.HolderSelect
+	16, // 7: app.AssetRefBySlug.tenant:type_name -> app.TenantRef
+	19, // 8: app.AssetSelect.tenant:type_name -> app.TenantSelect
+	20, // 9: app.AssetSelect.keeper:type_name -> app.HolderSelect
 	2,  // 10: app.AssetPatchRequest.ref:type_name -> app.AssetRef
-	16, // 11: app.AssetPatchRequest.tenant:type_name -> payday.TenantRef
+	16, // 11: app.AssetPatchRequest.tenant:type_name -> app.TenantRef
 	15, // 12: app.AssetPatchRequest.labels:type_name -> app.AssetPatchRequest.LabelsEntry
-	17, // 13: app.AssetPatchRequest.keeper:type_name -> payday.HolderRef
+	17, // 13: app.AssetPatchRequest.keeper:type_name -> app.HolderRef
 	18, // 14: app.AssetPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
 	2,  // 15: app.AssetApplyRequest.ref:type_name -> app.AssetRef
 	21, // 16: app.AssetApplyRequest.patch:type_name -> patch.Patch
@@ -2331,7 +2363,7 @@ var file_app_asset_svc_g_proto_depIdxs = []int32{
 	12, // 21: app.AssetWatchResponse.items:type_name -> app.AssetWatchItem
 	22, // 22: app.AssetWatchItem.value:type_name -> app.Asset
 	2,  // 23: app.AssetTransferRequest.ref:type_name -> app.AssetRef
-	16, // 24: app.AssetTransferRequest.to:type_name -> payday.TenantRef
+	16, // 24: app.AssetTransferRequest.to:type_name -> app.TenantRef
 	0,  // 25: app.AssetService.Add:input_type -> app.AssetAddRequest
 	1,  // 26: app.AssetService.Get:input_type -> app.AssetGetRequest
 	5,  // 27: app.AssetService.Patch:input_type -> app.AssetPatchRequest

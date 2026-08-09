@@ -25,35 +25,35 @@ export const Asset = {
 	schema: AssetSchema,
 	domain: 7,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "payday.Tenant" }, { field: "keeper", to: "payday.Holder" }],
+	refs: [{ field: "tenant", to: "app.Tenant" }, { field: "keeper", to: "app.Holder" }],
 } as const satisfies EntityDesc
 
-/** payday.Audit, as the store holds it. */
+/** app.Audit, as the store holds it. */
 export const Audit = {
-	typeName: "payday.Audit",
+	typeName: "app.Audit",
 	schema: AuditSchema,
 	domain: 3,
 } as const satisfies EntityDesc
 
-/** payday.Holder, as the store holds it. */
+/** app.Holder, as the store holds it. */
 export const Holder = {
-	typeName: "payday.Holder",
+	typeName: "app.Holder",
 	schema: HolderSchema,
 	domain: 2,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "payday.Tenant" }],
+	refs: [{ field: "tenant", to: "app.Tenant" }],
 } as const satisfies EntityDesc
 
-/** payday.Outbox, as the store holds it. */
+/** app.Outbox, as the store holds it. */
 export const Outbox = {
-	typeName: "payday.Outbox",
+	typeName: "app.Outbox",
 	schema: OutboxSchema,
 	domain: 4,
 } as const satisfies EntityDesc
 
-/** payday.Tenant, as the store holds it. */
+/** app.Tenant, as the store holds it. */
 export const Tenant = {
-	typeName: "payday.Tenant",
+	typeName: "app.Tenant",
 	schema: TenantSchema,
 	domain: 1,
 	version: "dateUpdated",

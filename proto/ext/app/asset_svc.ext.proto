@@ -54,7 +54,7 @@ message AssetTransferRequest {
   // not a predicate: the row has not moved yet, so there is nothing to narrow.
   // It is the same shape as payday's own "a holder is added to a tenant you can
   // see", which is a layer rather than a wall.
-  payday.TenantRef to = 2;
+  TenantRef to = 2;
 
   // Why, for the trail. Required, because a transfer with no reason is one
   // nobody can explain a year later.
