@@ -2,11 +2,9 @@ package cmd_test
 
 import (
 	"context"
-	"net/url"
 	"testing"
 
 	"github.com/lesomnus/z"
-	"github.com/ncruces/go-sqlite3/vfs/memdb"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -39,10 +37,7 @@ func build(t *testing.T) (*built, context.Context) {
 	ctx := t.Context()
 
 	s, err := cmd.Build(ctx, cmd.Config{
-		Db: config.DbConfig{
-			Driver: "sqlite3",
-			Dsn:    memdb.TestDB(t, url.Values{"_pragma": {"foreign_keys(1)"}}),
-		},
+		Db:    dbOf(t),
 		Watch: config.WatchConfig{Broker: config.BrokerMemory},
 	})
 	x.NoError(err)

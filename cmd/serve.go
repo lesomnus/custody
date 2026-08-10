@@ -19,6 +19,7 @@ import (
 	"github.com/lesomnus/xli"
 
 	"github.com/lesomnus/payday/auth"
+	"github.com/lesomnus/payday/auth/authoidc"
 	"github.com/lesomnus/payday/gate"
 	"github.com/lesomnus/payday/grpcx"
 	"github.com/lesomnus/payday/pdpb"
@@ -44,6 +45,14 @@ type Server struct {
 	// on a driver and a `*ent.Client` does not hand out the one it holds. It is
 	// what `pd.Batch` puts a whole stack onto.
 	Drv dialect.Driver
+
+	// Auth is what reads a credential off a request, decided once at startup.
+	//
+	// It fails **closed**: a deployment that named an issuer it cannot reach
+	// does not fall back to believing its callers, it fails to build. Falling
+	// back would turn an unreachable provider into an open server, which is the
+	// one outcome worth being unable to reach by accident.
+	Auth auth.Handler
 
 	// Watch is what a change is published to once the call that made it has
 	// answered. The broker is named rather than defaulted: the one that
@@ -151,7 +160,21 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		return nil, err
 	}
 
-	s := &Server{Db: db, Ent: client, Drv: drv, Watch: w, Walled: stacked, Ungated: ungated}
+	// What reads a credential, decided once and here, where a failure has
+	// somewhere to go. `Plain` unless a provider was named; see [AuthConfig].
+	h := auth.Handler(auth.Plain())
+	if c.Auth.Serves() {
+		h, err = authoidc.New(ctx, authoidc.Config{
+			Issuer:   c.Auth.Issuer,
+			Audience: c.Auth.Audience,
+		})
+		if err != nil {
+			db.Close()
+			return nil, err
+		}
+	}
+
+	s := &Server{Db: db, Ent: client, Drv: drv, Watch: w, Walled: stacked, Ungated: ungated, Auth: h}
 	if c.Watch.Outbox && b != nil {
 		// The loop that makes an event durable. It is not a layer and not a
 		// method on any server -- `spin.Run` finds it in whatever is handed
@@ -186,11 +209,27 @@ func (s *Server) Close() error { return s.Db.Close() }
 // company can reach it.
 func (s *Server) Grpc(ctx context.Context, c Config, policy gate.Policy, opts ...grpc.ServerOption) *grpc.Server {
 	// Who is calling comes first, since everything after it reads the frame.
-	// `Plain` believes what the caller writes, which is right for a sandbox
-	// and for tests and is not something to serve where anyone can reach it.
+	//
+	// What reads the credential is the only thing that changes between
+	// development and a deployment: `Plain` believes what the caller writes,
+	// and `authoidc` verifies a token roster's provider signed. Everything
+	// behind takes the same frame either way, which is what makes the swap one
+	// line rather than a rewrite.
+	//
+	// And it is wiring rather than a setting for the same reason this app is
+	// two binaries rather than a flag: a configuration mistake must not be able
+	// to turn authentication off. The configuration says which **provider** to
+	// trust; it cannot say "trust nobody's signature".
+	h := s.Auth
+
+	// `OnDemand` and not `Resolver`: people live in roster, and what custody
+	// keeps is an anchor it makes the first time somebody arrives. See
+	// `anchor.go`.
+	r := OnDemand(s.Ungated)
+
 	chain := grpcx.Serving(ctx, grpcx.WithDeadline(c.Server.CallTimeout())).
-		WithUnary(auth.InterceptorUnary(auth.Plain(), Resolver(s.Ungated), public)).
-		WithStream(auth.InterceptorStream(auth.Plain(), Resolver(s.Ungated), public)).
+		WithUnary(auth.InterceptorUnary(h, r, public)).
+		WithStream(auth.InterceptorStream(h, r, public)).
 		WithUnary(grpcx.LimitUnary(c.Server.Limiter(), gate.ByTenant())).
 		With(gate.Interceptor(policy)).
 		With(s.Watch.Interceptor()).

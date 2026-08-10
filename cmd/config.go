@@ -50,6 +50,15 @@ type Config struct {
 	// point: a privilege that belongs to whoever holds a particular row cannot
 	// be revoked or narrowed, and one written in a deployment's own file can.
 	Hq string `yaml:"hq"`
+
+	// Auth is where credentials come from, and saying nothing is `Plain` --
+	// which believes whatever the caller writes.
+	//
+	// That default is deliberate and it is also the reason `Plain` announces
+	// itself in the log: an app that could not be run until an identity
+	// provider existed would be an app nobody runs, and one that is quietly
+	// unauthenticated is worse. So it is easy and it is loud.
+	Auth AuthConfig `yaml:"auth"`
 }
 
 // Cmd is this app's own command line: what payday supplies, plus whatever the
@@ -94,3 +103,23 @@ func Cmd(c *Config, policy Policy, more ...*xli.Command) *xli.Command {
 // `gate.Decide` then answers with the caller's own tenant, and there is nothing
 // on that binary that answers anything wider.
 type Policy func(*Config) (gate.Policy, error)
+
+// AuthConfig is the identity provider this deployment trusts.
+//
+// An empty `issuer` is `Plain`: every caller is believed. Naming one turns on
+// token verification -- signature against the provider's key set, issuer,
+// audience, expiry -- and nothing else about the stack changes, because what
+// reads a credential is a seam and everything behind it takes the same frame.
+type AuthConfig struct {
+	// Issuer is the provider, as the `iss` claim spells it. Empty is `Plain`.
+	Issuer string `yaml:"issuer"`
+
+	// Audience is what this app is called to that provider. Required when an
+	// issuer is named: a verifier that skips it accepts a token minted for any
+	// relying party of the same issuer.
+	Audience string `yaml:"audience"`
+}
+
+// Serves reports whether this deployment verifies tokens rather than believing
+// its callers.
+func (c AuthConfig) Serves() bool { return c.Issuer != "" }
