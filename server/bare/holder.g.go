@@ -19,7 +19,6 @@ import (
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
-	time "time"
 )
 
 type HolderServiceServer struct {
@@ -120,11 +119,11 @@ func (s HolderServiceServer) Add(ctx context.Context, req *api.HolderAddRequest)
 	if u := req.GetLabels(); len(u) > 0 {
 		q.SetLabels(u)
 	}
-	q.SetDateUpdated(time.Now().UTC())
+	q.SetDateUpdated(st.now())
 	if req.HasDateCreated() {
 		q.SetDateCreated(req.GetDateCreated().AsTime())
 	} else {
-		q.SetDateCreated(time.Now().UTC())
+		q.SetDateCreated(st.now())
 	}
 	if req.HasIdpSubject() {
 		q.SetIdpSubject(req.GetIdpSubject())
@@ -365,7 +364,7 @@ func (s HolderServiceServer) apply(ctx context.Context, ref *api.HolderRef, doc 
 		}
 		q.Modify(mod)
 		if !plan.WritesTo(13) {
-			q.SetDateUpdated(time.Now().UTC())
+			q.SetDateUpdated(st.now())
 		}
 		if n, err := q.Save(ctx); err != nil {
 			return nil, err
@@ -435,8 +434,8 @@ func (s HolderServiceServer) Erase(ctx context.Context, req *api.HolderRef) (*em
 	}
 
 	u := st.Db.Holder.Update().Where(p)
-	u.SetDateErased(time.Now().UTC())
-	u.SetDateUpdated(time.Now().UTC())
+	u.SetDateErased(st.now())
+	u.SetDateUpdated(st.now())
 	n, err := u.Save(ctx)
 	if err != nil {
 		return nil, err

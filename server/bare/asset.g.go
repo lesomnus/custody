@@ -21,7 +21,6 @@ import (
 	status "google.golang.org/grpc/status"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
-	time "time"
 )
 
 type AssetServiceServer struct {
@@ -134,11 +133,11 @@ func (s AssetServiceServer) Add(ctx context.Context, req *api.AssetAddRequest) (
 	}
 	q.SetLocation(req.GetLocation())
 	q.SetListed(req.GetListed())
-	q.SetDateUpdated(time.Now().UTC())
+	q.SetDateUpdated(st.now())
 	if req.HasDateCreated() {
 		q.SetDateCreated(req.GetDateCreated().AsTime())
 	} else {
-		q.SetDateCreated(time.Now().UTC())
+		q.SetDateCreated(st.now())
 	}
 
 	u, err := q.Save(ctx)
@@ -401,7 +400,7 @@ func (s AssetServiceServer) apply(ctx context.Context, ref *api.AssetRef, doc *p
 		}
 		q.Modify(mod)
 		if !plan.WritesTo(13) {
-			q.SetDateUpdated(time.Now().UTC())
+			q.SetDateUpdated(st.now())
 		}
 		if n, err := q.Save(ctx); err != nil {
 			return nil, err
@@ -471,8 +470,8 @@ func (s AssetServiceServer) Erase(ctx context.Context, req *api.AssetRef) (*empt
 	}
 
 	u := st.Db.Asset.Update().Where(p)
-	u.SetDateErased(time.Now().UTC())
-	u.SetDateUpdated(time.Now().UTC())
+	u.SetDateErased(st.now())
+	u.SetDateUpdated(st.now())
 	n, err := u.Save(ctx)
 	if err != nil {
 		return nil, err
