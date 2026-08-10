@@ -5,6 +5,7 @@ package schema
 
 import (
 	ent "entgo.io/ent"
+	dialect "entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/entsql"
 	schema "entgo.io/ent/schema"
 	edge "entgo.io/ent/schema/edge"
@@ -39,7 +40,7 @@ func (Holder) Fields() []ent.Field {
 		field.String("idp_subject").
 			Nillable().
 			Optional(),
-		field.String("profile").GoType(&api.Profile{}).ValueScanner(entpb.ValueScanner[*api.Profile]{}).
+		field.String("profile").GoType(&api.Profile{}).ValueScanner(entpb.ValueScanner[*api.Profile]{}).SchemaType(map[string]string{dialect.Postgres: "jsonb", dialect.MySQL: "json"}).
 			Optional(),
 		field.UUID("tenant_id", uuid.UUID{}).
 			Immutable(),

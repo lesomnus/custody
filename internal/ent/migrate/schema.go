@@ -116,7 +116,7 @@ var (
 		{Name: "date_erased", Type: field.TypeTime, Nullable: true},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
 		{Name: "idp_subject", Type: field.TypeString, Nullable: true},
-		{Name: "profile", Type: field.TypeString, Nullable: true},
+		{Name: "profile", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"mysql": "json", "postgres": "jsonb"}},
 		{Name: "tenant_id", Type: field.TypeUUID},
 	}
 	// HolderTable holds the schema information for the "holder" table.
