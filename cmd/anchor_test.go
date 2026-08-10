@@ -11,6 +11,7 @@ import (
 	"github.com/lesomnus/payday/config"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/pdtest"
+	"github.com/lesomnus/payday/slug"
 
 	app "github.com/lesomnus/custody/api"
 	"github.com/lesomnus/custody/cmd"
@@ -90,9 +91,18 @@ func TestAnAnchorCarriesNothingThatCanGoStale(t *testing.T) {
 	}.Build())
 	x.NoError(err)
 
-	// The alias is the identifier written out rather than roster's name for
-	// them. A copy of that name is a thing that goes out of date.
-	x.Equal("u-"+who.String(), v.GetAlias())
+	// It has an alias, and nobody chose it. `Sink.WithNamer` is unset, so
+	// payday folds what it was given and makes a name up when nothing was --
+	// seven characters, which is what a server does with an Add that named
+	// nothing.
+	//
+	// What matters is what it is **not**: roster's name for this person. That
+	// is the copy this design exists to avoid, and it is the thing that would
+	// go out of date the first time somebody marries.
+	x.NotEmpty(v.GetAlias())
+	x.NoError(slug.Validate(v.GetAlias()), "the alias is not one: %q", v.GetAlias())
+
+	// `name` is the display name, and it stays empty here for the same reason.
 	x.Empty(v.GetName())
 	x.Empty(v.GetDesc())
 }

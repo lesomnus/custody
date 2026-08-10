@@ -94,17 +94,16 @@ func anchor(ctx context.Context, s app.Server, id auth.Identity) error {
 		Id:     who.Bytes(),
 		Tenant: app.TenantRef_builder{Id: tenant.Bytes()}.Build(),
 
-		// Named by its own identifier, prefixed so that it is a name at all.
+		// No alias, which is the whole of what to write here.
 		//
-		// payday requires an alias and requires it to look like something a
-		// person writes -- lowercase, starting with a letter. A row nobody
-		// named has no such name, and roster's name for them is the one thing
-		// that must not be copied here.
+		// A row nobody named has no name, and payday's answer to that is
+		// already in the stack: `Sink.WithNamer` is unset, so `slug.Names`
+		// folds what it was given and **makes one up when nothing was**. What
+		// comes out is seven characters nobody chose.
 		//
-		// So the identifier stands in for it: stable, unique, and obviously not
-		// a name somebody chose. `u-` is there because a UUID may begin with a
-		// digit and the rule refuses that.
-		Alias: anchorAlias(who),
+		// The one thing that must not go here is roster's name for them. That
+		// is the copy this whole design is avoiding, and it would be a copy
+		// that goes out of date the first time somebody marries.
 	}.Build())
 	if err != nil && status.Code(err) != codes.AlreadyExists {
 		// AlreadyExists is two of somebody's requests arriving together, and
@@ -115,13 +114,6 @@ func anchor(ctx context.Context, s app.Server, id auth.Identity) error {
 
 	return nil
 }
-
-// anchorAlias is an identifier as a name payday will accept.
-//
-// It is worth knowing why this is needed. `alias` on a Holder is not nullable
-// and is unique within the tenant, so a row cannot simply have none -- the
-// second anchor in a tenant would collide with the first on the empty string.
-func anchorAlias(k pdid.Id) string { return "u-" + k.String() }
 
 // tenantOf is the tenant the credential named, made here if this deployment has
 // not seen it before.
