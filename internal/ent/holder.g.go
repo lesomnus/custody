@@ -31,5 +31,8 @@ func (e *Holder) Proto() *api.Holder {
 	if e.IdpSubject != nil {
 		x.SetIdpSubject(*e.IdpSubject)
 	}
+	if e.Profile != nil {
+		x.SetProfile(e.Profile)
+	}
 	return x
 }

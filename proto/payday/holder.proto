@@ -100,4 +100,37 @@ message Holder {
     unique: true
     nullable: true
   }];
+  // What the identity provider says this person is called, as one thing.
+  //
+  // It is an **object** and not four fields on the holder, and that is a
+  // decision with a cost either way:
+  //
+  //   - it is replaced whole, which is the shape it is for. A profile is what
+  //     one source said at one moment, so "the provider now says something
+  //     else" is one assignment rather than four that can half-apply;
+  //   - a claim added later costs no holder field number, and there are five
+  //     of those left;
+  //   - **but it is one value to the database.** There is no filter for it, no
+  //     index over it, and no `HolderBy...`. Anything that has to be *looked
+  //     up* goes flat beside `idp_subject` instead -- which is why
+  //     `idp_subject` is a column and not a claim in here.
+  //
+  // The rule this app follows: searched for, flat; shown, in the profile.
+  Profile profile = 9;
+}
+
+// Profile is the OIDC standard claims, named as they are named there.
+//
+// Deliberately those and not a profile of this app's own devising: what fills
+// this in is whatever issued the credential, and a field with no claim behind
+// it is one nothing ever writes.
+//
+// Stored as the canonical protobuf JSON, so the **names** here are the storage.
+// Renaming one does not break the build and does not break the wire; it stops
+// finding the old value. Renaming a field of this message is a migration.
+message Profile {
+  string display_name = 1;
+  string email = 2;
+  string picture = 3;
+  string locale = 4;
 }

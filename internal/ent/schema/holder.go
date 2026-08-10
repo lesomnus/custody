@@ -11,6 +11,8 @@ import (
 	field "entgo.io/ent/schema/field"
 	index "entgo.io/ent/schema/index"
 	uuid "github.com/google/uuid"
+	api "github.com/lesomnus/custody/api"
+	entpb "github.com/protobuf-orm/protoc-gen-orm-ent/runtime/entpb"
 )
 
 type Holder struct {
@@ -36,6 +38,8 @@ func (Holder) Fields() []ent.Field {
 			Optional(),
 		field.String("idp_subject").
 			Nillable().
+			Optional(),
+		field.String("profile").GoType(&api.Profile{}).ValueScanner(entpb.ValueScanner[*api.Profile]{}).
 			Optional(),
 		field.UUID("tenant_id", uuid.UUID{}).
 			Immutable(),
