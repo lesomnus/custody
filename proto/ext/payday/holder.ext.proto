@@ -9,51 +9,21 @@ package payday;
 // because the merge would take the overlay's word and `alias` would quietly
 // become whatever it said.
 //
+// # What belongs here, and what does not
+//
+// One question decides it: **does this fact exist outside custody?**
+//
+// Who somebody is, what they are called, which addresses they use, which
+// external identities they sign in with -- all of that exists whether custody
+// does or not, and it lives in roster. A row here is a **local anchor**: the
+// identifier, so that `Asset.keeper` has something to point at and the trail
+// has somebody to name, and nothing else.
+//
+// What would belong here is something true only in custody -- whether this
+// person is certified to handle a particular class of asset, say. There is
+// nothing yet, and an empty overlay is the honest state rather than a place to
+// keep a copy of roster.
+//
 // Delete this file if there is nothing to add. The same works for `tenant` and
 // `audit`, named the same way.
-message Holder {
-  // The subject an identity provider knows this holder by, for whenever this
-  // app grows past `Plain` auth.
-  //
-  // **Nullable**, and that is the part worth reading. Two holders cannot be one
-  // person to whatever issued the credential, so it wants to be unique -- but
-  // most holders have none, and a unique column that is usually the empty
-  // string admits exactly one such row. Nullable is what makes "unset" not
-  // collide with "unset": a unique index permits many NULLs and one of each
-  // value.
-  string idp_subject = 8 [(orm.field) = {unique: true, nullable: true}];
-
-  // What the identity provider says this person is called, as one thing.
-  //
-  // It is an **object** and not four fields on the holder, and that is a
-  // decision with a cost either way:
-  //
-  //   - it is replaced whole, which is the shape it is for. A profile is what
-  //     one source said at one moment, so "the provider now says something
-  //     else" is one assignment rather than four that can half-apply;
-  //   - a claim added later costs no holder field number, and there are five
-  //     of those left;
-  //   - **but it is one value to the database.** There is no filter for it, no
-  //     index over it, and no `HolderBy...`. Anything that has to be *looked
-  //     up* goes flat beside `idp_subject` instead -- which is why
-  //     `idp_subject` is a column and not a claim in here.
-  //
-  // The rule this app follows: searched for, flat; shown, in the profile.
-  Profile profile = 9;
-}
-
-// Profile is the OIDC standard claims, named as they are named there.
-//
-// Deliberately those and not a profile of this app's own devising: what fills
-// this in is whatever issued the credential, and a field with no claim behind
-// it is one nothing ever writes.
-//
-// Stored as the canonical protobuf JSON, so the **names** here are the storage.
-// Renaming one does not break the build and does not break the wire; it stops
-// finding the old value. Renaming a field of this message is a migration.
-message Profile {
-  string display_name = 1;
-  string email = 2;
-  string picture = 3;
-  string locale = 4;
-}
+message Holder {}

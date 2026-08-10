@@ -35,8 +35,6 @@ type HolderAddRequest struct {
 	xxx_hidden_Desc        string                 `protobuf:"bytes,6,opt,name=desc"`
 	xxx_hidden_Labels      map[string]string      `protobuf:"bytes,7,rep,name=labels" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_IdpSubject  *string                `protobuf:"bytes,8,opt,name=idp_subject,json=idpSubject"`
-	xxx_hidden_Profile     *Profile               `protobuf:"bytes,9,opt,name=profile"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -117,29 +115,12 @@ func (x *HolderAddRequest) GetDateCreated() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *HolderAddRequest) GetIdpSubject() string {
-	if x != nil {
-		if x.xxx_hidden_IdpSubject != nil {
-			return *x.xxx_hidden_IdpSubject
-		}
-		return ""
-	}
-	return ""
-}
-
-func (x *HolderAddRequest) GetProfile() *Profile {
-	if x != nil {
-		return x.xxx_hidden_Profile
-	}
-	return nil
-}
-
 func (x *HolderAddRequest) SetId(v []byte) {
 	if v == nil {
 		v = []byte{}
 	}
 	x.xxx_hidden_Id = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 9)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 7)
 }
 
 func (x *HolderAddRequest) SetTenant(v *TenantRef) {
@@ -166,15 +147,6 @@ func (x *HolderAddRequest) SetDateCreated(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateCreated = v
 }
 
-func (x *HolderAddRequest) SetIdpSubject(v string) {
-	x.xxx_hidden_IdpSubject = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 9)
-}
-
-func (x *HolderAddRequest) SetProfile(v *Profile) {
-	x.xxx_hidden_Profile = v
-}
-
 func (x *HolderAddRequest) HasId() bool {
 	if x == nil {
 		return false
@@ -196,20 +168,6 @@ func (x *HolderAddRequest) HasDateCreated() bool {
 	return x.xxx_hidden_DateCreated != nil
 }
 
-func (x *HolderAddRequest) HasIdpSubject() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
-}
-
-func (x *HolderAddRequest) HasProfile() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Profile != nil
-}
-
 func (x *HolderAddRequest) ClearId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_Id = nil
@@ -223,15 +181,6 @@ func (x *HolderAddRequest) ClearDateCreated() {
 	x.xxx_hidden_DateCreated = nil
 }
 
-func (x *HolderAddRequest) ClearIdpSubject() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
-	x.xxx_hidden_IdpSubject = nil
-}
-
-func (x *HolderAddRequest) ClearProfile() {
-	x.xxx_hidden_Profile = nil
-}
-
 type HolderAddRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
@@ -242,8 +191,6 @@ type HolderAddRequest_builder struct {
 	Desc        string
 	Labels      map[string]string
 	DateCreated *timestamppb.Timestamp
-	IdpSubject  *string
-	Profile     *Profile
 }
 
 func (b0 HolderAddRequest_builder) Build() *HolderAddRequest {
@@ -251,7 +198,7 @@ func (b0 HolderAddRequest_builder) Build() *HolderAddRequest {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Id != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 9)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 7)
 		x.xxx_hidden_Id = b.Id
 	}
 	x.xxx_hidden_Tenant = b.Tenant
@@ -260,11 +207,6 @@ func (b0 HolderAddRequest_builder) Build() *HolderAddRequest {
 	x.xxx_hidden_Desc = b.Desc
 	x.xxx_hidden_Labels = b.Labels
 	x.xxx_hidden_DateCreated = b.DateCreated
-	if b.IdpSubject != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 9)
-		x.xxx_hidden_IdpSubject = b.IdpSubject
-	}
-	x.xxx_hidden_Profile = b.Profile
 	return m0
 }
 
@@ -421,15 +363,6 @@ func (x *HolderRef) GetSlug() *HolderRefBySlug {
 	return nil
 }
 
-func (x *HolderRef) GetIdpSubject() string {
-	if x != nil {
-		if x, ok := x.xxx_hidden_Key.(*holderRef_IdpSubject); ok {
-			return x.IdpSubject
-		}
-	}
-	return ""
-}
-
 func (x *HolderRef) SetId(v []byte) {
 	if v == nil {
 		v = []byte{}
@@ -443,10 +376,6 @@ func (x *HolderRef) SetSlug(v *HolderRefBySlug) {
 		return
 	}
 	x.xxx_hidden_Key = &holderRef_Slug{v}
-}
-
-func (x *HolderRef) SetIdpSubject(v string) {
-	x.xxx_hidden_Key = &holderRef_IdpSubject{v}
 }
 
 func (x *HolderRef) HasKey() bool {
@@ -472,14 +401,6 @@ func (x *HolderRef) HasSlug() bool {
 	return ok
 }
 
-func (x *HolderRef) HasIdpSubject() bool {
-	if x == nil {
-		return false
-	}
-	_, ok := x.xxx_hidden_Key.(*holderRef_IdpSubject)
-	return ok
-}
-
 func (x *HolderRef) ClearKey() {
 	x.xxx_hidden_Key = nil
 }
@@ -496,16 +417,9 @@ func (x *HolderRef) ClearSlug() {
 	}
 }
 
-func (x *HolderRef) ClearIdpSubject() {
-	if _, ok := x.xxx_hidden_Key.(*holderRef_IdpSubject); ok {
-		x.xxx_hidden_Key = nil
-	}
-}
-
 const HolderRef_Key_not_set_case case_HolderRef_Key = 0
 const HolderRef_Id_case case_HolderRef_Key = 1
 const HolderRef_Slug_case case_HolderRef_Key = 4
-const HolderRef_IdpSubject_case case_HolderRef_Key = 8
 
 func (x *HolderRef) WhichKey() case_HolderRef_Key {
 	if x == nil {
@@ -516,8 +430,6 @@ func (x *HolderRef) WhichKey() case_HolderRef_Key {
 		return HolderRef_Id_case
 	case *holderRef_Slug:
 		return HolderRef_Slug_case
-	case *holderRef_IdpSubject:
-		return HolderRef_IdpSubject_case
 	default:
 		return HolderRef_Key_not_set_case
 	}
@@ -527,9 +439,8 @@ type HolderRef_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	// Fields of oneof xxx_hidden_Key:
-	Id         []byte
-	Slug       *HolderRefBySlug
-	IdpSubject *string
+	Id   []byte
+	Slug *HolderRefBySlug
 	// -- end of xxx_hidden_Key
 }
 
@@ -542,9 +453,6 @@ func (b0 HolderRef_builder) Build() *HolderRef {
 	}
 	if b.Slug != nil {
 		x.xxx_hidden_Key = &holderRef_Slug{b.Slug}
-	}
-	if b.IdpSubject != nil {
-		x.xxx_hidden_Key = &holderRef_IdpSubject{*b.IdpSubject}
 	}
 	return m0
 }
@@ -571,15 +479,9 @@ type holderRef_Slug struct {
 	Slug *HolderRefBySlug `protobuf:"bytes,4,opt,name=slug,oneof"`
 }
 
-type holderRef_IdpSubject struct {
-	IdpSubject string `protobuf:"bytes,8,opt,name=idp_subject,json=idpSubject,oneof"`
-}
-
 func (*holderRef_Id) isHolderRef_Key() {}
 
 func (*holderRef_Slug) isHolderRef_Key() {}
-
-func (*holderRef_IdpSubject) isHolderRef_Key() {}
 
 type HolderSelect struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
@@ -592,8 +494,6 @@ type HolderSelect struct {
 	xxx_hidden_DateUpdated bool                   `protobuf:"varint,13,opt,name=date_updated,json=dateUpdated"`
 	xxx_hidden_DateErased  bool                   `protobuf:"varint,14,opt,name=date_erased,json=dateErased"`
 	xxx_hidden_DateCreated bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_IdpSubject  bool                   `protobuf:"varint,8,opt,name=idp_subject,json=idpSubject"`
-	xxx_hidden_Profile     bool                   `protobuf:"varint,9,opt,name=profile"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -688,23 +588,9 @@ func (x *HolderSelect) GetDateCreated() bool {
 	return false
 }
 
-func (x *HolderSelect) GetIdpSubject() bool {
-	if x != nil {
-		return x.xxx_hidden_IdpSubject
-	}
-	return false
-}
-
-func (x *HolderSelect) GetProfile() bool {
-	if x != nil {
-		return x.xxx_hidden_Profile
-	}
-	return false
-}
-
 func (x *HolderSelect) SetAll(v bool) {
 	x.xxx_hidden_All = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 9)
 }
 
 func (x *HolderSelect) SetTenant(v *TenantSelect) {
@@ -713,47 +599,37 @@ func (x *HolderSelect) SetTenant(v *TenantSelect) {
 
 func (x *HolderSelect) SetAlias(v bool) {
 	x.xxx_hidden_Alias = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 9)
 }
 
 func (x *HolderSelect) SetName(v bool) {
 	x.xxx_hidden_Name = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 9)
 }
 
 func (x *HolderSelect) SetDesc(v bool) {
 	x.xxx_hidden_Desc = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 9)
 }
 
 func (x *HolderSelect) SetLabels(v bool) {
 	x.xxx_hidden_Labels = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 9)
 }
 
 func (x *HolderSelect) SetDateUpdated(v bool) {
 	x.xxx_hidden_DateUpdated = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 9)
 }
 
 func (x *HolderSelect) SetDateErased(v bool) {
 	x.xxx_hidden_DateErased = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 9)
 }
 
 func (x *HolderSelect) SetDateCreated(v bool) {
 	x.xxx_hidden_DateCreated = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 11)
-}
-
-func (x *HolderSelect) SetIdpSubject(v bool) {
-	x.xxx_hidden_IdpSubject = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 11)
-}
-
-func (x *HolderSelect) SetProfile(v bool) {
-	x.xxx_hidden_Profile = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 9)
 }
 
 func (x *HolderSelect) HasAll() bool {
@@ -819,20 +695,6 @@ func (x *HolderSelect) HasDateCreated() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 8)
 }
 
-func (x *HolderSelect) HasIdpSubject() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
-}
-
-func (x *HolderSelect) HasProfile() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 10)
-}
-
 func (x *HolderSelect) ClearAll() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_All = false
@@ -877,16 +739,6 @@ func (x *HolderSelect) ClearDateCreated() {
 	x.xxx_hidden_DateCreated = false
 }
 
-func (x *HolderSelect) ClearIdpSubject() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
-	x.xxx_hidden_IdpSubject = false
-}
-
-func (x *HolderSelect) ClearProfile() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 10)
-	x.xxx_hidden_Profile = false
-}
-
 type HolderSelect_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
@@ -899,8 +751,6 @@ type HolderSelect_builder struct {
 	DateUpdated *bool
 	DateErased  *bool
 	DateCreated *bool
-	IdpSubject  *bool
-	Profile     *bool
 }
 
 func (b0 HolderSelect_builder) Build() *HolderSelect {
@@ -908,45 +758,37 @@ func (b0 HolderSelect_builder) Build() *HolderSelect {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.All != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 9)
 		x.xxx_hidden_All = *b.All
 	}
 	x.xxx_hidden_Tenant = b.Tenant
 	if b.Alias != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 9)
 		x.xxx_hidden_Alias = *b.Alias
 	}
 	if b.Name != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 9)
 		x.xxx_hidden_Name = *b.Name
 	}
 	if b.Desc != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 9)
 		x.xxx_hidden_Desc = *b.Desc
 	}
 	if b.Labels != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 9)
 		x.xxx_hidden_Labels = *b.Labels
 	}
 	if b.DateUpdated != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 9)
 		x.xxx_hidden_DateUpdated = *b.DateUpdated
 	}
 	if b.DateErased != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 9)
 		x.xxx_hidden_DateErased = *b.DateErased
 	}
 	if b.DateCreated != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 9)
 		x.xxx_hidden_DateCreated = *b.DateCreated
-	}
-	if b.IdpSubject != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 11)
-		x.xxx_hidden_IdpSubject = *b.IdpSubject
-	}
-	if b.Profile != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 11)
-		x.xxx_hidden_Profile = *b.Profile
 	}
 	return m0
 }
@@ -1053,10 +895,6 @@ type HolderPatchRequest struct {
 	xxx_hidden_Labels           map[string]string      `protobuf:"bytes,14,rep,name=labels" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	xxx_hidden_DateUpdated      *timestamppb.Timestamp `protobuf:"bytes,26,opt,name=date_updated,json=dateUpdated"`
 	xxx_hidden_DateUpdatedForce bool                   `protobuf:"varint,27,opt,name=date_updated_force,json=dateUpdatedForce"`
-	xxx_hidden_IdpSubject       *string                `protobuf:"bytes,16,opt,name=idp_subject,json=idpSubject"`
-	xxx_hidden_IdpSubjectNull   bool                   `protobuf:"varint,17,opt,name=idp_subject_null,json=idpSubjectNull"`
-	xxx_hidden_Profile          *Profile               `protobuf:"bytes,18,opt,name=profile"`
-	xxx_hidden_ProfileNull      bool                   `protobuf:"varint,19,opt,name=profile_null,json=profileNull"`
 	XXX_raceDetectHookData      protoimpl.RaceDetectHookData
 	XXX_presence                [1]uint32
 	unknownFields               protoimpl.UnknownFields
@@ -1146,54 +984,23 @@ func (x *HolderPatchRequest) GetDateUpdatedForce() bool {
 	return false
 }
 
-func (x *HolderPatchRequest) GetIdpSubject() string {
-	if x != nil {
-		if x.xxx_hidden_IdpSubject != nil {
-			return *x.xxx_hidden_IdpSubject
-		}
-		return ""
-	}
-	return ""
-}
-
-func (x *HolderPatchRequest) GetIdpSubjectNull() bool {
-	if x != nil {
-		return x.xxx_hidden_IdpSubjectNull
-	}
-	return false
-}
-
-func (x *HolderPatchRequest) GetProfile() *Profile {
-	if x != nil {
-		return x.xxx_hidden_Profile
-	}
-	return nil
-}
-
-func (x *HolderPatchRequest) GetProfileNull() bool {
-	if x != nil {
-		return x.xxx_hidden_ProfileNull
-	}
-	return false
-}
-
 func (x *HolderPatchRequest) SetRef(v *HolderRef) {
 	x.xxx_hidden_Ref = v
 }
 
 func (x *HolderPatchRequest) SetAlias(v string) {
 	x.xxx_hidden_Alias = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 7)
 }
 
 func (x *HolderPatchRequest) SetName(v string) {
 	x.xxx_hidden_Name = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 7)
 }
 
 func (x *HolderPatchRequest) SetDesc(v string) {
 	x.xxx_hidden_Desc = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 7)
 }
 
 func (x *HolderPatchRequest) SetLabels(v map[string]string) {
@@ -1206,26 +1013,7 @@ func (x *HolderPatchRequest) SetDateUpdated(v *timestamppb.Timestamp) {
 
 func (x *HolderPatchRequest) SetDateUpdatedForce(v bool) {
 	x.xxx_hidden_DateUpdatedForce = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 11)
-}
-
-func (x *HolderPatchRequest) SetIdpSubject(v string) {
-	x.xxx_hidden_IdpSubject = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 11)
-}
-
-func (x *HolderPatchRequest) SetIdpSubjectNull(v bool) {
-	x.xxx_hidden_IdpSubjectNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 11)
-}
-
-func (x *HolderPatchRequest) SetProfile(v *Profile) {
-	x.xxx_hidden_Profile = v
-}
-
-func (x *HolderPatchRequest) SetProfileNull(v bool) {
-	x.xxx_hidden_ProfileNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 7)
 }
 
 func (x *HolderPatchRequest) HasRef() bool {
@@ -1270,34 +1058,6 @@ func (x *HolderPatchRequest) HasDateUpdatedForce() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
 }
 
-func (x *HolderPatchRequest) HasIdpSubject() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
-}
-
-func (x *HolderPatchRequest) HasIdpSubjectNull() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 8)
-}
-
-func (x *HolderPatchRequest) HasProfile() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Profile != nil
-}
-
-func (x *HolderPatchRequest) HasProfileNull() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 10)
-}
-
 func (x *HolderPatchRequest) ClearRef() {
 	x.xxx_hidden_Ref = nil
 }
@@ -1326,25 +1086,6 @@ func (x *HolderPatchRequest) ClearDateUpdatedForce() {
 	x.xxx_hidden_DateUpdatedForce = false
 }
 
-func (x *HolderPatchRequest) ClearIdpSubject() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
-	x.xxx_hidden_IdpSubject = nil
-}
-
-func (x *HolderPatchRequest) ClearIdpSubjectNull() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 8)
-	x.xxx_hidden_IdpSubjectNull = false
-}
-
-func (x *HolderPatchRequest) ClearProfile() {
-	x.xxx_hidden_Profile = nil
-}
-
-func (x *HolderPatchRequest) ClearProfileNull() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 10)
-	x.xxx_hidden_ProfileNull = false
-}
-
 type HolderPatchRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
@@ -1367,18 +1108,6 @@ type HolderPatchRequest_builder struct {
 	// refused rather than assumed, because an unset field cannot be told
 	// apart from a caller who never considered locking at all.
 	DateUpdatedForce *bool
-	IdpSubject       *string
-	// Clear idp_subject instead of writing it.
-	// It takes a field of its own because an unset value already means
-	// "leave it alone", so no value could have meant NULL. It wins
-	// outright: setting both this and idp_subject clears.
-	IdpSubjectNull *bool
-	Profile        *Profile
-	// Clear profile instead of writing it.
-	// It takes a field of its own because an unset value already means
-	// "leave it alone", so no value could have meant NULL. It wins
-	// outright: setting both this and profile clears.
-	ProfileNull *bool
 }
 
 func (b0 HolderPatchRequest_builder) Build() *HolderPatchRequest {
@@ -1387,35 +1116,22 @@ func (b0 HolderPatchRequest_builder) Build() *HolderPatchRequest {
 	_, _ = b, x
 	x.xxx_hidden_Ref = b.Ref
 	if b.Alias != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 7)
 		x.xxx_hidden_Alias = b.Alias
 	}
 	if b.Name != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 7)
 		x.xxx_hidden_Name = b.Name
 	}
 	if b.Desc != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 7)
 		x.xxx_hidden_Desc = b.Desc
 	}
 	x.xxx_hidden_Labels = b.Labels
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	if b.DateUpdatedForce != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 7)
 		x.xxx_hidden_DateUpdatedForce = *b.DateUpdatedForce
-	}
-	if b.IdpSubject != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 11)
-		x.xxx_hidden_IdpSubject = b.IdpSubject
-	}
-	if b.IdpSubjectNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 11)
-		x.xxx_hidden_IdpSubjectNull = *b.IdpSubjectNull
-	}
-	x.xxx_hidden_Profile = b.Profile
-	if b.ProfileNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 11)
-		x.xxx_hidden_ProfileNull = *b.ProfileNull
 	}
 	return m0
 }
@@ -1517,7 +1233,7 @@ var File_payday_holder_svc_g_proto protoreflect.FileDescriptor
 
 const file_payday_holder_svc_g_proto_rawDesc = "" +
 	"\n" +
-	"\x19payday/holder_svc.g.proto\x12\x03app\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11patch/patch.proto\x1a\x13payday/holder.proto\x1a\x19payday/tenant_svc.g.proto\"\x9b\x03\n" +
+	"\x19payday/holder_svc.g.proto\x12\x03app\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11patch/patch.proto\x1a\x13payday/holder.proto\x1a\x19payday/tenant_svc.g.proto\"\xd2\x02\n" +
 	"\x10HolderAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12&\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0e.app.TenantRefR\x06tenant\x12\x1b\n" +
@@ -1525,22 +1241,17 @@ const file_payday_holder_svc_g_proto_rawDesc = "" +
 	"\x04name\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name\x12\x19\n" +
 	"\x04desc\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04desc\x129\n" +
 	"\x06labels\x18\a \x03(\v2!.app.HolderAddRequest.LabelsEntryR\x06labels\x12=\n" +
-	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x12\x1f\n" +
-	"\vidp_subject\x18\b \x01(\tR\n" +
-	"idpSubject\x12&\n" +
-	"\aprofile\x18\t \x01(\v2\f.app.ProfileR\aprofile\x1a9\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"O\n" +
 	"\x0fHolderRefBySlug\x12\x14\n" +
 	"\x05alias\x18\x04 \x01(\tR\x05alias\x12&\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0e.app.TenantRefR\x06tenant\"s\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0e.app.TenantRefR\x06tenant\"P\n" +
 	"\tHolderRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02id\x12*\n" +
-	"\x04slug\x18\x04 \x01(\v2\x14.app.HolderRefBySlugH\x00R\x04slug\x12!\n" +
-	"\vidp_subject\x18\b \x01(\tH\x00R\n" +
-	"idpSubjectB\x05\n" +
-	"\x03key\"\xc3\x02\n" +
+	"\x04slug\x18\x04 \x01(\v2\x14.app.HolderRefBySlugH\x00R\x04slugB\x05\n" +
+	"\x03key\"\x88\x02\n" +
 	"\fHolderSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12)\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x11.app.TenantSelectR\x06tenant\x12\x14\n" +
@@ -1551,13 +1262,10 @@ const file_payday_holder_svc_g_proto_rawDesc = "" +
 	"\fdate_updated\x18\r \x01(\bR\vdateUpdated\x12\x1f\n" +
 	"\vdate_erased\x18\x0e \x01(\bR\n" +
 	"dateErased\x12!\n" +
-	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\x12\x1f\n" +
-	"\vidp_subject\x18\b \x01(\bR\n" +
-	"idpSubject\x12\x18\n" +
-	"\aprofile\x18\t \x01(\bR\aprofile\"_\n" +
+	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\"_\n" +
 	"\x10HolderGetRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.app.HolderRefR\x03ref\x12)\n" +
-	"\x06select\x18\x02 \x01(\v2\x11.app.HolderSelectR\x06select\"\xef\x03\n" +
+	"\x06select\x18\x02 \x01(\v2\x11.app.HolderSelectR\x06select\"\xd9\x02\n" +
 	"\x12HolderPatchRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.app.HolderRefR\x03ref\x12\x14\n" +
 	"\x05alias\x18\b \x01(\tR\x05alias\x12\x12\n" +
@@ -1566,12 +1274,7 @@ const file_payday_holder_svc_g_proto_rawDesc = "" +
 	"\x04desc\x18\f \x01(\tR\x04desc\x12;\n" +
 	"\x06labels\x18\x0e \x03(\v2#.app.HolderPatchRequest.LabelsEntryR\x06labels\x12=\n" +
 	"\fdate_updated\x18\x1a \x01(\v2\x1a.google.protobuf.TimestampR\vdateUpdated\x12,\n" +
-	"\x12date_updated_force\x18\x1b \x01(\bR\x10dateUpdatedForce\x12\x1f\n" +
-	"\vidp_subject\x18\x10 \x01(\tR\n" +
-	"idpSubject\x12(\n" +
-	"\x10idp_subject_null\x18\x11 \x01(\bR\x0eidpSubjectNull\x12&\n" +
-	"\aprofile\x18\x12 \x01(\v2\f.app.ProfileR\aprofile\x12!\n" +
-	"\fprofile_null\x18\x13 \x01(\bR\vprofileNull\x1a9\n" +
+	"\x12date_updated_force\x18\x1b \x01(\bR\x10dateUpdatedForce\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"Z\n" +
@@ -1598,43 +1301,40 @@ var file_payday_holder_svc_g_proto_goTypes = []any{
 	nil,                           // 8: app.HolderPatchRequest.LabelsEntry
 	(*TenantRef)(nil),             // 9: app.TenantRef
 	(*timestamppb.Timestamp)(nil), // 10: google.protobuf.Timestamp
-	(*Profile)(nil),               // 11: app.Profile
-	(*TenantSelect)(nil),          // 12: app.TenantSelect
-	(*patchpb.Patch)(nil),         // 13: patch.Patch
-	(*Holder)(nil),                // 14: app.Holder
-	(*emptypb.Empty)(nil),         // 15: google.protobuf.Empty
+	(*TenantSelect)(nil),          // 11: app.TenantSelect
+	(*patchpb.Patch)(nil),         // 12: patch.Patch
+	(*Holder)(nil),                // 13: app.Holder
+	(*emptypb.Empty)(nil),         // 14: google.protobuf.Empty
 }
 var file_payday_holder_svc_g_proto_depIdxs = []int32{
 	9,  // 0: app.HolderAddRequest.tenant:type_name -> app.TenantRef
 	7,  // 1: app.HolderAddRequest.labels:type_name -> app.HolderAddRequest.LabelsEntry
 	10, // 2: app.HolderAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	11, // 3: app.HolderAddRequest.profile:type_name -> app.Profile
-	9,  // 4: app.HolderRefBySlug.tenant:type_name -> app.TenantRef
-	1,  // 5: app.HolderRef.slug:type_name -> app.HolderRefBySlug
-	12, // 6: app.HolderSelect.tenant:type_name -> app.TenantSelect
-	2,  // 7: app.HolderGetRequest.ref:type_name -> app.HolderRef
-	3,  // 8: app.HolderGetRequest.select:type_name -> app.HolderSelect
-	2,  // 9: app.HolderPatchRequest.ref:type_name -> app.HolderRef
-	8,  // 10: app.HolderPatchRequest.labels:type_name -> app.HolderPatchRequest.LabelsEntry
-	10, // 11: app.HolderPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	11, // 12: app.HolderPatchRequest.profile:type_name -> app.Profile
-	2,  // 13: app.HolderApplyRequest.ref:type_name -> app.HolderRef
-	13, // 14: app.HolderApplyRequest.patch:type_name -> patch.Patch
-	0,  // 15: app.HolderService.Add:input_type -> app.HolderAddRequest
-	4,  // 16: app.HolderService.Get:input_type -> app.HolderGetRequest
-	5,  // 17: app.HolderService.Patch:input_type -> app.HolderPatchRequest
-	6,  // 18: app.HolderService.Apply:input_type -> app.HolderApplyRequest
-	2,  // 19: app.HolderService.Erase:input_type -> app.HolderRef
-	14, // 20: app.HolderService.Add:output_type -> app.Holder
-	14, // 21: app.HolderService.Get:output_type -> app.Holder
-	14, // 22: app.HolderService.Patch:output_type -> app.Holder
-	14, // 23: app.HolderService.Apply:output_type -> app.Holder
-	15, // 24: app.HolderService.Erase:output_type -> google.protobuf.Empty
-	20, // [20:25] is the sub-list for method output_type
-	15, // [15:20] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	9,  // 3: app.HolderRefBySlug.tenant:type_name -> app.TenantRef
+	1,  // 4: app.HolderRef.slug:type_name -> app.HolderRefBySlug
+	11, // 5: app.HolderSelect.tenant:type_name -> app.TenantSelect
+	2,  // 6: app.HolderGetRequest.ref:type_name -> app.HolderRef
+	3,  // 7: app.HolderGetRequest.select:type_name -> app.HolderSelect
+	2,  // 8: app.HolderPatchRequest.ref:type_name -> app.HolderRef
+	8,  // 9: app.HolderPatchRequest.labels:type_name -> app.HolderPatchRequest.LabelsEntry
+	10, // 10: app.HolderPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	2,  // 11: app.HolderApplyRequest.ref:type_name -> app.HolderRef
+	12, // 12: app.HolderApplyRequest.patch:type_name -> patch.Patch
+	0,  // 13: app.HolderService.Add:input_type -> app.HolderAddRequest
+	4,  // 14: app.HolderService.Get:input_type -> app.HolderGetRequest
+	5,  // 15: app.HolderService.Patch:input_type -> app.HolderPatchRequest
+	6,  // 16: app.HolderService.Apply:input_type -> app.HolderApplyRequest
+	2,  // 17: app.HolderService.Erase:input_type -> app.HolderRef
+	13, // 18: app.HolderService.Add:output_type -> app.Holder
+	13, // 19: app.HolderService.Get:output_type -> app.Holder
+	13, // 20: app.HolderService.Patch:output_type -> app.Holder
+	13, // 21: app.HolderService.Apply:output_type -> app.Holder
+	14, // 22: app.HolderService.Erase:output_type -> google.protobuf.Empty
+	18, // [18:23] is the sub-list for method output_type
+	13, // [13:18] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_payday_holder_svc_g_proto_init() }
@@ -1647,7 +1347,6 @@ func file_payday_holder_svc_g_proto_init() {
 	file_payday_holder_svc_g_proto_msgTypes[2].OneofWrappers = []any{
 		(*holderRef_Id)(nil),
 		(*holderRef_Slug)(nil),
-		(*holderRef_IdpSubject)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

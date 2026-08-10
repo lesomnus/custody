@@ -5,8 +5,6 @@ package holder
 import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"entgo.io/ent/schema/field"
-	"github.com/lesomnus/custody/api"
 )
 
 const (
@@ -28,10 +26,6 @@ const (
 	FieldDateErased = "date_erased"
 	// FieldDateCreated holds the string denoting the date_created field in the database.
 	FieldDateCreated = "date_created"
-	// FieldIdpSubject holds the string denoting the idp_subject field in the database.
-	FieldIdpSubject = "idp_subject"
-	// FieldProfile holds the string denoting the profile field in the database.
-	FieldProfile = "profile"
 	// FieldTenantID holds the string denoting the tenant_id field in the database.
 	FieldTenantID = "tenant_id"
 	// EdgeTenant holds the string denoting the tenant edge name in mutations.
@@ -57,8 +51,6 @@ var Columns = []string{
 	FieldDateUpdated,
 	FieldDateErased,
 	FieldDateCreated,
-	FieldIdpSubject,
-	FieldProfile,
 	FieldTenantID,
 }
 
@@ -71,13 +63,6 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
-
-var (
-	// ValueScanner of all Holder fields.
-	ValueScanner struct {
-		Profile field.TypeValueScanner[*api.Profile]
-	}
-)
 
 // OrderOption defines the ordering options for the Holder queries.
 type OrderOption func(*sql.Selector)
@@ -115,16 +100,6 @@ func ByDateErased(opts ...sql.OrderTermOption) OrderOption {
 // ByDateCreated orders the results by the date_created field.
 func ByDateCreated(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDateCreated, opts...).ToFunc()
-}
-
-// ByIdpSubject orders the results by the idp_subject field.
-func ByIdpSubject(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldIdpSubject, opts...).ToFunc()
-}
-
-// ByProfile orders the results by the profile field.
-func ByProfile(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldProfile, opts...).ToFunc()
 }
 
 // ByTenantID orders the results by the tenant_id field.

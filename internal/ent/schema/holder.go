@@ -5,15 +5,12 @@ package schema
 
 import (
 	ent "entgo.io/ent"
-	dialect "entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/entsql"
 	schema "entgo.io/ent/schema"
 	edge "entgo.io/ent/schema/edge"
 	field "entgo.io/ent/schema/field"
 	index "entgo.io/ent/schema/index"
 	uuid "github.com/google/uuid"
-	api "github.com/lesomnus/custody/api"
-	entpb "github.com/protobuf-orm/protoc-gen-orm-ent/runtime/entpb"
 )
 
 type Holder struct {
@@ -37,11 +34,6 @@ func (Holder) Fields() []ent.Field {
 		field.Time("date_created").
 			Immutable().
 			Optional(),
-		field.String("idp_subject").
-			Nillable().
-			Optional(),
-		field.String("profile").GoType(&api.Profile{}).ValueScanner(entpb.ValueScanner[*api.Profile]{}).SchemaType(map[string]string{dialect.Postgres: "jsonb", dialect.MySQL: "json"}).
-			Optional(),
 		field.UUID("tenant_id", uuid.UUID{}).
 			Immutable(),
 	}
@@ -61,9 +53,6 @@ func (Holder) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("alias").
 			Edges("tenant").
-			Unique().
-			Annotations(entsql.IndexWhere("date_erased IS NULL")),
-		index.Fields("idp_subject").
 			Unique().
 			Annotations(entsql.IndexWhere("date_erased IS NULL")),
 	}

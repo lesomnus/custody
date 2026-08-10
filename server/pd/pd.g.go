@@ -1303,7 +1303,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id) (uuid.UUID, []byte
 		}.Build())
 		if err != nil {
 			if status.Code(err) == codes.NotFound {
-				return uuid.Nil, nil, nil
+				return uuid.Nil, []byte{}, nil
 			}
 
 			return uuid.Nil, nil, err
@@ -1312,6 +1312,10 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id) (uuid.UUID, []byte
 		b, err := proto.Marshal(row)
 		if err != nil {
 			return uuid.Nil, nil, err
+		}
+
+		if !row.HasTenant() {
+			return uuid.Nil, b, nil
 		}
 
 		k, err := uuid.FromBytes(row.GetTenant().GetId())
@@ -1327,7 +1331,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id) (uuid.UUID, []byte
 		}.Build())
 		if err != nil {
 			if status.Code(err) == codes.NotFound {
-				return uuid.Nil, nil, nil
+				return uuid.Nil, []byte{}, nil
 			}
 
 			return uuid.Nil, nil, err
@@ -1351,7 +1355,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id) (uuid.UUID, []byte
 		}.Build())
 		if err != nil {
 			if status.Code(err) == codes.NotFound {
-				return uuid.Nil, nil, nil
+				return uuid.Nil, []byte{}, nil
 			}
 
 			return uuid.Nil, nil, err
@@ -1360,6 +1364,10 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id) (uuid.UUID, []byte
 		b, err := proto.Marshal(row)
 		if err != nil {
 			return uuid.Nil, nil, err
+		}
+
+		if !row.HasTenant() {
+			return uuid.Nil, b, nil
 		}
 
 		k, err := uuid.FromBytes(row.GetTenant().GetId())
@@ -1375,7 +1383,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id) (uuid.UUID, []byte
 		}.Build())
 		if err != nil {
 			if status.Code(err) == codes.NotFound {
-				return uuid.Nil, nil, nil
+				return uuid.Nil, []byte{}, nil
 			}
 
 			return uuid.Nil, nil, err
@@ -1495,7 +1503,7 @@ func (outboxRecorder) Record(ctx context.Context, s bare.Server, c bare.Change) 
 		return nil
 	}
 
-	var doc []byte
+	doc := []byte{}
 	if c.Patch != nil {
 		b, err := proto.Marshal(c.Patch)
 		if err != nil {
