@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/lesomnus/payday/auth"
 	"github.com/lesomnus/payday/auth/authsession"
@@ -61,10 +60,15 @@ func DialRoster(c RosterConfig) (*Roster, error) {
 		return nil, nil
 	}
 
-	// Cleartext, which is wrong anywhere the network is not. A key travels on
-	// every call, so this needs TLS before it leaves one machine -- and that is
-	// a deployment's to configure rather than something this can decide.
-	conn, err := grpc.NewClient(c.Addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	// What the deployment said, and plaintext when it said nothing -- which
+	// `config.DialConfig` warns about once, because a key crossing a cleartext
+	// connection has been given away and nothing about that looks unusual.
+	creds, err := c.Tls.Credentials()
+	if err != nil {
+		return nil, fmt.Errorf("roster: %w", err)
+	}
+
+	conn, err := grpc.NewClient(c.Addr, grpc.WithTransportCredentials(creds))
 	if err != nil {
 		return nil, fmt.Errorf("roster: %w", err)
 	}

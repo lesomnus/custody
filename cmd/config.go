@@ -151,15 +151,20 @@ func (c AuthConfig) Serves() bool { return c.Issuer != "" }
 // portal owns the person -- and not `Holder` writes, since custody does not own
 // the people it serves.
 //
-// # It travels in cleartext unless a deployment says otherwise
+// # The connection
 //
-// A key goes on every call, so this wants TLS before it leaves one machine.
+// A key goes on **every call**, so a cleartext connection between two machines
+// has given the key away. `tls` is payday's `DialConfig`: nothing written down
+// is plaintext, which is right for a checkout and says so once in the log.
 type RosterConfig struct {
 	// Addr is where roster answers, e.g. "roster:50051".
 	Addr string `yaml:"addr"`
 
 	// Token is the API key roster's owner minted for this service.
 	Token string `yaml:"token"`
+
+	// Tls is how this connection is made. See [config.DialConfig].
+	Tls config.DialConfig `yaml:"tls"`
 }
 
 // Serves reports whether this deployment can sign anybody in itself.
