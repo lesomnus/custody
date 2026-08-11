@@ -28,7 +28,7 @@ require (
 	entgo.io/ent v0.14.6
 	github.com/google/uuid v1.6.0
 	github.com/lesomnus/otx v0.0.0-20260807173743-977a5687d6ba
-	github.com/lesomnus/payday v0.0.0-20260811145348-5c1452d55e84
+	github.com/lesomnus/payday v0.0.0-20260811164558-11e55c698d9e
 	github.com/lesomnus/protobuf-patch v0.0.0-20260803175157-e1b7a0c2804f
 	github.com/lesomnus/roster v0.0.0-20260811145200-9d2877ed658c
 	github.com/lesomnus/xli v0.0.0-20260717171524-bf8cac633057
