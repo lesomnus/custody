@@ -126,7 +126,7 @@ func rosterUp(t *testing.T) *rostered0 {
 	svc, err := rcmd.ServiceOf(ctx, s.Control, "custody")
 	x.NoError(err)
 
-	token, sum, err := rkeys.Mint()
+	token, sum, err := rkeys.Mint(rkeys.PrefixDeployment)
 	x.NoError(err)
 
 	_, err = s.Control.Ungated.ApiKey().Add(ctx, rstr.ApiKeyAddRequest_builder{
@@ -143,6 +143,11 @@ func rosterUp(t *testing.T) *rostered0 {
 			// has sessions lasting their full length after a departure, and one
 			// warning line per person per minute saying so.
 			"/roster.HolderService/Get",
+
+			// And what a token one of its users pastes into a script stands
+			// for. Allowing this on an app's key is the whole of that trust
+			// decision, and it is one an operator makes per app.
+			"/payday.TokenService/Introspect",
 		},
 		Secret: sum,
 	}.Build())
@@ -165,7 +170,7 @@ func rosterUp(t *testing.T) *rostered0 {
 
 	// And a second key, for the operator side of the story: custody's may check
 	// a password and hear about a departure, and somebody else's may cause one.
-	admin, adminSum, err := rkeys.Mint()
+	admin, adminSum, err := rkeys.Mint(rkeys.PrefixDeployment)
 	x.NoError(err)
 
 	_, err = s.Control.Ungated.ApiKey().Add(ctx, rstr.ApiKeyAddRequest_builder{

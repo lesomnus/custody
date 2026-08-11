@@ -13,6 +13,7 @@ import (
 	"github.com/lesomnus/payday/auth/authsession"
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
+	"github.com/lesomnus/payday/pdpb"
 
 	rstr "github.com/lesomnus/roster/rstr"
 )
@@ -47,6 +48,32 @@ type Roster struct {
 	// as is how custody proves itself to roster. roster answers nothing
 	// anonymously, so this is a credential and not a label.
 	as auth.Provider
+}
+
+// Tokens is roster asked what one of its tokens stands for.
+//
+// A wrapper rather than the client, because the credential is applied per call
+// -- `Roster.as` is a [auth.Provider] and not something on the connection --
+// and `auth.Remote` is handed a client rather than a context. Two lines here
+// beat a second connection dialed with `auth.Inject` for the same reason
+// `Fresh` reuses this one: a deployment configures roster once.
+//
+// roster answers nothing anonymously, so without this every introspection is
+// `Unauthenticated`, which `auth.Remote` reads as the store being unreachable
+// -- correct, and an outage that reads as one nobody can find.
+type Tokens struct {
+	pdpb.TokenServiceClient
+
+	as auth.Provider
+}
+
+func (c Tokens) Introspect(ctx context.Context, in *pdpb.TokenIntrospectRequest, opts ...grpc.CallOption) (*pdpb.TokenIntrospectResponse, error) {
+	return c.TokenServiceClient.Introspect(c.as.Provide(ctx), in, opts...)
+}
+
+// Tokens answers what a token roster issued stands for.
+func (r *Roster) Tokens() pdpb.TokenServiceClient {
+	return Tokens{pdpb.NewTokenServiceClient(r.conn), r.as}
 }
 
 // DialRoster opens the connection, and does not check that anybody is there.

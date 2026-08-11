@@ -343,7 +343,7 @@ var File_app_asset_proto protoreflect.FileDescriptor
 
 const file_app_asset_proto_rawDesc = "" +
 	"\n" +
-	"\x0fapp/asset.proto\x12\x03app\x1a\x17app/payday/holder.proto\x1a\x17app/payday/tenant.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\xd8\x05\n" +
+	"\x0fapp/asset.proto\x12\x03app\x1a\x17app/payday/holder.proto\x1a\x17app/payday/tenant.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\xe6\x05\n" +
 	"\x05Asset\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12)\n" +
 	"\x06tenant\x18\x02 \x01(\v2\v.app.TenantB\x04\xf2\x82\x16\x00R\x06tenant\x12\x14\n" +
@@ -361,7 +361,7 @@ const file_app_asset_proto_rawDesc = "" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\xa4\x01\xca\xfc\x15o\x12\x02\x10\x01\x1a \x12\x04page\x1a\x10\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\xb2\x01\xca\xfc\x15o\x12\x02\x10\x01\x1a \x12\x04page\x1a\x10\n" +
 	"\fdate_created\x10\x0f\x1a\x06\n" +
 	"\x02id\x10\x01\x1a\x1f\x12\x04slug\x1a\t\n" +
 	"\x05alias\x10\x04\x1a\n" +
@@ -370,11 +370,17 @@ const file_app_asset_proto_rawDesc = "" +
 	"\n" +
 	"\x06listed\x10\n" +
 	"\x1a\x10\n" +
-	"\fdate_created\x10\x0f\x8a\xbb\x16-\b\a2'\n" +
-	"\x0e\n" +
-	"\fdate_created\n" +
-	"\x04\n" +
-	"\x02id\x1a\x03ref\x1a\x06listed \x14(d:\x00B&Z\x1fgithub.com/lesomnus/custody/api\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\fdate_created\x10\x0f\x8a\xbb\x16;\b\a25\n" +
+	"\x12\n" +
+	"\x10\n" +
+	"\fdate_created\x10\x0f\n" +
+	"\b\n" +
+	"\x06\n" +
+	"\x02id\x10\x01\x1a\x05\n" +
+	"\x03ref\x1a\n" +
+	"\n" +
+	"\x06listed\x10\n" +
+	" \x14(d:\x00B&Z\x1fgithub.com/lesomnus/custody/api\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
 var file_app_asset_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_app_asset_proto_goTypes = []any{

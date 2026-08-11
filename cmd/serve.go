@@ -216,7 +216,29 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		// `fresh.go` for what that replaced and why a check beats a stream
 		// here.
 		fresh = NewFresh(r)
-		h = auth.Seq(fresh.Wrap(sessions.Handler()), h)
+
+		// Three ways in, and each reads a different place: a cookie, an
+		// `authorization: Bearer` header, and whatever `h` already was.
+		//
+		// The middle one is new and is what lets somebody paste a token into a
+		// script. A cookie is between a browser and the app that set it; a
+		// token is a string custody cannot read, so it asks whoever issued it
+		// -- `payday.TokenService`, over the connection custody already holds
+		// and with the credential it already presents. See `auth.Remote`.
+		//
+		// It answers with the **holder**, so it resolves down the same path a
+		// session does. What the token was narrowed to arrives as a
+		// `frame.Grant` and takes away from whatever this app's policy decides,
+		// which is why nothing else here changes.
+		//
+		// Not wrapped in `fresh`: it is asked on every request already, so a
+		// token naming somebody roster has erased stops working at the next
+		// call rather than within a minute.
+		h = auth.Seq(
+			fresh.Wrap(sessions.Handler()),
+			auth.Bearer(auth.Remote(r.Tokens())),
+			h,
+		)
 	}
 
 	s := &Server{

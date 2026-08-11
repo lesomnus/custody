@@ -143,8 +143,11 @@ message Asset {
     // the caller may see, including the reads `Transfer` makes.
 
     list: {
-      order: [{field: "date_created"}, {field: "id"}]
-      by: ["ref", "listed"]
+      order: [
+        {field: {name: "date_created", number: 15}},
+        {field: {name: "id", number: 1}}
+      ]
+      by: [{name: "ref"}, {name: "listed", number: 10}]
       size: 20
       max: 100
     }
