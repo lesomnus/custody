@@ -2,8 +2,8 @@ edition = "2023";
 
 package app;
 
-import "payday/holder.proto";
-import "payday/tenant.proto";
+import "app/payday/holder.proto";
+import "app/payday/tenant.proto";
 import "google/protobuf/timestamp.proto";
 import "orm.proto";
 import "payday.proto";

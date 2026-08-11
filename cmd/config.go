@@ -51,6 +51,10 @@ type Config struct {
 	// be revoked or narrowed, and one written in a deployment's own file can.
 	Hq string `yaml:"hq"`
 
+	// Roster is where this deployment's people are, and where a password is
+	// checked. Nothing written down is an app with no sign-in form of its own.
+	Roster RosterConfig `yaml:"roster"`
+
 	// Auth is where credentials come from, and saying nothing is `Plain` --
 	// which believes whatever the caller writes.
 	//
@@ -123,3 +127,33 @@ type AuthConfig struct {
 // Serves reports whether this deployment verifies tokens rather than believing
 // its callers.
 func (c AuthConfig) Serves() bool { return c.Issuer != "" }
+
+// RosterConfig is the store this deployment's people live in.
+//
+// Nothing written down is a deployment with no sign-in form of its own: custody
+// then serves only callers arriving with a credential from somewhere else,
+// which is what `auth.issuer` is for.
+//
+// # This is not deployable yet
+//
+// `As` is an `auth.Plain` name, so custody tells roster who it is and is
+// believed. That is fine on one machine and an open door anywhere else: anybody
+// who can reach roster can claim to be custody and then guess passwords at
+// every tenant in the organisation.
+//
+// What replaces it is not a longer string. roster answers nothing anonymously,
+// so custody needs a **row** there -- and what that row is has not been
+// decided. `Holder` is a person, belongs to one tenant and is walled by it,
+// while custody acts across every tenant it has users in. Whether the
+// credential travels as a certificate or as an API key is the small half of
+// that question. See roster's PLAN.md.
+type RosterConfig struct {
+	// Addr is where roster answers, e.g. "roster:50051".
+	Addr string `yaml:"addr"`
+
+	// As is what custody calls itself there, as `@tenant/alias`.
+	As string `yaml:"as"`
+}
+
+// Serves reports whether this deployment can sign anybody in itself.
+func (c RosterConfig) Serves() bool { return c.Addr != "" }

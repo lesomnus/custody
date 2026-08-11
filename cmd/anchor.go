@@ -188,10 +188,15 @@ func ensureTenant(ctx context.Context, s app.Server, k pdid.Id, alias string) er
 		return err
 	}
 
-	if alias == "" {
-		alias = k.String()
-	}
-
+	// No alias when the credential named none, rather than one made from the
+	// identifier. A `pdid` written out is not an alias and payday refuses it --
+	// it has to begin with a lowercase letter -- so that fallback was a tenant
+	// that could never be created, found by a sign-in failing at 400 with a
+	// message about hyphens.
+	//
+	// What replaces it is nothing at all: `Sink.WithNamer` is unset, so
+	// `slug.Names` makes a name up when it was given none. The same answer the
+	// holder below gets, for the same reason.
 	_, err = s.Tenant().Add(ctx, app.TenantAddRequest_builder{
 		Id:    k.Bytes(),
 		Alias: alias,

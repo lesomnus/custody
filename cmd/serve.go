@@ -20,6 +20,7 @@ import (
 
 	"github.com/lesomnus/payday/auth"
 	"github.com/lesomnus/payday/auth/authoidc"
+	"github.com/lesomnus/payday/auth/authsession"
 	"github.com/lesomnus/payday/gate"
 	"github.com/lesomnus/payday/grpcx"
 	"github.com/lesomnus/payday/pdpb"
@@ -53,6 +54,13 @@ type Server struct {
 	// back would turn an unreachable provider into an open server, which is the
 	// one outcome worth being unable to reach by accident.
 	Auth auth.Handler
+
+	// Roster is where this deployment's people are, and Sessions is the
+	// sign-in that goes with it. Both are nil when nothing named a roster,
+	// which is a deployment that serves only callers arriving with a credential
+	// from somewhere else.
+	Roster   *Roster
+	Sessions *authsession.Sessions
 
 	// Watch is what a change is published to once the call that made it has
 	// answered. The broker is named rather than defaulted: the one that
@@ -174,7 +182,37 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		}
 	}
 
-	s := &Server{Db: db, Ent: client, Drv: drv, Watch: w, Walled: stacked, Ungated: ungated, Auth: h}
+	// The store this deployment's people live in, and the sign-in that goes
+	// with it. A browser has nowhere safe to keep a credential, so what it gets
+	// is an opaque cookie naming a session held here; see `auth/authsession`.
+	r, err := DialRoster(c.Roster)
+	if err != nil {
+		db.Close()
+		return nil, err
+	}
+
+	var sessions *authsession.Sessions
+	if r != nil {
+		// Kept in this process, which is right for one replica and **silently
+		// wrong** for two: a browser signed in on one is anonymous on the
+		// other, per request, with nothing saying why. The same trap `watch`'s
+		// memory broker carries, and it is why that one is named rather than
+		// defaulted. This one is not yet, which is written down in the README.
+		sessions = authsession.New(authsession.NewMemStore())
+
+		// Before whatever else reads a credential, and not instead of it. A
+		// deployment usually has both -- a browser with a cookie, a service
+		// with a token -- and `Seq` takes the first handler that finds
+		// anything, so a request with no cookie falls through while one with a
+		// dead cookie stops the search rather than becoming somebody else.
+		h = auth.Seq(sessions.Handler(), h)
+	}
+
+	s := &Server{
+		Db: db, Ent: client, Drv: drv, Watch: w,
+		Walled: stacked, Ungated: ungated, Auth: h,
+		Roster: r, Sessions: sessions,
+	}
 	if c.Watch.Outbox && b != nil {
 		// The loop that makes an event durable. It is not a layer and not a
 		// method on any server -- `spin.Run` finds it in whatever is handed
@@ -320,16 +358,24 @@ func (s *Server) serveHttp(ctx context.Context, c Config, g *grpc.Server) (func(
 		return nil, err
 	}
 
-	// Whatever this app serves over HTTP goes here, on the same mux and behind
-	// the same cross-origin answer. A login endpoint is the case payday left a
-	// seam for and cannot fill: `auth` reads a credential and does not issue
-	// one, and issuing is an HTTP endpoint.
-	//
-	//	h.Handle("/login", login(s.Ungated))
-	//
-	// A gRPC path is `/<service>/<method>`, so an ordinary route cannot collide
+	// The sign-in, on the same mux and behind the same cross-origin answer. A
+	// gRPC path is `/<service>/<method>`, so an ordinary route cannot collide
 	// with one -- and `ServeMux` panics rather than shadowing if one somehow
 	// does.
+	//
+	// Both methods on one resource: POST signs in, DELETE signs out. What
+	// DELETE buys over waiting for an expiry is that the key is dead in every
+	// browser at once, which is the thing a self-contained token cannot do.
+	//
+	// It answers 204 and no body. What a page needs about the person is a
+	// request it should make, against this same server and behind the same
+	// wall; an answer composed at sign-in is a second place to change when this
+	// app's idea of a person does.
+	if s.Sessions != nil {
+		login := s.Roster.Login()
+		h.Handle("POST /session", s.Sessions.Serve(login))
+		h.Handle("DELETE /session", s.Sessions.Serve(login))
+	}
 
 	l, err := net.Listen("tcp", c.Server.Http.Addr)
 	if err != nil {

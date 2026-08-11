@@ -2,10 +2,6 @@ module github.com/lesomnus/custody
 
 go 1.26.4
 
-// Until payday is tagged. custody tests against its main, which is the
-// direction that catches breakage: payday CI does not depend on this repo.
-replace github.com/lesomnus/payday => /workspace
-
 // The generators, as tools of this module.
 //
 // They are pinned here rather than by payday because a plugin is a Go program
@@ -32,16 +28,17 @@ require (
 	entgo.io/ent v0.14.6
 	github.com/google/uuid v1.6.0
 	github.com/lesomnus/otx v0.0.0-20260807173743-977a5687d6ba
-	github.com/lesomnus/payday v0.0.0-20260810155936-3e6746f1714f
+	github.com/lesomnus/payday v0.0.0-20260811113407-d13e6eb1c30f
 	github.com/lesomnus/protobuf-patch v0.0.0-20260803175157-e1b7a0c2804f
+	github.com/lesomnus/roster v0.0.0-00010101000000-000000000000
 	github.com/lesomnus/xli v0.0.0-20260717171524-bf8cac633057
 	github.com/lesomnus/z v0.0.0-20260531102454-3f1853bb4278
 	github.com/protobuf-orm/protobuf-orm v0.0.0-20260807003431-ce1156ba9f29
-	github.com/protobuf-orm/protoc-gen-orm-ent/runtime v0.0.0-20260810155854-895b3eb5257c
+	github.com/protobuf-orm/protoc-gen-orm-ent/runtime v0.0.0-20260810164648-915f5f574429
 	github.com/stretchr/testify v1.11.1
 	golang.org/x/sync v0.22.0
 	google.golang.org/grpc v1.83.0
-	google.golang.org/protobuf v1.36.11
+	google.golang.org/protobuf v1.36.12
 )
 
 require (
@@ -91,7 +88,7 @@ require (
 	github.com/petermattis/goid v0.0.0-20260113132338-7c7de50cc741 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/protobuf-orm/protobuf-merge v0.0.0-20260628173210-5ad3f89671df // indirect
-	github.com/protobuf-orm/protoc-gen-orm-ent v0.0.0-20260810155854-895b3eb5257c // indirect
+	github.com/protobuf-orm/protoc-gen-orm-ent v0.0.0-20260810164648-915f5f574429 // indirect
 	github.com/protobuf-orm/protoc-gen-orm-go v0.0.0-20260808062124-7336db3ccda7 // indirect
 	github.com/protobuf-orm/protoc-gen-orm-service v0.0.0-20260807210724-9ecafa02f5f7 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
@@ -110,6 +107,7 @@ require (
 	go.opentelemetry.io/otel/sdk/log v0.20.0 // indirect
 	go.opentelemetry.io/otel/sdk/metric v1.44.0 // indirect
 	go.opentelemetry.io/otel/trace v1.45.0 // indirect
+	golang.org/x/crypto v0.54.0 // indirect
 	golang.org/x/exp v0.0.0-20250911091902-df9299821621 // indirect
 	golang.org/x/mod v0.37.0 // indirect
 	golang.org/x/net v0.56.0 // indirect
@@ -123,3 +121,7 @@ require (
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.6.2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+// roster is private, so it cannot be fetched. Cloned beside this one it
+// resolves; published, this line goes. See README.
+replace github.com/lesomnus/roster => ../roster

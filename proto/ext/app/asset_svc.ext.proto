@@ -3,7 +3,7 @@ edition = "2023";
 package app;
 
 import "app/asset.proto";
-import "payday/tenant_svc.g.proto";
+import "app/payday/tenant_svc.g.proto";
 
 option go_package = "github.com/lesomnus/custody/api";
 
