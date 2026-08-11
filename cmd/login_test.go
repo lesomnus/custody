@@ -51,6 +51,10 @@ type rostered0 struct {
 
 	Addr  string
 	Token string
+
+	// Admin is a key that may erase somebody, which is what an operator or a
+	// console holds and custody's own key deliberately does not.
+	Admin string
 	Acme  pdid.Id
 	Who   pdid.Id
 }
@@ -59,6 +63,22 @@ func rostered(t *testing.T) (string, string, pdid.Id, pdid.Id) {
 	v := rosterUp(t)
 
 	return v.Addr, v.Token, v.Acme, v.Who
+}
+
+// erase removes somebody the way a deployment does: an RPC, so that the change
+// is published. See the note in `TestSomebodyWhoLeftIsSignedOut`.
+func (r *rostered0) erase(t *testing.T, who pdid.Id) error {
+	t.Helper()
+
+	conn, err := grpc.NewClient(r.Addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	require.NoError(t, err)
+	t.Cleanup(func() { conn.Close() })
+
+	ctx := auth.BearerProvider(r.Admin).Provide(t.Context())
+	_, err = rstr.NewHolderServiceClient(conn).Erase(ctx,
+		rstr.HolderRef_builder{Id: who.Bytes()}.Build())
+
+	return err
 }
 
 func rosterUp(t *testing.T) *rostered0 {
@@ -144,7 +164,23 @@ func rosterUp(t *testing.T) *rostered0 {
 	go func() { _ = g.Serve(l) }()
 	t.Cleanup(g.Stop)
 
-	return &rostered0{Server: s, Addr: l.Addr().String(), Token: token, Acme: acme, Who: who}
+	// And a second key, for the operator side of the story: custody's may check
+	// a password and hear about a departure, and somebody else's may cause one.
+	admin, adminSum, err := rkeys.Mint()
+	x.NoError(err)
+
+	_, err = s.Control.Ungated.ApiKey().Add(ctx, rstr.ApiKeyAddRequest_builder{
+		Holder:  rstr.HolderRef_builder{Id: svc.Bytes()}.Build(),
+		Alias:   "operator",
+		Methods: []string{"/roster.HolderService/Erase"},
+		Secret:  adminSum,
+	}.Build())
+	x.NoError(err)
+
+	return &rostered0{
+		Server: s, Addr: l.Addr().String(),
+		Token: token, Admin: admin, Acme: acme, Who: who,
+	}
 }
 
 // custodying is custody, dialling that roster, on an HTTP listener with a jar
@@ -380,16 +416,15 @@ func TestCustodysKeyCannotReadAnybody(t *testing.T) {
 	x.Equal(codes.PermissionDenied, status.Code(err), "custody erased somebody")
 }
 
-// TestSomebodyWhoLeftIsSignedOut is the sync channel, and it is **skipped**.
+// TestSomebodyWhoLeftIsSignedOut is the sync channel, end to end.
 //
-// What works: the stream opens, custody names the people it has anchored, and
-// the snapshot arrives. What does not: the erase never comes back as an item on
-// the open stream, so the session is never ended. See `sync.go` for the two
-// things learned on the way, both of which are real and neither of which is
-// this.
+// custody anchors an identifier and a tenant, neither of which changes. The
+// exception is the person: erased in roster they cannot sign in, and a session
+// issued an hour ago still has eleven left. So one fact travels.
 //
-// Skipped rather than deleted, because it is the assertion the feature exists
-// for and the next person to pick this up should start by running it.
+// It asserts a **session ending** rather than a message arriving, because three
+// separate things had to be right for it to and each of them failed by
+// producing a stream that opened, stayed open, and said nothing. See `sync.go`.
 //
 // custody's anchor carries nothing that can go stale -- an identifier, a
 // tenant. The exception is the person themselves: erased in roster, they can no
@@ -397,8 +432,6 @@ func TestCustodysKeyCannotReadAnybody(t *testing.T) {
 //
 // So one fact travels, over `Holder.Watch`, and it ends their sessions.
 func TestSomebodyWhoLeftIsSignedOut(t *testing.T) {
-	t.Skip("the erase does not arrive on an open Watch; see the comment above")
-
 	x := require.New(t)
 
 	rs := rosterUp(t)
@@ -423,10 +456,14 @@ func TestSomebodyWhoLeftIsSignedOut(t *testing.T) {
 	// what this test is about is the case the channel exists for.
 	time.Sleep(200 * time.Millisecond)
 
-	// roster erases them.
-	_, err := rs.Ungated.Holder().Erase(t.Context(),
-		rstr.HolderRef_builder{Id: who.Bytes()}.Build())
-	x.NoError(err)
+	// roster erases them, **over the wire**.
+	//
+	// Not through `Ungated`, which is what a harness reaches for and what does
+	// not work: a change is published by the gRPC interceptor after the call
+	// answers, so an in-process write through a server instance publishes
+	// nothing at all. A deployment erases somebody through its API, and a test
+	// that took the shortcut was testing a path no watcher can hear.
+	x.NoError(rs.erase(t, who))
 
 	// custody hears, and the browser is signed out. Polled rather than waited
 	// on a fixed sleep: what is being tested is that it arrives, not how fast.

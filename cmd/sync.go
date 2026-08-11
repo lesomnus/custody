@@ -45,24 +45,41 @@ import (
 // of the loop below: a `Watch` that ends is a `Watch` that is started again,
 // because the alternative is a deployment that stops hearing and says nothing.
 //
-// # What works, and what does not
+// # Three things that had to be right at once
 //
-// **Not finished.** The stream opens, the people custody anchored are named,
-// and the snapshot of them arrives. An erase on the other side does not come
-// back as an item, so nothing ends a session yet, and
-// `TestSomebodyWhoLeftIsSignedOut` is skipped rather than deleted.
+// Each of them silently produced a stream that opened, stayed open, and never
+// said anything -- which is the failure mode a sync channel has, and why the
+// test asserts a session ending rather than a message arriving.
 //
-// Two things were learned getting this far and both are real:
+//   - **The snapshot has to be taken.** A watch will not report a row
+//     disappearing to a subscriber it never reported the row to: "a row that
+//     never matched is not news". With `skip_snapshot` an erase of somebody
+//     anchored months ago is dropped, and skipping it looks like the obvious
+//     saving.
+//   - **The signal is the value being absent, not the action.** An action is
+//     the full name of the RPC that wrote -- `/roster.HolderService/Erase` --
+//     so a check for the string "erase" never matches. It is also the wrong
+//     thing to look at: a row leaves a subscriber's view by being erased, by
+//     moving out of their tenants, or by no longer matching, and all three mean
+//     the same thing here.
+//   - **The write has to go over the wire.** A change is published by the gRPC
+//     interceptor after the call answers, so an erase made in process through a
+//     server instance publishes nothing. That is a property of `Ungated` worth
+//     knowing generally: it is the door a deployment does its own work through,
+//     and nothing watching hears any of it.
 //
-//   - **`skip_snapshot` drops the only event this wants.** A watch will not
-//     report a row disappearing to a subscriber it never reported the row to --
-//     "a row that never matched is not news" -- so with the snapshot skipped an
-//     erase of somebody anchored months ago is silently dropped.
-//   - **A filter naming somebody already erased is refused.** The snapshot runs
-//     the same `List` a caller would, and a ref to a gone row is `NotFound`, so
-//     a stream re-opened after a departure fails for **everybody** and keeps
-//     failing. Whatever finishes this needs to reconcile rather than only
-//     stream.
+// # A gap that is left
+//
+// A filter naming somebody **already** erased is refused: the snapshot runs the
+// same `List` a caller would, and a ref to a gone row is `NotFound` -- so a
+// stream re-opened after a departure fails for everybody and keeps failing
+// until the next `Refresh` drops that person from the filters. custody rebuilds
+// the filters from its own anchors, which still hold the erased person, so this
+// does not resolve on its own.
+//
+// Finishing it means reconciling: on `NotFound`, ask which of the anchored are
+// still there and treat the rest as gone. That is the same answer this stream
+// gives, arrived at the slow way, and it is what makes a restart safe.
 //
 // # What it does with one
 //
@@ -226,13 +243,21 @@ func (s *Sync) watch(ctx context.Context) error {
 	}
 }
 
-// gone ends the sessions of somebody roster erased.
+// gone ends the sessions of somebody this stream can no longer see.
 //
-// An erase and nothing else. A rename, a new address, a changed department are
-// roster's and are read when there is a screen to draw -- reacting to them here
-// would be the replica this design exists to avoid.
+// **The value being absent** is the signal, and not the action. An action is
+// the full name of the RPC that made the write -- `/roster.HolderService/Erase`
+// -- which this checked for the string "erase" and therefore never matched.
+// That was the bug, and the shorter name is also the wrong thing to look at: a
+// row can leave a subscriber's view by being erased, by moving out of the
+// tenants they may see, or by stopping to match their filter, and to custody
+// all three mean the same thing.
+//
+// A row that is still there is not news. A rename, a new address, a changed
+// department are roster's, and reacting to them here would build the replica
+// this design exists to avoid.
 func (s *Sync) gone(ctx context.Context, v *rstr.HolderWatchItem) {
-	if v.GetAction() != "erase" {
+	if v.GetValue() != nil {
 		return
 	}
 
