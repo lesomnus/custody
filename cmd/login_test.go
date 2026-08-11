@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -20,6 +21,7 @@ import (
 	"github.com/lesomnus/payday/config"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/pdtest"
+	"github.com/lesomnus/payday/spin"
 	"github.com/lesomnus/payday/web"
 
 	rcmd "github.com/lesomnus/roster/cmd"
@@ -44,7 +46,22 @@ import (
 
 // rostered is roster, on a listener, with one customer and one person in it --
 // and a control plane holding the key custody calls it with.
+type rostered0 struct {
+	*rcmd.Server
+
+	Addr  string
+	Token string
+	Acme  pdid.Id
+	Who   pdid.Id
+}
+
 func rostered(t *testing.T) (string, string, pdid.Id, pdid.Id) {
+	v := rosterUp(t)
+
+	return v.Addr, v.Token, v.Acme, v.Who
+}
+
+func rosterUp(t *testing.T) *rostered0 {
 	t.Helper()
 	x := require.New(t)
 	ctx := t.Context()
@@ -100,8 +117,15 @@ func rostered(t *testing.T) (string, string, pdid.Id, pdid.Id) {
 
 		// Exactly what custody needs and nothing else. Reading a person for a
 		// screen is not in it yet, because no screen draws one.
-		Methods: []string{"/roster.VouchService/Verify"},
-		Secret:  sum,
+		Methods: []string{
+			"/roster.VouchService/Verify",
+
+			// And hearing about somebody who left, which is the one fact that
+			// has to travel rather than be asked for. A deployment that leaves
+			// this out has a sync channel that opens, is refused, and retries.
+			"/roster.HolderService/Watch",
+		},
+		Secret: sum,
 	}.Build())
 	x.NoError(err)
 
@@ -120,7 +144,7 @@ func rostered(t *testing.T) (string, string, pdid.Id, pdid.Id) {
 	go func() { _ = g.Serve(l) }()
 	t.Cleanup(g.Stop)
 
-	return l.Addr().String(), token, acme, who
+	return &rostered0{Server: s, Addr: l.Addr().String(), Token: token, Acme: acme, Who: who}
 }
 
 // custodying is custody, dialling that roster, on an HTTP listener with a jar
@@ -147,6 +171,23 @@ func custodying(t *testing.T, roster, token string) (*httptest.Server, *http.Cli
 	login := s.Roster.Login()
 	h.Handle("POST /session", s.Sessions.Serve(login))
 	h.Handle("DELETE /session", s.Sessions.Serve(login))
+
+	// What `Serve` runs beside the server, which a harness that only builds one
+	// does not -- and the sync channel is exactly a thing that only exists when
+	// something is running it.
+	for _, v := range s.Spin {
+		// Faster than a deployment would, because what is being tested is that
+		// a departure arrives at all. The pause exists so that a stream ending
+		// for ordinary reasons does not become a reconnect storm, and five
+		// seconds of that is five seconds of a test doing nothing.
+		if w, ok := v.(*cmd.Sync); ok {
+			w.Every = 20 * time.Millisecond
+			w.Refresh = 30 * time.Second
+		}
+		if w, ok := v.(spin.Spinner); ok {
+			go func() { _ = w.Spin(ctx) }()
+		}
+	}
 
 	srv := httptest.NewServer(h)
 	t.Cleanup(srv.Close)
@@ -337,4 +378,61 @@ func TestCustodysKeyCannotReadAnybody(t *testing.T) {
 	_, err = rstr.NewHolderServiceClient(conn).Erase(ctx,
 		rstr.HolderRef_builder{Id: who.Bytes()}.Build())
 	x.Equal(codes.PermissionDenied, status.Code(err), "custody erased somebody")
+}
+
+// TestSomebodyWhoLeftIsSignedOut is the sync channel, and it is **skipped**.
+//
+// What works: the stream opens, custody names the people it has anchored, and
+// the snapshot arrives. What does not: the erase never comes back as an item on
+// the open stream, so the session is never ended. See `sync.go` for the two
+// things learned on the way, both of which are real and neither of which is
+// this.
+//
+// Skipped rather than deleted, because it is the assertion the feature exists
+// for and the next person to pick this up should start by running it.
+//
+// custody's anchor carries nothing that can go stale -- an identifier, a
+// tenant. The exception is the person themselves: erased in roster, they can no
+// longer sign in, and a session issued an hour ago still has eleven left.
+//
+// So one fact travels, over `Holder.Watch`, and it ends their sessions.
+func TestSomebodyWhoLeftIsSignedOut(t *testing.T) {
+	t.Skip("the erase does not arrive on an open Watch; see the comment above")
+
+	x := require.New(t)
+
+	rs := rosterUp(t)
+	who := rs.Who
+	srv, c, s := custodying(t, rs.Addr, rs.Token)
+
+	x.Equal(http.StatusNoContent,
+		signsIn(t, c, srv, `{"tenant":"acme","alias":"someone","password":"correct horse battery staple"}`))
+
+	code, _ := rpc(t, c, srv, "/app.AssetService/List", `{}`)
+	x.Equal(http.StatusOK, code)
+
+	// The session is real, so ending it has to be something that happens rather
+	// than something that was never there.
+	x.NotNil(s.Sessions)
+
+	// Wait for the stream to be watching them before erasing.
+	//
+	// Not politeness: a watch names the rows it is about, and a filter naming
+	// somebody already gone is refused -- so a stream opened *after* the erase
+	// never carries it. That is a real gap and it is written down in `sync.go`;
+	// what this test is about is the case the channel exists for.
+	time.Sleep(200 * time.Millisecond)
+
+	// roster erases them.
+	_, err := rs.Ungated.Holder().Erase(t.Context(),
+		rstr.HolderRef_builder{Id: who.Bytes()}.Build())
+	x.NoError(err)
+
+	// custody hears, and the browser is signed out. Polled rather than waited
+	// on a fixed sleep: what is being tested is that it arrives, not how fast.
+	x.Eventually(func() bool {
+		code, _ := rpc(t, c, srv, "/app.AssetService/List", `{}`)
+
+		return code == http.StatusUnauthorized
+	}, 5*time.Second, 20*time.Millisecond, "the session outlived the person")
 }

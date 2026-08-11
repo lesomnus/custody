@@ -192,13 +192,15 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	}
 
 	var sessions *authsession.Sessions
+	var store *Sessions
 	if r != nil {
 		// Kept in this process, which is right for one replica and **silently
 		// wrong** for two: a browser signed in on one is anonymous on the
 		// other, per request, with nothing saying why. The same trap `watch`'s
 		// memory broker carries, and it is why that one is named rather than
 		// defaulted. This one is not yet, which is written down in the README.
-		sessions = authsession.New(authsession.NewMemStore())
+		store = NewSessions()
+		sessions = authsession.New(store)
 
 		// Before whatever else reads a credential, and not instead of it. A
 		// deployment usually has both -- a browser with a cookie, a service
@@ -212,6 +214,11 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		Db: db, Ent: client, Drv: drv, Watch: w,
 		Walled: stacked, Ungated: ungated, Auth: h,
 		Roster: r, Sessions: sessions,
+	}
+	if r != nil {
+		// Hearing about somebody who left, which is the one fact roster owns
+		// that goes stale here. See `sync.go`.
+		s.Spin = append(s.Spin, NewSync(r, client, store))
 	}
 	if c.Watch.Outbox && b != nil {
 		// The loop that makes an event durable. It is not a layer and not a
