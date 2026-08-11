@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/lesomnus/z"
@@ -54,7 +55,7 @@ func OnDemand(s app.Server) auth.Resolver {
 
 	return auth.ResolverFunc(func(ctx context.Context, id auth.Identity) (*frame.Frame, error) {
 		f, err := known.Resolve(ctx, id)
-		if err == nil || status.Code(err) != codes.NotFound {
+		if err == nil || !errors.Is(err, auth.ErrNoCredential) {
 			return f, err
 		}
 
@@ -62,6 +63,11 @@ func OnDemand(s app.Server) auth.Resolver {
 		// credential, and the credential has already been verified -- roster
 		// decided this person exists and which tenant holds them, and the
 		// signature is why that decision is trusted here.
+		//
+		// Read as `ErrNoCredential` and not as a `NotFound` code, which is what
+		// this used to look for. `auth.Resolver` asks for that error for a
+		// credential naming nobody who is here, so it is the contract rather
+		// than a detail of how the call above happens to fail today.
 		if err := anchor(ctx, s, id); err != nil {
 			return nil, err
 		}
