@@ -10,6 +10,12 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/status"
+
+	"github.com/lesomnus/payday/auth"
 
 	"github.com/lesomnus/payday/config"
 	"github.com/lesomnus/payday/pdid"
@@ -18,6 +24,7 @@ import (
 
 	rcmd "github.com/lesomnus/roster/cmd"
 	rstr "github.com/lesomnus/roster/rstr"
+	rkeys "github.com/lesomnus/roster/server/keys"
 	rvouch "github.com/lesomnus/roster/server/vouch"
 
 	"github.com/lesomnus/custody/cmd"
@@ -30,26 +37,30 @@ import (
 // can is that the pieces line up -- roster's answer is what custody's session
 // needs, and custody's session is what its resolver can anchor.
 //
-// It is **not** a deployable arrangement, and the reason is in [cmd.RosterConfig]:
-// custody names itself to roster with `auth.Plain`, which is believed. What has
-// to replace it is a decision about what custody *is* inside roster, and this
-// test exists partly to make that question concrete.
+// custody proves itself with a key roster's owner minted for it, and that key
+// allows exactly `VouchService/Verify` -- so this also covers the thing an
+// operator most wants to be true: the service that checks passwords cannot read
+// or erase anybody.
 
-// rostered is roster, on a listener, with one customer and one person in it.
-func rostered(t *testing.T) (string, pdid.Id, pdid.Id) {
+// rostered is roster, on a listener, with one customer and one person in it --
+// and a control plane holding the key custody calls it with.
+func rostered(t *testing.T) (string, string, pdid.Id, pdid.Id) {
 	t.Helper()
 	x := require.New(t)
 	ctx := t.Context()
 
 	drv, dsn := pdtest.DB(t)
+	cdrv, cdsn := pdtest.DB(t)
 
 	s, err := rcmd.Build(ctx, rcmd.Config{
-		Db:    config.DbConfig{Driver: drv, Dsn: dsn},
-		Watch: config.WatchConfig{Broker: config.BrokerMemory},
+		Db:      config.DbConfig{Driver: drv, Dsn: dsn},
+		Watch:   config.WatchConfig{Broker: config.BrokerMemory},
+		Control: rcmd.ControlConfig{Db: config.DbConfig{Driver: cdrv, Dsn: cdsn}},
 	})
 	x.NoError(err)
 	t.Cleanup(func() { s.Close() })
 	x.NoError(s.Ent.Schema.Create(ctx))
+	x.NoError(s.Control.Ent.Schema.Create(ctx))
 
 	tenant := func(alias string) pdid.Id {
 		v, err := s.Ungated.Tenant().Add(ctx, rstr.TenantAddRequest_builder{Alias: alias}.Build())
@@ -74,13 +85,25 @@ func rostered(t *testing.T) (string, pdid.Id, pdid.Id) {
 	acme := tenant("acme")
 	who := holder(acme, "someone")
 
-	// And custody itself, because roster answers nothing anonymously and
-	// `Resolver` turns a credential into a **row**. This is the whole of the
-	// open question: custody is not a person, holds no tenant of its own, and
-	// acts across every tenant it has users in -- and here it is, a Holder in a
-	// tenant called `svc`, because that is what fits today.
-	tenant("svc")
-	holder(tenantOf(t, s, "svc"), "custody")
+	// And custody, in the **control plane**: a holder of the owner's one
+	// tenant, with a key under it. `roster key add --service custody` is this,
+	// and it makes what it needs on the way.
+	svc, err := rcmd.ServiceOf(ctx, s.Control, "custody")
+	x.NoError(err)
+
+	token, sum, err := rkeys.Mint()
+	x.NoError(err)
+
+	_, err = s.Control.Ungated.ApiKey().Add(ctx, rstr.ApiKeyAddRequest_builder{
+		Holder: rstr.HolderRef_builder{Id: svc.Bytes()}.Build(),
+		Alias:  "production",
+
+		// Exactly what custody needs and nothing else. Reading a person for a
+		// screen is not in it yet, because no screen draws one.
+		Methods: []string{"/roster.VouchService/Verify"},
+		Secret:  sum,
+	}.Build())
+	x.NoError(err)
 
 	// The password, set through the RPC that hashes it. Nothing else in either
 	// app can write this column with a value that verifies.
@@ -97,26 +120,12 @@ func rostered(t *testing.T) (string, pdid.Id, pdid.Id) {
 	go func() { _ = g.Serve(l) }()
 	t.Cleanup(g.Stop)
 
-	return l.Addr().String(), acme, who
-}
-
-func tenantOf(t *testing.T, s *rcmd.Server, alias string) pdid.Id {
-	t.Helper()
-
-	v, err := s.Ungated.Tenant().Get(t.Context(), rstr.TenantGetRequest_builder{
-		Ref: rstr.TenantRef_builder{Alias: &alias}.Build(),
-	}.Build())
-	require.NoError(t, err)
-
-	k, err := pdid.From(v.GetId())
-	require.NoError(t, err)
-
-	return k
+	return l.Addr().String(), token, acme, who
 }
 
 // custodying is custody, dialling that roster, on an HTTP listener with a jar
 // in front of it -- which is what a browser is.
-func custodying(t *testing.T, roster string) (*httptest.Server, *http.Client, *cmd.Server) {
+func custodying(t *testing.T, roster, token string) (*httptest.Server, *http.Client, *cmd.Server) {
 	t.Helper()
 	x := require.New(t)
 	ctx := t.Context()
@@ -126,7 +135,7 @@ func custodying(t *testing.T, roster string) (*httptest.Server, *http.Client, *c
 	s, err := cmd.Build(ctx, cmd.Config{
 		Db:     config.DbConfig{Driver: drv, Dsn: dsn},
 		Watch:  config.WatchConfig{Broker: config.BrokerMemory},
-		Roster: cmd.RosterConfig{Addr: roster, As: "@svc/custody"},
+		Roster: cmd.RosterConfig{Addr: roster, Token: token},
 	})
 	x.NoError(err)
 	t.Cleanup(func() { s.Close() })
@@ -182,8 +191,8 @@ func rpc(t *testing.T, c *http.Client, srv *httptest.Server, method, body string
 func TestSomebodySignsInToCustodyWithAPasswordRosterHolds(t *testing.T) {
 	x := require.New(t)
 
-	addr, _, who := rostered(t)
-	srv, c, s := custodying(t, addr)
+	addr, token, _, who := rostered(t)
+	srv, c, s := custodying(t, addr, token)
 
 	// Nothing here yet: custody has never seen this person, which is the fact
 	// `OnDemand` is built around.
@@ -218,8 +227,8 @@ func TestSomebodySignsInToCustodyWithAPasswordRosterHolds(t *testing.T) {
 func TestAWrongPasswordSignsNobodyIn(t *testing.T) {
 	x := require.New(t)
 
-	addr, _, _ := rostered(t)
-	srv, c, s := custodying(t, addr)
+	addr, token, _, _ := rostered(t)
+	srv, c, s := custodying(t, addr, token)
 
 	x.Equal(http.StatusUnauthorized,
 		signsIn(t, c, srv, `{"tenant":"acme","alias":"someone","password":"hunter2"}`))
@@ -237,8 +246,8 @@ func TestAWrongPasswordSignsNobodyIn(t *testing.T) {
 func TestSomebodyRosterHasNeverHeardOf(t *testing.T) {
 	x := require.New(t)
 
-	addr, _, _ := rostered(t)
-	srv, c, _ := custodying(t, addr)
+	addr, token, _, _ := rostered(t)
+	srv, c, _ := custodying(t, addr, token)
 
 	x.Equal(http.StatusUnauthorized,
 		signsIn(t, c, srv, `{"tenant":"acme","alias":"nobody","password":"correct horse battery staple"}`))
@@ -248,8 +257,8 @@ func TestSomebodyRosterHasNeverHeardOf(t *testing.T) {
 func TestSigningOutStopsTheNextCall(t *testing.T) {
 	x := require.New(t)
 
-	addr, _, _ := rostered(t)
-	srv, c, _ := custodying(t, addr)
+	addr, token, _, _ := rostered(t)
+	srv, c, _ := custodying(t, addr, token)
 
 	x.Equal(http.StatusNoContent,
 		signsIn(t, c, srv, `{"tenant":"acme","alias":"someone","password":"correct horse battery staple"}`))
@@ -275,8 +284,8 @@ func TestSigningOutStopsTheNextCall(t *testing.T) {
 func TestTheSessionCarriesNoPassword(t *testing.T) {
 	x := require.New(t)
 
-	addr, _, _ := rostered(t)
-	srv, c, s := custodying(t, addr)
+	addr, token, _, _ := rostered(t)
+	srv, c, s := custodying(t, addr, token)
 
 	x.Equal(http.StatusNoContent,
 		signsIn(t, c, srv, `{"tenant":"acme","alias":"someone","password":"correct horse battery staple"}`))
@@ -301,4 +310,31 @@ func mustURL(t *testing.T, s string) *url.URL {
 	require.NoError(t, err)
 
 	return u
+}
+
+// TestCustodysKeyCannotReadAnybody is what an operator most wants to be true of
+// the service that checks passwords.
+//
+// The key allows `VouchService/Verify` and nothing else, so custody can ask
+// whether a password is right and cannot read a person, change one, or erase
+// one -- even though it holds a credential for the store that could.
+func TestCustodysKeyCannotReadAnybody(t *testing.T) {
+	x := require.New(t)
+
+	addr, token, _, who := rostered(t)
+
+	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	x.NoError(err)
+	t.Cleanup(func() { conn.Close() })
+
+	ctx := auth.BearerProvider(token).Provide(t.Context())
+
+	_, err = rstr.NewHolderServiceClient(conn).Get(ctx, rstr.HolderGetRequest_builder{
+		Ref: rstr.HolderRef_builder{Id: who.Bytes()}.Build(),
+	}.Build())
+	x.Equal(codes.PermissionDenied, status.Code(err), "custody read a person")
+
+	_, err = rstr.NewHolderServiceClient(conn).Erase(ctx,
+		rstr.HolderRef_builder{Id: who.Bytes()}.Build())
+	x.Equal(codes.PermissionDenied, status.Code(err), "custody erased somebody")
 }

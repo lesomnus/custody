@@ -134,25 +134,32 @@ func (c AuthConfig) Serves() bool { return c.Issuer != "" }
 // then serves only callers arriving with a credential from somewhere else,
 // which is what `auth.issuer` is for.
 //
-// # This is not deployable yet
+// # The key
 //
-// `As` is an `auth.Plain` name, so custody tells roster who it is and is
-// believed. That is fine on one machine and an open door anywhere else: anybody
-// who can reach roster can claim to be custody and then guess passwords at
-// every tenant in the organisation.
+// `Token` is what roster's owner minted for this service -- `roster key add
+// --service custody --allow …` -- and it says which methods custody may call.
+// It is a secret: keep it in the environment (`CUSTODY_ROSTER_TOKEN`) or in a
+// secret manager rather than in a file somebody commits.
 //
-// What replaces it is not a longer string. roster answers nothing anonymously,
-// so custody needs a **row** there -- and what that row is has not been
-// decided. `Holder` is a person, belongs to one tenant and is walled by it,
-// while custody acts across every tenant it has users in. Whether the
-// credential travels as a certificate or as an API key is the small half of
-// that question. See roster's PLAN.md.
+// What custody needs allowed is small, and worth writing down where somebody
+// setting this up will read it:
+//
+//	/roster.VouchService/Verify      checking a password
+//	/roster.HolderService/Get, List  a name for a screen
+//
+// Not `VouchService/Set` -- changing a password belongs to whatever account
+// portal owns the person -- and not `Holder` writes, since custody does not own
+// the people it serves.
+//
+// # It travels in cleartext unless a deployment says otherwise
+//
+// A key goes on every call, so this wants TLS before it leaves one machine.
 type RosterConfig struct {
 	// Addr is where roster answers, e.g. "roster:50051".
 	Addr string `yaml:"addr"`
 
-	// As is what custody calls itself there, as `@tenant/alias`.
-	As string `yaml:"as"`
+	// Token is the API key roster's owner minted for this service.
+	Token string `yaml:"token"`
 }
 
 // Serves reports whether this deployment can sign anybody in itself.

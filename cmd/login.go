@@ -45,8 +45,8 @@ import (
 type Roster struct {
 	conn *grpc.ClientConn
 
-	// as is how custody names itself to roster. roster is called by machines
-	// and answers nothing anonymously, so this is a credential and not a label.
+	// as is how custody proves itself to roster. roster answers nothing
+	// anonymously, so this is a credential and not a label.
 	as auth.Provider
 }
 
@@ -61,14 +61,15 @@ func DialRoster(c RosterConfig) (*Roster, error) {
 		return nil, nil
 	}
 
-	// Cleartext, which is what `Plain` below already implies. See
-	// [RosterConfig] for what has to be true before this is deployed.
+	// Cleartext, which is wrong anywhere the network is not. A key travels on
+	// every call, so this needs TLS before it leaves one machine -- and that is
+	// a deployment's to configure rather than something this can decide.
 	conn, err := grpc.NewClient(c.Addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, fmt.Errorf("roster: %w", err)
 	}
 
-	return &Roster{conn: conn, as: auth.PlainProvider(c.As)}, nil
+	return &Roster{conn: conn, as: auth.BearerProvider(c.Token)}, nil
 }
 
 func (r *Roster) Close() error {
